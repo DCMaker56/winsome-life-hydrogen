@@ -1,0 +1,374 @@
+{
+  "$comment": "The Winsome Life illustration library plan. The generation runner expands every (niche → subject) × (style) into one illustration named {niche}/{subjectSlug}-{styleKey}. Prompts are FIXED; only [SUBJECT] changes. Keep this file as the single source of truth.",
+  "version": 1,
+  "styles": [
+    {
+      "key": "watercolor",
+      "name": "Watercolor",
+      "feel": "Soft, artistic, classic",
+      "prompt": "Create a hand-painted watercolor illustration of a [SUBJECT]. Use soft watercolor washes with subtle pigment variation and visible watercolor texture. Colors should be natural and slightly muted rather than overly saturated. Include gentle shading and realistic proportions with crisp but painterly edges. Avoid heavy outlines, cartoon styling, or clipart appearance. The illustration should feel elegant, timeless, and suitable for luxury personalized stationery. Isolate the artwork on a pure white background with no shadows or additional elements."
+    },
+    {
+      "key": "heritage-sketch",
+      "name": "Heritage Sketch",
+      "feel": "Timeless, sophisticated, heirloom-quality",
+      "prompt": "Create a highly detailed black-and-white pen-and-ink illustration of a [SUBJECT]. Use fine crosshatching, stippling, engraved line work, and intricate texture to create depth and realism. The illustration should resemble a vintage natural history engraving or 19th-century scientific field guide illustration. No color. No grayscale shading. White background only. The artwork should feel refined, timeless, and suitable for luxury stationery."
+    },
+    {
+      "key": "modern-graphic",
+      "name": "Modern Graphic",
+      "feel": "Clean, fresh, contemporary",
+      "prompt": "Create a clean modern digital illustration of a [SUBJECT] using simplified geometric shapes, flat colors, subtle texture, and minimal shading. Maintain realistic proportions while using a contemporary vector-inspired aesthetic. Avoid heavy outlines, clipart appearance, cartoon exaggeration, or photorealism. Colors should be sophisticated and harmonious with a premium lifestyle brand. Isolate on a white background."
+    }
+  ],
+  "universalSuffix": "Centered composition. Single subject only. White background. No text. No borders. No drop shadows. No watermark. No decorative elements. High resolution. Consistent proportions. Designed for printing on luxury stationery.",
+  "negativePrompt": "cartoon, anime, mascot, logo, clipart, emoji, low detail, blurry, photorealistic, background scene, people, text, watermark, border, sticker outline, excessive shadows, glossy effects, 3D render",
+  "niches": [
+    {
+      "key": "sports",
+      "label": "Sports",
+      "collectionHandle": "sports-1",
+      "pilot": true,
+      "subjects": [
+        "pickleball paddle with a ball",
+        "crossed tennis rackets with a ball",
+        "golf clubs with a golf ball on a tee",
+        "volleyball",
+        "soccer ball",
+        "basketball",
+        "baseball with a leather glove",
+        "American football",
+        "crossed lacrosse sticks",
+        "ice hockey sticks with a puck",
+        "swimming goggles",
+        "running shoe",
+        "gymnastics balance beam",
+        "ballet slippers",
+        "cheerleading pom-poms",
+        "equestrian riding helmet and crop",
+        "surfboard",
+        "bicycle",
+        "boxing gloves",
+        "ski and poles"
+      ]
+    },
+    {
+      "key": "dogs-cats",
+      "label": "Dogs & Cats",
+      "collectionHandle": "dogs",
+      "ipNote": "Breeds are safe; no branded/trademarked characters.",
+      "subjects": [
+        "golden retriever",
+        "labrador retriever",
+        "german shepherd",
+        "french bulldog",
+        "poodle",
+        "beagle",
+        "dachshund",
+        "cavalier king charles spaniel",
+        "border collie",
+        "corgi",
+        "goldendoodle",
+        "boxer dog",
+        "great dane",
+        "bernese mountain dog",
+        "shih tzu",
+        "australian shepherd",
+        "tabby cat",
+        "siamese cat",
+        "orange tabby kitten",
+        "black cat"
+      ]
+    },
+    {
+      "key": "floral",
+      "label": "Floral",
+      "collectionHandle": "floral",
+      "subjects": [
+        "peony bloom",
+        "blue hydrangea",
+        "garden rose",
+        "magnolia flower",
+        "tulip",
+        "ranunculus",
+        "anemone flower",
+        "dahlia",
+        "sunflower",
+        "lavender sprig",
+        "cherry blossom branch",
+        "eucalyptus sprig",
+        "olive branch",
+        "wildflower bouquet",
+        "sweet pea flowers"
+      ]
+    },
+    {
+      "key": "seaside",
+      "label": "Seaside",
+      "collectionHandle": "seaside",
+      "subjects": [
+        "sailboat",
+        "seahorse",
+        "starfish",
+        "scallop seashell",
+        "sea turtle",
+        "coral branch",
+        "anchor",
+        "lighthouse",
+        "crab",
+        "nautilus shell",
+        "palm frond",
+        "beach umbrella",
+        "sand dollar",
+        "dolphin"
+      ]
+    },
+    {
+      "key": "nature",
+      "label": "Nature",
+      "collectionHandle": "nature-1",
+      "subjects": [
+        "monarch butterfly",
+        "honeybee",
+        "songbird on a branch",
+        "acorn and oak leaf",
+        "pinecone",
+        "fern frond",
+        "mushroom",
+        "dragonfly",
+        "hummingbird",
+        "maple leaf",
+        "mountain range",
+        "evergreen tree"
+      ]
+    },
+    {
+      "key": "baby-child",
+      "label": "Baby & Child",
+      "collectionHandle": "baby",
+      "subjects": [
+        "baby rattle",
+        "rocking horse",
+        "teddy bear",
+        "baby carriage",
+        "hot air balloon",
+        "toy sailboat",
+        "baby booties",
+        "wooden alphabet block",
+        "kite",
+        "moon and stars",
+        "bunny rabbit",
+        "baby elephant"
+      ]
+    },
+    {
+      "key": "travel",
+      "label": "Travel",
+      "collectionHandle": "travel",
+      "subjects": [
+        "vintage suitcase",
+        "hot air balloon",
+        "compass rose",
+        "world globe",
+        "passport with stamps",
+        "Eiffel Tower",
+        "vintage airplane",
+        "camera",
+        "mountain and pine landscape",
+        "vintage map scroll",
+        "luggage tag",
+        "sailboat on waves"
+      ]
+    },
+    {
+      "key": "military",
+      "label": "Military",
+      "collectionHandle": "military",
+      "ipNote": "Generic patriotic/service motifs only. No official unit insignia, rank devices, or trademarked emblems.",
+      "subjects": [
+        "American flag",
+        "bald eagle",
+        "folded flag with laurel",
+        "anchor (naval)",
+        "military dog tags",
+        "five-pointed star",
+        "laurel wreath",
+        "compass"
+      ]
+    },
+    {
+      "key": "teacher",
+      "label": "Teachers",
+      "collectionHandle": "teacher",
+      "subjects": [
+        "stack of books",
+        "red apple",
+        "graduation cap",
+        "pencil",
+        "chalkboard and easel",
+        "globe on a stand",
+        "paint palette and brush",
+        "ruler and compass",
+        "potted classroom plant",
+        "gold star"
+      ]
+    },
+    {
+      "key": "family-couples",
+      "label": "Family & Couples",
+      "collectionHandle": "family-couples",
+      "subjects": [
+        "wedding rings",
+        "two doves",
+        "heart with laurel",
+        "champagne coupes toasting",
+        "wedding bells",
+        "love birds on a branch",
+        "monogram wreath",
+        "wedding cake"
+      ]
+    },
+    {
+      "key": "business",
+      "label": "Business & Professional",
+      "collectionHandle": "business-professional",
+      "subjects": [
+        "fountain pen",
+        "briefcase",
+        "laurel crest",
+        "quill and inkwell",
+        "wax seal stamp",
+        "monogram medallion",
+        "coffee cup",
+        "typewriter"
+      ]
+    },
+    {
+      "key": "christian",
+      "label": "Christian",
+      "collectionHandle": "christian-1",
+      "subjects": [
+        "simple cross",
+        "dove with olive branch",
+        "praying hands",
+        "open Bible",
+        "ichthys fish symbol",
+        "lamb",
+        "olive branch wreath",
+        "chalice"
+      ]
+    },
+    {
+      "key": "hobbies",
+      "label": "Affinity & Hobbies",
+      "collectionHandle": "affinity-hobbies",
+      "subjects": [
+        "mahjong tile",
+        "playing cards fanned out",
+        "bridge card suits",
+        "chess knight piece",
+        "watering can with flowers",
+        "chef's whisk and spoon",
+        "wine glass and grapes",
+        "coffee French press",
+        "stack of books with bookmark",
+        "musical treble clef",
+        "artist paint palette",
+        "knitting yarn and needles",
+        "fishing lure",
+        "sailboat wheel",
+        "vinyl record",
+        "camera"
+      ]
+    },
+    {
+      "key": "mens",
+      "label": "For Him",
+      "collectionHandle": "mens",
+      "subjects": [
+        "bow tie",
+        "pocket watch",
+        "whiskey glass",
+        "vintage car",
+        "fishing rod and reel",
+        "compass",
+        "pipe",
+        "cufflinks",
+        "duck (mallard)",
+        "antlers"
+      ]
+    },
+    {
+      "key": "graduation",
+      "label": "Graduation",
+      "collectionHandle": "graduation",
+      "subjects": [
+        "graduation cap with tassel",
+        "diploma scroll with ribbon",
+        "laurel wreath",
+        "open book",
+        "gold star",
+        "owl (wisdom)"
+      ]
+    },
+    {
+      "key": "christmas-holiday",
+      "label": "Christmas & Holiday",
+      "collectionHandle": "christmas-holiday",
+      "seasonal": true,
+      "subjects": [
+        "decorated Christmas tree",
+        "holly and berries",
+        "Christmas ornament",
+        "poinsettia flower",
+        "candy cane",
+        "winter cardinal on a pine branch",
+        "snowflake",
+        "wreath with red bow",
+        "gingerbread cookie",
+        "reindeer",
+        "pinecone and evergreen sprig",
+        "Christmas stocking"
+      ]
+    },
+    {
+      "key": "fall-autumn",
+      "label": "Thanksgiving & Fall",
+      "collectionHandle": "fall-autumn",
+      "seasonal": true,
+      "subjects": [
+        "pumpkin",
+        "maple leaf",
+        "acorn with oak leaves",
+        "wheat sheaf",
+        "cornucopia",
+        "sunflower",
+        "turkey",
+        "autumn foliage branch"
+      ]
+    },
+    {
+      "key": "halloween",
+      "label": "Halloween",
+      "collectionHandle": "halloween",
+      "seasonal": true,
+      "subjects": [
+        "carved pumpkin",
+        "black cat with arched back",
+        "candy corn",
+        "bat",
+        "ghost",
+        "spider web",
+        "witch hat",
+        "crescent moon"
+      ]
+    }
+  ],
+  "excludedNiches": [
+    {
+      "key": "greek-life",
+      "collectionHandle": "greek-life-sorority-fraternity",
+      "reason": "Sorority/fraternity letters, crests, and mascots are licensed/trademarked. Keep in the existing licensed lane; do NOT AI-generate."
+    }
+  ]
+}

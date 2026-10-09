@@ -1,132 +1,200 @@
+/**
+ * /collections — "Shop by Interest" browser.
+ *
+ * The brand's moat is niche coverage ("every niche, covered"), so this page
+ * leads with interests (dogs, sports, teacher, greek life…) and keeps the
+ * product formats (notecards, notepads…) as a secondary rail.
+ */
 import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/collections._index';
-import {getPaginationVariables, Image} from '@shopify/hydrogen';
-import type {CollectionFragment} from 'storefrontapi.generated';
-import {PaginatedResourceSection} from '~/components/PaginatedResourceSection';
 
-export async function loader(args: Route.LoaderArgs) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
+export const meta: Route.MetaFunction = () => [
+  {title: 'Shop by Interest | The Winsome Life'},
+  {
+    name: 'description',
+    content:
+      'Personalized stationery for every interest — pets, sports, teachers, travel, and more. Whatever their thing is, we make stationery for it.',
+  },
+];
 
-  // Await the critical data required to render initial state of the page
-  const criticalData = await loadCriticalData(args);
+/** Product-format collections — everything else is an interest/niche. */
+const FORMAT_HANDLES = new Set([
+  'notecards',
+  'notepads',
+  'gift-tags-stickers',
+  'wine-tags-1',
+  'calendars',
+  'artwork',
+  'place-cards',
+  'holiday-photo-cards',
+  'bestsellers',
+]);
 
-  return {...deferredData, ...criticalData};
+const TILE_TONES = ['bg-[#F6F2EA]', 'bg-[#EFEAE2]', 'bg-[#F3EEE9]', 'bg-[#EAE5DC]'];
+
+export async function loader({context}: Route.LoaderArgs) {
+  const {collections} = await context.storefront.query(COLLECTIONS_QUERY);
+  const nodes = collections?.nodes ?? [];
+  return {
+    interests: nodes.filter(
+      (c: {handle: string}) => !FORMAT_HANDLES.has(c.handle),
+    ),
+    formats: nodes.filter(
+      (c: {handle: string}) =>
+        FORMAT_HANDLES.has(c.handle) && c.handle !== 'bestsellers',
+    ),
+  };
 }
 
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- */
-async function loadCriticalData({context, request}: Route.LoaderArgs) {
-  const paginationVariables = getPaginationVariables(request, {
-    pageBy: 4,
-  });
-
-  const [{collections}] = await Promise.all([
-    context.storefront.query(COLLECTIONS_QUERY, {
-      variables: paginationVariables,
-    }),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
-
-  return {collections};
+interface CollectionTile {
+  id: string;
+  handle: string;
+  title: string;
+  description?: string | null;
+  image?: {url: string; altText?: string | null} | null;
+  products?: {nodes: Array<{featuredImage?: {url: string} | null}>};
 }
 
-/**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
- */
-function loadDeferredData({context}: Route.LoaderArgs) {
-  return {};
+/** Collection image, falling back to its first product's photo. */
+function tileImage(c: CollectionTile): string | null {
+  return c.image?.url ?? c.products?.nodes?.[0]?.featuredImage?.url ?? null;
 }
 
-export default function Collections() {
-  const {collections} = useLoaderData<typeof loader>();
+export default function CollectionsIndex() {
+  const {interests, formats} = useLoaderData<typeof loader>();
 
   return (
-    <div className="collections">
-      <h1>Collections</h1>
-      <PaginatedResourceSection<CollectionFragment>
-        connection={collections}
-        resourcesClassName="collections-grid"
-      >
-        {({node: collection, index}) => (
-          <CollectionItem
-            key={collection.id}
-            collection={collection}
-            index={index}
-          />
-        )}
-      </PaginatedResourceSection>
-    </div>
-  );
-}
+    <main id="main" className="bg-[#FAF8F5] min-h-screen pb-20">
+      {/* Header */}
+      <section className="container max-w-7xl mx-auto px-4 lg:px-8 pt-10 lg:pt-14 pb-2 text-center">
+        <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-6">
+          Every Niche, Covered
+        </p>
+        <h1 className="font-serif font-medium text-4xl md:text-5xl text-[#2D2D2D] mb-4">
+          Shop by{' '}
+          <span
+            className="text-[#C9A96E]"
+            style={{
+              fontFamily: "'Parisian Script', 'Great Vibes', cursive",
+              fontSize: '1.15em',
+              lineHeight: '1',
+              verticalAlign: '-0.05em',
+            }}
+          >
+            Interest
+          </span>
+        </h1>
+        <p className="font-sans font-light text-base text-[#2D2D2D]/65 max-w-xl mx-auto">
+          Whatever their thing is — we make stationery for it. Find the perfect
+          personalized gift by what they love.
+        </p>
+        <div className="gold-rule w-20 mx-auto mt-6" />
+      </section>
 
-function CollectionItem({
-  collection,
-  index,
-}: {
-  collection: CollectionFragment;
-  index: number;
-}) {
-  return (
-    <Link
-      className="collection-item"
-      key={collection.id}
-      to={`/collections/${collection.handle}`}
-      prefetch="intent"
-    >
-      {collection?.image && (
-        <Image
-          alt={collection.image.altText || collection.title}
-          aspectRatio="1/1"
-          data={collection.image}
-          loading={index < 3 ? 'eager' : undefined}
-          sizes="(min-width: 45em) 400px, 100vw"
-        />
+      {/* Interest tiles */}
+      <section className="container max-w-7xl mx-auto px-4 lg:px-8 pt-10">
+        <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5">
+          {(interests as CollectionTile[]).map((c, i) => {
+            const img = tileImage(c);
+            return (
+              <li key={c.id}>
+                <Link
+                  to={`/collections/${c.handle}`}
+                  prefetch="intent"
+                  className={`group relative flex flex-col justify-end aspect-[4/3] overflow-hidden ring-1 ring-[#C9A96E]/15 hover:ring-[#C9A96E] transition-all duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
+                    img ? '' : TILE_TONES[i % TILE_TONES.length]
+                  }`}
+                >
+                  {img && (
+                    <>
+                      <img
+                        src={img}
+                        alt=""
+                        loading={i < 8 ? 'eager' : 'lazy'}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        aria-hidden
+                      />
+                      <span
+                        className="absolute inset-0"
+                        style={{
+                          background:
+                            'linear-gradient(to top, rgba(45,45,45,0.66) 0%, rgba(45,45,45,0.12) 55%, rgba(45,45,45,0.04) 100%)',
+                        }}
+                        aria-hidden
+                      />
+                    </>
+                  )}
+                  <span className="relative p-4 lg:p-5">
+                    <span
+                      className={`block font-serif font-medium text-lg lg:text-xl leading-tight ${
+                        img ? 'text-white' : 'text-[#2D2D2D]'
+                      }`}
+                    >
+                      {c.title}
+                    </span>
+                    <span
+                      className={`font-sans font-medium text-[10px] tracking-[0.18em] uppercase ${
+                        img ? 'text-[#e7d4ac]' : 'text-[#C9A96E]'
+                      } opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+                    >
+                      Shop →
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
+      {/* Formats rail */}
+      {formats.length > 0 && (
+        <section className="container max-w-7xl mx-auto px-4 lg:px-8 pt-16">
+          <div className="flex items-baseline justify-between mb-6 border-b border-[#C9A96E]/15 pb-4">
+            <h2 className="font-serif font-medium text-2xl text-[#2D2D2D]">
+              Or shop by product
+            </h2>
+            <Link
+              to="/collections/all"
+              className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#C9A96E] hover:text-[#2D2D2D] transition-colors"
+            >
+              View everything →
+            </Link>
+          </div>
+          <ul className="flex flex-wrap gap-2.5">
+            {(formats as CollectionTile[]).map((c) => (
+              <li key={c.id}>
+                <Link
+                  to={`/collections/${c.handle}`}
+                  prefetch="intent"
+                  className="inline-flex items-center font-sans font-medium text-sm text-[#2D2D2D] bg-white ring-1 ring-[#C9A96E]/25 hover:ring-[#C9A96E] hover:text-[#C9A96E] transition-all px-5 py-2.5 focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
+                >
+                  {c.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
-      <h5>{collection.title}</h5>
-    </Link>
+    </main>
   );
 }
 
 const COLLECTIONS_QUERY = `#graphql
-  fragment Collection on Collection {
-    id
-    title
-    handle
-    image {
-      id
-      url
-      altText
-      width
-      height
-    }
-  }
-  query StoreCollections(
-    $country: CountryCode
-    $endCursor: String
-    $first: Int
-    $language: LanguageCode
-    $last: Int
-    $startCursor: String
-  ) @inContext(country: $country, language: $language) {
-    collections(
-      first: $first,
-      last: $last,
-      before: $startCursor,
-      after: $endCursor
-    ) {
+  query StoreCollectionsIndex($country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    collections(first: 60, sortKey: TITLE) {
       nodes {
-        ...Collection
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
+        id
+        handle
+        title
+        description
+        image { url altText }
+        products(first: 1) {
+          nodes {
+            featuredImage { url }
+          }
+        }
       }
     }
   }

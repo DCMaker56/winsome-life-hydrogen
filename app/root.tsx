@@ -15,7 +15,9 @@ import favicon from '~/assets/favicon.svg';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
-import {PageLayout} from './components/PageLayout';
+import {WinsomeLayout} from './components/WinsomeLayout';
+import {JsonLd} from './components/JsonLd';
+import {organizationJsonLd, websiteJsonLd} from './lib/seo';
 
 export type RootLoader = typeof loader;
 
@@ -53,13 +55,23 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
  */
 export function links() {
   return [
+    {rel: 'preconnect', href: 'https://cdn.shopify.com'},
+    {rel: 'preconnect', href: 'https://shop.app'},
+    {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
     {
       rel: 'preconnect',
-      href: 'https://cdn.shopify.com',
+      href: 'https://fonts.gstatic.com',
+      crossOrigin: 'anonymous',
     },
     {
-      rel: 'preconnect',
-      href: 'https://shop.app',
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap',
+    },
+    // Personalization font library — the typefaces offered in the Design
+    // Studio / on-page personalizer (see FONTS in app/lib/variants.ts).
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=Bodoni+Moda:wght@400;500;600;700&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600;700&family=Cormorant+SC:wght@400;500;600;700&family=Dancing+Script:wght@400;600;700&family=EB+Garamond:wght@400;500;600;700&family=Great+Vibes&family=Josefin+Sans:wght@400;500;600&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Marcellus&family=Montserrat:wght@400;500;600;700&family=Pinyon+Script&family=Poppins:wght@400;500;600&family=Sacramento&family=Tangerine:wght@400;700&display=swap',
     },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
   ];
@@ -149,6 +161,22 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        {/* Google tag (gtag.js) — Google Ads AW-17795546793. Nonce'd so it
+            passes our CSP; Google's domains are allowlisted in entry.server. */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17795546793"
+          nonce={nonce}
+        />
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-17795546793');`,
+          }}
+        />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <Meta />
@@ -176,9 +204,10 @@ export default function App() {
       shop={data.shop}
       consent={data.consent}
     >
-      <PageLayout {...data}>
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+      <WinsomeLayout {...data}>
         <Outlet />
-      </PageLayout>
+      </WinsomeLayout>
     </Analytics.Provider>
   );
 }

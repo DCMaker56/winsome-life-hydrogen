@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Winsome Life — Hero Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600&family=Great+Vibes&display=swap" rel="stylesheet" />
+<style>
+  @font-face {
+    font-family: 'Parisian Script';
+    src: url('/fonts/ParisianScript.otf') format('opentype');
+    font-weight: 400; font-display: swap;
+  }
+  :root{
+    --cream:#FAF8F5; --char:#2D2D2D; --gold:#C9A96E; --gold-d:#b8964f;
+    --serif:'Playfair Display', Georgia, serif;
+    --sans:'Source Sans 3', system-ui, sans-serif;
+    --script:'Parisian Script','Great Vibes',cursive;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:#e9e5dd;}
+  @page{ size:13.333in 7.5in; margin:0; }
+  .page{
+    width:1280px; height:720px; position:relative; overflow:hidden;
+    background:var(--cream); page-break-after:always; display:flex; flex-direction:column;
+  }
+  .page:last-child{page-break-after:auto;}
+  /* caption strip */
+  .frame{flex:1; position:relative; overflow:hidden;}
+  .cap{height:74px; background:#fff; border-top:2px solid var(--gold);
+    display:flex; align-items:center; gap:18px; padding:0 40px;}
+  .cap .num{width:30px;height:30px;border-radius:50%;background:var(--char);color:#fff;
+    font-family:var(--sans);font-weight:500;font-size:14px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+  .cap h4{font-family:var(--serif);font-weight:500;font-size:19px;color:var(--char);}
+  .cap p{font-family:var(--sans);font-weight:300;font-size:14px;color:rgba(45,45,45,.6);}
+  .cap .div{width:1px;height:26px;background:rgba(201,169,110,.4);}
+  /* shared hero bits */
+  .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .kick{font-family:var(--sans);font-weight:500;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-d);}
+  .tag{font-family:var(--serif);font-weight:500;color:var(--char);line-height:1.04;}
+  .scr{font-family:var(--script);color:var(--gold);font-style:normal;}
+  .sub{font-family:var(--sans);font-weight:300;color:rgba(45,45,45,.72);line-height:1.55;}
+  .btn{font-family:var(--sans);font-weight:500;font-size:14px;letter-spacing:.16em;text-transform:uppercase;
+    display:inline-flex;align-items:center;justify-content:center;padding:17px 34px;border:1px solid transparent;text-decoration:none;}
+  .btn-dark{background:var(--char);color:#fff;}
+  .btn-gold{background:var(--gold);color:#fff;}
+  .btn-out{background:transparent;color:var(--char);border-color:rgba(45,45,45,.35);}
+  .btn-out-l{background:transparent;color:#fff;border-color:rgba(255,255,255,.6);}
+  .rule{height:2px;width:64px;background:var(--gold);}
+
+  /* COVER */
+  .cover{background:var(--cream);align-items:center;justify-content:center;text-align:center;}
+  .cover .frame{display:flex;align-items:center;justify-content:center;}
+  .cover .wm{font-family:var(--serif);font-weight:500;font-size:30px;letter-spacing:.18em;text-transform:uppercase;color:var(--char);}
+  .cover .sm{font-family:var(--sans);font-weight:500;font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-d);margin-top:8px;}
+  .cover .big{font-family:var(--serif);font-weight:500;font-size:60px;color:var(--char);line-height:1.05;margin:40px 0 14px;}
+  .cover .note{font-family:var(--sans);font-weight:300;font-size:18px;color:rgba(45,45,45,.6);}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="page cover">
+  <div class="frame">
+    <div>
+      <div class="wm">The Winsome Life</div>
+      <div class="sm">Homepage Hero — Concept Directions</div>
+      <div class="big">Uniquely <span class="scr" style="font-size:1.3em">You.</span><br/>On Paper.</div>
+      <div class="rule" style="margin:26px auto 22px"></div>
+      <div class="note">Four directions — each pairs the tagline with the two ways to shop:<br/>Explore the Collection &middot; Build in the Studio</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCEPT 1 — Editorial Split -->
+<section class="page">
+  <div class="frame">
+    <img class="photo" src="https://d2xsxph8kpxj0f.cloudfront.net/310519663510562926/j8eawuYxyibob6S8H2yeLJ/hero-stationery-VjgqdWQwHhUorWmy7MNZYu.webp" alt="" />
+    <div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(250,248,245,.55) 0%,rgba(250,248,245,.12) 42%,transparent 66%)"></div>
+    <div style="position:absolute;top:0;bottom:0;left:90px;display:flex;align-items:center;">
+      <div style="max-width:520px;background:rgba(250,248,245,.93);border-left:2px solid var(--gold);padding:56px 56px 56px 52px;box-shadow:0 24px 70px -30px rgba(45,45,45,.45);">
+        <div class="rule" style="margin-bottom:26px"></div>
+        <div class="kick" style="margin-bottom:18px">Luxury Personalized Stationery</div>
+        <div class="tag" style="font-size:54px;margin-bottom:26px">Uniquely <span class="scr" style="font-size:1.32em">You.</span><br/>On Paper.</div>
+        <div class="sub" style="font-size:17px;max-width:400px;margin-bottom:34px">Two ways to make it yours — shop our designs, or create your own from a blank canvas.</div>
+        <div style="display:flex;gap:14px">
+          <a class="btn btn-dark" href="#">Explore the Collection</a>
+          <a class="btn btn-out" href="#">Build in the Studio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="num">1</span><h4>Editorial Split</h4><span class="div"></span><p>Evolves today's hero. Ivory panel, both options as equal buttons. Safest, most on-brand.</p></div>
+</section>
+
+<!-- CONCEPT 2 — Centered Minimal -->
+<section class="page">
+  <div class="frame">
+    <img class="photo" src="https://d2xsxph8kpxj0f.cloudfront.net/310519663510562926/j8eawuYxyibob6S8H2yeLJ/hero-stationery-VjgqdWQwHhUorWmy7MNZYu.webp" alt="" />
+    <div style="position:absolute;inset:0;background:rgba(250,248,245,.40)"></div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 60px">
+      <div style="text-align:center;background:rgba(250,248,245,.82);padding:54px 70px;border:1px solid rgba(201,169,110,.45)">
+        <div class="kick" style="margin-bottom:20px">The Winsome Life</div>
+        <div class="tag" style="font-size:64px;margin-bottom:16px">Uniquely <span class="scr" style="font-size:1.3em">You.</span><br/>On Paper.</div>
+        <div class="rule" style="margin:0 auto 22px"></div>
+        <div class="sub" style="font-size:18px;max-width:520px;margin:0 auto 36px">Shop hundreds of designs, or create your own in the Winsome Studio.</div>
+        <div style="display:flex;gap:16px;justify-content:center">
+          <a class="btn btn-dark" href="#">Explore the Collection</a>
+          <a class="btn btn-gold" href="#">Build in the Studio</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cap"><span class="num">2</span><h4>Centered Minimal</h4><span class="div"></span><p>Airy, Minted-like. Photo leads, copy floats center. Most "elevated", least busy.</p></div>
+</section>
+
+<!-- CONCEPT 3 — Split 50/50 Bifurcation -->
+<section class="page">
+  <div class="frame" style="display:flex;flex-direction:column">
+    <div style="text-align:center;padding:34px 0 22px;background:var(--cream)">
+      <div class="kick" style="margin-bottom:10px">Two Ways to Shop</div>
+      <div class="tag" style="font-size:42px">Uniquely <span class="scr" style="font-size:1.3em">You.</span> On Paper.</div>
+    </div>
+    <div style="flex:1;display:flex">
+      <!-- left: shop -->
+      <a href="#" style="flex:1;position:relative;overflow:hidden;text-decoration:none;border-right:1px solid rgba(255,255,255,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 40px;text-align:center">
+        <img class="photo" src="/studio/notecard-a2.jpg" alt="" style="object-position:center" />
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(45,45,45,.70),rgba(45,45,45,.30) 60%)"></div>
+        <div style="width:150px;height:188px;background:#FEFDFA;box-shadow:0 26px 54px -18px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;margin-bottom:30px;position:relative">
+          <span class="scr" style="font-size:34px;color:var(--gold-d)">Eleanor</span>
+        </div>
+        <div class="kick" style="color:#e7d4ac;margin-bottom:8px;position:relative">Option One</div>
+        <div style="font-family:var(--serif);font-weight:500;font-size:32px;margin-bottom:8px;color:#fff;position:relative">Shop Our Designs</div>
+        <div style="font-family:var(--sans);font-weight:300;font-size:15px;color:rgba(255,255,255,.85);max-width:330px;margin:0 auto 22px;position:relative">Hundreds of professionally designed pieces, ready to personalize.</div>
+        <span class="btn" style="background:#fff;color:var(--char);position:relative">Explore the Collection</span>
+      </a>
+      <!-- right: create -->
+      <a href="#" style="flex:1;position:relative;overflow:hidden;text-decoration:none;background:#2D2D2D;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 40px;text-align:center">
+        <div style="position:absolute;top:-70px;right:-70px;width:230px;height:230px;border-radius:50%;background:rgba(201,169,110,.20);filter:blur(8px)"></div>
+        <div style="width:150px;height:188px;background:#FEFDFA;box-shadow:0 26px 54px -18px rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;margin-bottom:30px;position:relative">
+          <span class="scr" style="font-size:46px;color:var(--char)">Amelia</span>
+        </div>
+        <div class="kick" style="color:var(--gold);margin-bottom:8px;position:relative">Option Two</div>
+        <div style="font-family:var(--serif);font-weight:500;font-size:32px;margin-bottom:8px;color:#fff;position:relative">Create Your Own</div>
+        <div style="font-family:var(--sans);font-weight:300;font-size:15px;color:rgba(255,255,255,.82);max-width:330px;margin:0 auto 22px;position:relative">Pick icons, colors, fonts &amp; wording — watch it come to life.</div>
+        <span class="btn btn-gold" style="position:relative">Build in the Studio</span>
+      </a>
+    </div>
+  </div>
+  <div class="cap"><span class="num">3</span><h4>Split 50 / 50</h4><span class="div"></span><p>Most literal "two ways." Tagline spans top; shop left, create right. Boldest, most direct.</p></div>
+</section>
+
+<!-- CONCEPT 4 — Cinematic + Bottom Cards -->
+<section class="page">
+  <div class="frame">
+    <img class="photo" src="https://d2xsxph8kpxj0f.cloudfront.net/310519663510562926/j8eawuYxyibob6S8H2yeLJ/hero-stationery-VjgqdWQwHhUorWmy7MNZYu.webp" alt="" />
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(45,45,45,.30),rgba(45,45,45,.05) 30%,rgba(45,45,45,.18) 100%)"></div>
+    <div style="position:absolute;top:70px;left:90px;color:#fff">
+      <div class="kick" style="color:#f0e3c8;margin-bottom:16px">Luxury Personalized Stationery</div>
+      <div class="tag" style="color:#fff;font-size:66px;text-shadow:0 2px 24px rgba(0,0,0,.35)">Uniquely <span class="scr" style="color:#f2dca6;font-size:1.3em">You.</span><br/>On Paper.</div>
+    </div>
+    <!-- bottom option cards -->
+    <div style="position:absolute;left:90px;right:90px;bottom:54px;display:flex;gap:22px">
+      <a href="#" style="flex:1;background:rgba(250,248,245,.96);padding:26px 30px;display:flex;align-items:center;justify-content:space-between;text-decoration:none;border-top:2px solid var(--gold)">
+        <span>
+          <span style="display:block;font-family:var(--serif);font-weight:500;font-size:22px;color:var(--char)">Shop Our Designs</span>
+          <span style="font-family:var(--sans);font-weight:300;font-size:14px;color:rgba(45,45,45,.6)">Hundreds, ready to personalize</span>
+        </span>
+        <span style="font-family:var(--sans);font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-d)">Explore &rarr;</span>
+      </a>
+      <a href="#" style="flex:1;background:rgba(45,45,45,.94);padding:26px 30px;display:flex;align-items:center;justify-content:space-between;text-decoration:none;border-top:2px solid var(--gold)">
+        <span>
+          <span style="display:block;font-family:var(--serif);font-weight:500;font-size:22px;color:#fff">Create Your Own</span>
+          <span style="font-family:var(--sans);font-weight:300;font-size:14px;color:rgba(255,255,255,.6)">Design it in the Winsome Studio</span>
+        </span>
+        <span style="font-family:var(--sans);font-weight:500;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)">Build &rarr;</span>
+      </a>
+    </div>
+  </div>
+  <div class="cap"><span class="num">4</span><h4>Cinematic + Option Cards</h4><span class="div"></span><p>Best for the video hero. Tagline over footage; two option cards anchor the base. Modern, premium.</p></div>
+</section>
+
+</body>
+</html>

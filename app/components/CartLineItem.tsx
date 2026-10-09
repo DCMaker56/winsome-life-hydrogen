@@ -5,6 +5,9 @@ import {useVariantUrl} from '~/lib/variants';
 import {Link} from 'react-router';
 import {ProductPrice} from './ProductPrice';
 import {useAside} from './Aside';
+import {parseStudioConfigAttribute, getFont, getInk} from '~/lib/studio';
+import {getIllustration} from '~/lib/illustrations';
+import {StudioCanvas} from '~/components/studio/StudioCanvas';
 import type {
   CartApiQueryFragment,
   CartLineFragment,
@@ -34,18 +37,43 @@ export function CartLineItem({
   const lineItemChildren = childrenMap[id];
   const childrenLabelId = `cart-line-children-${id}`;
 
+  // Lines created in the Design Studio carry their full config — render the
+  // customer's actual personalized design as the thumbnail (not the stock
+  // product photo) so they see exactly what they're getting.
+  const studio = parseStudioConfigAttribute(
+    (line as {attributes?: Array<{key: string; value?: string | null}>})
+      .attributes,
+  );
+  const visibleAttributes =
+    (line as {attributes?: Array<{key: string; value?: string | null}>})
+      .attributes?.filter((a) => a.value && !a.key.startsWith('_')) ?? [];
+
   return (
     <li key={id} className="cart-line">
       <div className="cart-line-inner">
-        {image && (
-          <Image
-            alt={title}
-            aspectRatio="1/1"
-            data={image}
-            height={100}
-            loading="lazy"
-            width={100}
-          />
+        {studio ? (
+          <div
+            className="shrink-0 w-[100px] bg-[#EFEAE2] flex items-center justify-center p-1.5 ring-1 ring-[#C9A96E]/20"
+            aria-label="Preview of your personalized design"
+          >
+            <StudioCanvas
+              format={studio.format}
+              config={studio.config}
+              flat
+              className="max-h-[96px] w-auto max-w-full"
+            />
+          </div>
+        ) : (
+          image && (
+            <Image
+              alt={title}
+              aspectRatio="1/1"
+              data={image}
+              height={100}
+              loading="lazy"
+              width={100}
+            />
+          )
         )}
 
         <div>
@@ -63,15 +91,35 @@ export function CartLineItem({
             </p>
           </Link>
           <ProductPrice price={line?.cost?.totalAmount} />
-          <ul>
-            {selectedOptions.map((option) => (
-              <li key={option.name}>
+          {studio ? (
+            <ul>
+              <li>
                 <small>
-                  {option.name}: {option.value}
+                  {getIllustration(studio.config.illustrationId)?.subject ??
+                    'No illustration'}{' '}
+                  · {getFont(studio.config.fontKey).label} ·{' '}
+                  {getInk(studio.config.inkKey).label} ink
                 </small>
               </li>
-            ))}
-          </ul>
+              {visibleAttributes.map((a) => (
+                <li key={a.key}>
+                  <small>
+                    {a.key}: {a.value}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul>
+              {selectedOptions.map((option) => (
+                <li key={option.name}>
+                  <small>
+                    {option.name}: {option.value}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          )}
           <CartLineQuantity line={line} />
         </div>
       </div>

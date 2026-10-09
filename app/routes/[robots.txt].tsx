@@ -74,5 +74,14 @@ Disallow: /policies/
 Disallow: /search
 Allow: /search/
 Disallow: /search/?*
+# Dynamic customizer / preview / session URLs — never index these crawl traps.
+# (Personalization state is client-side React, but block param variants as a
+# safety net so no infinite duplicate product URLs can be discovered.)
+Disallow: /*?*preview=
+Disallow: /*?*session=
+Disallow: /*?*sid=
+Disallow: /*?*proof=
+Disallow: /*?*monogram=
+Disallow: /cart/
 ${sitemapUrl ? `Sitemap: ${sitemapUrl}` : ''}`;
 }

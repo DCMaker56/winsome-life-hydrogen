@@ -3,9 +3,16 @@ import {hydrogen} from '@shopify/hydrogen/vite';
 import {oxygen} from '@shopify/mini-oxygen/vite';
 import {reactRouter} from '@react-router/dev/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [hydrogen(), oxygen(), reactRouter(), tsconfigPaths()],
+  plugins: [
+    hydrogen(),
+    oxygen(),
+    reactRouter(),
+    tsconfigPaths(),
+    tailwindcss(),
+  ],
   build: {
     // Allow a strict Content-Security-Policy
     // without inlining assets as base64:
@@ -24,6 +31,7 @@ export default defineConfig({
        * @see https://vitejs.dev/config/dep-optimization-options
        */
       include: [
+        'react-fast-compare',
         'react-router > set-cookie-parser',
         'react-router > cookie',
         'react-router',

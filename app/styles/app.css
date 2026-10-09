@@ -1,3 +1,274 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Keep Tailwind's automatic source scanning off the generated illustration
+   asset dirs — they contain no utility classes, and letting the CSS-analysis
+   pass resolve their asset paths breaks the dev build (phantom .svg lookups). */
+@source not "../../illustrations";
+@source not "../../public/mockups";
+
+/* Rich-text (Shopify product/page descriptionHtml) — readable defaults so the
+   full merchant-authored body renders nicely (and stays indexable) on PDPs. */
+.pdp-rte {
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-weight: 300;
+  color: rgba(45, 45, 45, 0.78);
+  line-height: 1.7;
+  font-size: 15px;
+}
+.pdp-rte > :first-child { margin-top: 0; }
+.pdp-rte p { margin: 0 0 1rem; }
+.pdp-rte h1, .pdp-rte h2, .pdp-rte h3, .pdp-rte h4 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  color: #2d2d2d;
+  line-height: 1.25;
+  margin: 1.6rem 0 0.6rem;
+}
+.pdp-rte h1 { font-size: 1.6rem; }
+.pdp-rte h2 { font-size: 1.4rem; }
+.pdp-rte h3 { font-size: 1.2rem; }
+.pdp-rte h4 { font-size: 1.05rem; }
+.pdp-rte ul, .pdp-rte ol { margin: 0 0 1rem; padding-left: 1.25rem; }
+.pdp-rte ul { list-style: disc; }
+.pdp-rte ol { list-style: decimal; }
+.pdp-rte li { margin: 0.3rem 0; }
+.pdp-rte a { color: #b8964f; text-decoration: underline; text-underline-offset: 2px; }
+.pdp-rte strong, .pdp-rte b { font-weight: 600; color: #2d2d2d; }
+.pdp-rte em, .pdp-rte i { font-style: italic; }
+.pdp-rte img { margin: 1rem 0; }
+
+/* Parisian Script — brand cursive (logo subtitle, "You.", section accents).
+   Bundled through Vite as content-hashed assets (relative url()), so every
+   deploy ships a fresh, cache-busted filename — no stale/failed font cache — and
+   WOFF2 is served first for the broadest, most reliable browser support. */
+@font-face {
+  font-family: "Parisian Script";
+  src:
+    url("./ParisianScript.woff2") format("woff2"),
+    url("./ParisianScript.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Commercial personalization fonts — awaiting files from Sydney. These point at
+   /fonts/<name>.woff2 (public dir); until the files are dropped in they simply
+   fall back to the next family in each FONTS stack. Absolute /fonts URLs are not
+   bundled by Vite, so a missing file never breaks the build. Drop the woff2 (or
+   send otf/ttf to convert) into public/fonts/ and these render exactly. */
+@font-face {
+  font-family: "Buffalo";
+  src: url("/fonts/Buffalo.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Jimmy Script";
+  src: url("/fonts/JimmyScript.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Chloe";
+  src: url("/fonts/Chloe.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Windslow";
+  src: url("/fonts/Windslow.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "Eyesome Script";
+  src: url("/fonts/EyesomeScript.woff2") format("woff2");
+  font-display: swap;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Brand Colors */
+  --color-brand-pink: oklch(0.82 0.06 10);
+  --color-brand-blue: oklch(0.80 0.07 230);
+  --color-brand-cream: oklch(0.98 0.005 80);
+  --color-brand-charcoal: oklch(0.25 0.01 60);
+  --color-brand-gold: oklch(0.73 0.08 80);
+
+  /* Font families */
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Montserrat', system-ui, -apple-system, sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.98 0.005 80);
+  --foreground: oklch(0.25 0.01 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.25 0.01 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.25 0.01 60);
+  --primary: oklch(0.73 0.08 80);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.96 0.005 80);
+  --secondary-foreground: oklch(0.35 0.01 60);
+  --muted: oklch(0.95 0.005 80);
+  --muted-foreground: oklch(0.50 0.01 60);
+  --accent: oklch(0.82 0.06 10);
+  --accent-foreground: oklch(0.25 0.01 60);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.90 0.01 80);
+  --input: oklch(0.90 0.01 80);
+  --ring: oklch(0.73 0.08 80);
+  --chart-1: oklch(0.82 0.06 10);
+  --chart-2: oklch(0.80 0.07 230);
+  --chart-3: oklch(0.73 0.08 80);
+  --chart-4: oklch(0.60 0.05 60);
+  --chart-5: oklch(0.45 0.03 60);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1280px;
+    }
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF8F5;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9A96E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8964f;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Gold rule divider */
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C9A96E, transparent);
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-25%); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  width: 400%;
+}
+
+/* Fade up animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fadeUp 0.7s ease-out forwards;
+}
+
+/* ─── Hydrogen skeleton styles below (cart, search, aside) ─── */
 :root {
   --aside-width: 400px;
   --cart-aside-summary-height-with-discount: 300px;
@@ -84,40 +355,60 @@ img {
   }
 }
 
+/* Winsome-branded cart / search aside drawer */
 aside {
-  background: var(--color-light);
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+  background: #FAF8F5;
+  box-shadow: -10px 0 40px rgba(45, 45, 45, 0.18);
   height: 100vh;
   width: min(var(--aside-width), 100vw);
   position: fixed;
   right: calc(-1 * var(--aside-width));
   top: 0;
   transition: transform 200ms ease-in-out;
+  z-index: 60; /* above the sticky brand navbar (z-50) */
+  display: flex;
+  flex-direction: column;
 }
 
 aside header {
   align-items: center;
-  border-bottom: 1px solid var(--color-dark);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.25);
   display: flex;
-  height: var(--header-height);
+  height: 64px;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 24px;
+  background: #FAF8F5;
+  flex-shrink: 0;
 }
 
 aside header h3 {
   margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #2D2D2D;
 }
 
 aside header .close {
-  font-weight: bold;
-  opacity: 0.8;
+  font-weight: 300;
+  font-size: 1.5rem;
+  line-height: 1;
+  opacity: 0.6;
   text-decoration: none;
   transition: all 200ms;
-  width: 20px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2D2D2D;
 }
 
 aside header .close:hover {
   opacity: 1;
+  color: #C9A96E;
 }
 
 aside header h2 {
@@ -126,7 +417,11 @@ aside header h2 {
 }
 
 aside main {
-  margin: 1rem;
+  margin: 0;
+  padding: 1.25rem 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  font-family: 'Montserrat', system-ui, sans-serif;
 }
 
 aside p {
@@ -154,7 +449,7 @@ aside li {
 }
 
 .overlay {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(20, 20, 20, 0.42);
   bottom: 0;
   left: 0;
   opacity: 0;
@@ -163,9 +458,8 @@ aside li {
   right: 0;
   top: 0;
   transition: opacity 400ms ease-in-out;
-  transition: opacity 400ms;
   visibility: hidden;
-  z-index: 10;
+  z-index: 60; /* above sticky navbar (z-50) */
 }
 
 .overlay .close-outside {

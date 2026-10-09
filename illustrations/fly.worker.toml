@@ -1,0 +1,20 @@
+# Fly config for the modify worker. Deploy from illustrations/:
+#   fly launch --dockerfile Dockerfile.worker --config fly.worker.toml --no-deploy
+#   fly secrets set OPENAI_API_KEY=sk-... WORKER_TOKEN=<random>
+#   fly deploy --config fly.worker.toml
+app = "winsome-modify-worker"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile.worker"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true      # scale to zero when idle → cheap
+  auto_start_machines = true     # wake on first request
+  min_machines_running = 0
+
+[[vm]]
+  memory = "2gb"                 # onnxruntime/rembg headroom
+  cpus = 1

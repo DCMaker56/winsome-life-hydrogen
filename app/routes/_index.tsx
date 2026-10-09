@@ -1,176 +1,262 @@
-import {Await, useLoaderData, Link} from 'react-router';
+/**
+ * Winsome Life — Home page.
+ *
+ * Fetches products from the Storefront GraphQL API in the loader, maps
+ * them to our `AppProduct` shape, and renders the brand sections wrapped
+ * in a CatalogProvider so the legacy brand components keep working.
+ *
+ * In dev with no credentials, Hydrogen falls back to mock.shop's products.
+ * Once `.env` has PUBLIC_STOREFRONT_API_TOKEN + PUBLIC_STORE_DOMAIN, this
+ * automatically reads from your real catalog.
+ */
 import type {Route} from './+types/_index';
-import {Suspense} from 'react';
-import {Image} from '@shopify/hydrogen';
-import type {
-  FeaturedCollectionFragment,
-  RecommendedProductsQuery,
-} from 'storefrontapi.generated';
-import {ProductItem} from '~/components/ProductItem';
-import {MockShopNotice} from '~/components/MockShopNotice';
+import {useLoaderData} from 'react-router';
+import {
+  graphqlToAppProduct,
+  COLLECTIONS,
+  type GraphqlProduct,
+} from '~/lib/shopify-transform';
+import {CatalogProvider} from '~/hooks/useProducts';
+import HeroSection from '~/components/HeroSection';
+import TwoUpFeature from '~/components/TwoUpFeature';
+import CollectionRow from '~/components/CollectionRow';
+import DesignWall from '~/components/DesignWall';
+import TrendingPopular from '~/components/TrendingPopular';
+import Marquee from '~/components/Marquee';
+import ShopByProductType from '~/components/ShopByProductType';
+import BrandStory from '~/components/BrandStory';
+import ValueProps from '~/components/ValueProps';
+import SocialProof from '~/components/SocialProof';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: 'Hydrogen | Home'}];
+  return [
+    {title: 'The Winsome Life | Luxury Personalized Stationery'},
+    {
+      name: 'description',
+      content:
+        "Luxury personalized stationery designed to be treasured. Watercolor notecards, monogram gifts, custom notepads, and bespoke gift sets — crafted with care.",
+    },
+  ];
 };
 
-export async function loader(args: Route.LoaderArgs) {
-  // Start fetching non-critical data without blocking time to first byte
-  const deferredData = loadDeferredData(args);
+// "Shop by Interest" genre circles — label + real Shopify collection handle.
+const INTERESTS = [
+  {label: 'Floral', handle: 'floral'},
+  {label: 'Monograms', handle: 'monogram-styles'},
+  {label: 'Seaside', handle: 'seaside'},
+  {label: 'Dogs & Cats', handle: 'dogs'},
+  {label: 'Sports', handle: 'sports-1'},
+  {label: 'Affinity & Hobbies', handle: 'affinity-hobbies'},
+  {label: 'Travel', handle: 'travel'},
+  {label: 'Christian', handle: 'christian-1'},
+  {label: 'Business & Professional', handle: 'business-professional'},
+  {label: 'Greek Life', handle: 'greek-life-sorority-fraternity'},
+];
 
-  // Await the critical data required to render initial state of the page
-  const criticalData = await loadCriticalData(args);
+// Aliased query: one round trip for all genre collections' representative image.
+const INTEREST_QUERY = `
+  query InterestCollections($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    ${INTERESTS.map(
+      (it, i) =>
+        `c${i}: collection(handle: "${it.handle}") { handle image { url } products(first: 1) { nodes { featuredImage { url } } } }`,
+    ).join('\n')}
+  }
+`;
 
-  return {...deferredData, ...criticalData};
-}
+// "Shop by Product Type" square tiles — label + collection handle (icon added
+// client-side in the component).
+const PRODUCT_TYPES = [
+  {label: 'Notecards', handle: 'notecards'},
+  {label: 'Notepads', handle: 'notepads'},
+  {label: 'Gift Tags & Stickers', handle: 'gift-tags-stickers'},
+  {label: 'Artwork', handle: 'artwork'},
+  {label: 'Wine Tags', handle: 'wine-tags-1'},
+  {label: 'Place Cards', handle: 'place-cards'},
+];
 
-/**
- * Load data necessary for rendering content above the fold. This is the critical data
- * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
- */
-async function loadCriticalData({context}: Route.LoaderArgs) {
-  const [{collections}] = await Promise.all([
-    context.storefront.query(FEATURED_COLLECTION_QUERY),
-    // Add other queries here, so that they are loaded in parallel
+const PRODUCT_TYPE_QUERY = `
+  query ProductTypeCollections($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    ${PRODUCT_TYPES.map(
+      (it, i) =>
+        `t${i}: collection(handle: "${it.handle}") { handle image { url } products(first: 1) { nodes { featuredImage { url } } } }`,
+    ).join('\n')}
+  }
+`;
+
+type CollImg = {
+  image?: {url: string} | null;
+  products?: {nodes: Array<{featuredImage?: {url: string} | null}>};
+} | null;
+
+export async function loader({context}: Route.LoaderArgs) {
+  const [
+    {products},
+    {collection: military},
+    {collection: holiday},
+    interestData,
+    productTypeData,
+  ] = await Promise.all([
+    context.storefront.query(HOME_PRODUCTS_QUERY, {
+      cache: context.storefront.CacheShort(),
+    }),
+    // "Notes Worth Saluting" product row — the military collection.
+    context.storefront.query(HOME_COLLECTION_QUERY, {
+      variables: {handle: 'military'},
+      cache: context.storefront.CacheShort(),
+    }),
+    // Holiday Essentials tile image — a real product from the Christmas collection.
+    context.storefront.query(HOME_COLLECTION_QUERY, {
+      variables: {handle: 'christmas-holiday'},
+      cache: context.storefront.CacheShort(),
+    }),
+    // "Shop by Interest" circle images.
+    context.storefront.query<Record<string, CollImg>>(INTEREST_QUERY, {
+      cache: context.storefront.CacheShort(),
+    }),
+    // "Shop by Product Type" square-tile images.
+    context.storefront.query<Record<string, CollImg>>(PRODUCT_TYPE_QUERY, {
+      cache: context.storefront.CacheShort(),
+    }),
   ]);
 
+  const holidayImage =
+    holiday?.products?.nodes?.[0]?.featuredImage?.url ??
+    holiday?.products?.nodes?.[0]?.images?.nodes?.[0]?.url ??
+    null;
+
+  const interests = INTERESTS.map((it, i) => {
+    const c = interestData?.[`c${i}`];
+    return {
+      label: it.label,
+      handle: it.handle,
+      image:
+        c?.image?.url ?? c?.products?.nodes?.[0]?.featuredImage?.url ?? null,
+    };
+  });
+
+  const productTypes = PRODUCT_TYPES.map((it, i) => {
+    const c = productTypeData?.[`t${i}`];
+    return {
+      label: it.label,
+      handle: it.handle,
+      image:
+        c?.image?.url ?? c?.products?.nodes?.[0]?.featuredImage?.url ?? null,
+    };
+  });
+
   return {
-    isShopLinked: Boolean(context.env.PUBLIC_STORE_DOMAIN),
-    featuredCollection: collections.nodes[0],
+    products: (products?.nodes ?? []).map((p: GraphqlProduct) =>
+      graphqlToAppProduct(p),
+    ),
+    militaryProducts: (military?.products?.nodes ?? []).map((p: GraphqlProduct) =>
+      graphqlToAppProduct(p),
+    ),
+    interests,
+    productTypes,
+    holidayImage,
   };
 }
 
-/**
- * Load data for rendering content below the fold. This data is deferred and will be
- * fetched after the initial page load. If it's unavailable, the page should still 200.
- * Make sure to not throw any errors here, as it will cause the page to 500.
- */
-function loadDeferredData({context}: Route.LoaderArgs) {
-  const recommendedProducts = context.storefront
-    .query(RECOMMENDED_PRODUCTS_QUERY)
-    .catch((error: Error) => {
-      // Log query errors, but don't throw them so the page can still render
-      console.error(error);
-      return null;
-    });
-
-  return {
-    recommendedProducts,
-  };
-}
-
-export default function Homepage() {
-  const data = useLoaderData<typeof loader>();
+export default function HomePage() {
+  const {products, militaryProducts, interests, productTypes, holidayImage} =
+    useLoaderData<typeof loader>();
   return (
-    <div className="home">
-      {data.isShopLinked ? null : <MockShopNotice />}
-      <FeaturedCollection collection={data.featuredCollection} />
-      <RecommendedProducts products={data.recommendedProducts} />
-    </div>
+    <CatalogProvider products={products} collections={COLLECTIONS}>
+      <main className="min-h-screen bg-[#FAF8F5]">
+        {/* Order per Sydney: Hero → Best Sellers/Holiday → Shop by Interest →
+            Founder's Welcome → value bar → quotes → Trending → Notes Worth
+            Saluting → Shop by Product Type. */}
+        <HeroSection />
+        <Marquee />
+        <TwoUpFeature holidayImage={holidayImage} />
+        <DesignWall interests={interests} />
+        <BrandStory />
+        <ValueProps />
+        <SocialProof />
+        <TrendingPopular />
+        <CollectionRow
+          title="Notes Worth"
+          scriptWord="Saluting"
+          subtitle="Personalized military stationery honoring every branch of service"
+          handle="military"
+          products={militaryProducts}
+          stars
+        />
+        <ShopByProductType productTypes={productTypes} />
+      </main>
+    </CatalogProvider>
   );
 }
 
-function FeaturedCollection({
-  collection,
-}: {
-  collection: FeaturedCollectionFragment;
-}) {
-  if (!collection) return null;
-  const image = collection?.image;
-  return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image
-            data={image}
-            sizes="100vw"
-            alt={image.altText || collection.title}
-          />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
-  );
-}
-
-function RecommendedProducts({
-  products,
-}: {
-  products: Promise<RecommendedProductsQuery | null>;
-}) {
-  return (
-    <section
-      className="recommended-products"
-      aria-labelledby="recommended-products"
-    >
-      <h2 id="recommended-products">Recommended Products</h2>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Await resolve={products}>
-          {(response) => (
-            <div className="recommended-products-grid">
-              {response
-                ? response.products.nodes.map((product) => (
-                    <ProductItem key={product.id} product={product} />
-                  ))
-                : null}
-            </div>
-          )}
-        </Await>
-      </Suspense>
-      <br />
-    </section>
-  );
-}
-
-const FEATURED_COLLECTION_QUERY = `#graphql
-  fragment FeaturedCollection on Collection {
-    id
-    title
-    image {
-      id
-      url
-      altText
-      width
-      height
-    }
-    handle
-  }
-  query FeaturedCollection($country: CountryCode, $language: LanguageCode)
+const HOME_PRODUCTS_QUERY = `#graphql
+  query HomeProducts($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    collections(first: 1, sortKey: UPDATED_AT, reverse: true) {
+    products(first: 24, sortKey: BEST_SELLING) {
       nodes {
-        ...FeaturedCollection
+        id
+        handle
+        title
+        descriptionHtml
+        vendor
+        productType
+        tags
+        featuredImage {
+          url
+          altText
+          width
+          height
+        }
+        images(first: 5) {
+          nodes {
+            url
+            altText
+          }
+        }
+        variants(first: 5) {
+          nodes {
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+            }
+            availableForSale
+          }
+        }
       }
     }
   }
 ` as const;
 
-const RECOMMENDED_PRODUCTS_QUERY = `#graphql
-  fragment RecommendedProduct on Product {
-    id
-    title
-    handle
-    priceRange {
-      minVariantPrice {
-        amount
-        currencyCode
-      }
-    }
-    featuredImage {
-      id
-      url
-      altText
-      width
-      height
-    }
-  }
-  query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
+const HOME_COLLECTION_QUERY = `#graphql
+  query HomeCollection($handle: String!, $country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    products(first: 4, sortKey: UPDATED_AT, reverse: true) {
-      nodes {
-        ...RecommendedProduct
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      products(first: 12, sortKey: BEST_SELLING) {
+        nodes {
+          id
+          handle
+          title
+          descriptionHtml
+          vendor
+          productType
+          tags
+          featuredImage { url altText width height }
+          images(first: 2) { nodes { url altText } }
+          variants(first: 3) {
+            nodes {
+              price { amount currencyCode }
+              compareAtPrice { amount }
+              availableForSale
+            }
+          }
+        }
       }
     }
   }

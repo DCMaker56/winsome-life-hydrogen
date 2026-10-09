@@ -7,3 +7,18 @@ node_modules
 .env
 .shopify
 .react-router
+
+# Local Netlify folder
+.netlify
+
+# Secrets (any env variant)
+.env.*
+!.env.example
+
+# OS / editor / build noise
+.DS_Store
+*.tsbuildinfo
+
+# Generated illustration output (~460 MB) — pipeline scripts stay tracked
+/illustrations/generated/
+/illustrations/netlify-app/

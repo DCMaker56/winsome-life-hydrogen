@@ -1,0 +1,13 @@
+{
+  "name": "winsome-illustration-library",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Admin gallery + registry for The Winsome Life illustration library",
+  "scripts": {
+    "start": "node library-server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
