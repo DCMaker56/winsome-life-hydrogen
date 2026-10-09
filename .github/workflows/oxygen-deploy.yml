@@ -1,0 +1,42 @@
+# Deploys to Shopify Oxygen on every push.
+#   - The branch linked to the storefront's Production environment (main) → main deployment
+#   - Any other branch → its own preview deployment / URL
+# Requires repo secret: SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN
+#   (Shopify admin → Hydrogen → winsome-hydrogen-preview → Storefront settings → Oxygen deployments → Create new token)
+# Runtime env vars (Storefront API token etc.) live in Shopify: Storefront settings → Environments and variables.
+name: Deploy to Oxygen
+
+on: [push]
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: oxygen-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Oxygen
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and deploy
+        run: pnpm exec shopify hydrogen deploy
+        env:
+          SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN }}
