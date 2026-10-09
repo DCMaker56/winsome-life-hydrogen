@@ -11,6 +11,7 @@ on: [push]
 permissions:
   contents: read
   deployments: write
+  statuses: write
 
 concurrency:
   group: oxygen-${{ github.ref }}
@@ -40,3 +41,16 @@ jobs:
         run: pnpm exec shopify hydrogen deploy
         env:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN }}
+
+      # Puts a "Website preview" check with a Details link on the commit,
+      # so every pull request shows a one-click link to its preview.
+      - name: Publish preview link
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          URL=$(jq -r '.url // empty' h2_deploy_log.json)
+          if [ -z "$URL" ]; then echo "No deployment URL found"; exit 0; fi
+          echo "### [Open this deployment]($URL)" >> "$GITHUB_STEP_SUMMARY"
+          gh api "repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            -f state=success -f context="Website preview" \
+            -f target_url="$URL" -f description="Click Details to open the preview"

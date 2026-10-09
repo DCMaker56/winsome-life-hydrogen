@@ -36,6 +36,16 @@ Before you touch anything, know these five things (full detail in HANDOFF.md):
 - **Typecheck:** `npm run typecheck`
 - **Illustration work:** invoke the `winsome-illustrations` skill first — those decisions are settled, don't improvise.
 
+## Rules for cloud sessions (claude.ai/code — e.g. Sydney's sessions)
+
+Sydney (CEO, non-technical) makes changes from claude.ai/code. When you are running there:
+- **Never push to `main`.** Work on a new branch with a short descriptive name (e.g. `hero-text-mobile`), commit, push, and offer to open a pull request.
+- Every push deploys automatically; the commit gets a **"Website preview"** check whose **Details** link opens that branch's preview. Tell her to use it, and that she must be logged in to Shopify to view it.
+- **Merging the PR into `main` publishes it** to the main storefront within a few minutes. Remind her to check the preview before merging.
+- **Never deploy manually**, never ask for or add secrets/`.env` values, and never edit `.github/workflows/` unless Daniel asks.
+- Explain what you changed in plain, non-technical language, and say plainly if something needs Daniel (fonts files, Shopify settings, secrets).
+- Run `pnpm install` then `pnpm run typecheck` before pushing; fix errors you introduced.
+
 ## Working agreements
 - Match the live site first; innovate second unless told otherwise.
 - Keep neighboring homepage sections visibly distinct in background color.
