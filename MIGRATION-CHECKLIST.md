@@ -6,7 +6,9 @@
 
 ## Part A — Move the code
 
-The repo is **local-only** (no git remote, single scaffold commit), so the working files must be transferred directly — git history won't carry the work.
+> **Update 2026-10-09:** the code is now on GitHub — **https://github.com/DCMaker56/winsome-life-hydrogen** (private). On a new machine, just `git clone` it and skip the zip steps below. Only `.env` (Part B) and, if needed, the generated illustration output (`illustrations/generated/`, `illustrations/netlify-app/`, ~460 MB, not in git) still need a manual transfer.
+
+*Original notes (pre-GitHub):* the repo was **local-only** (no git remote, single scaffold commit), so the working files had to be transferred directly.
 
 - [ ] **Zip the project excluding secrets & build junk**, from `/Users/daniel/ClaudeCode`:
   ```bash

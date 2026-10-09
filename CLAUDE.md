@@ -18,7 +18,9 @@ Before you touch anything, know these five things (full detail in HANDOFF.md):
 
 **Two things Daniel must hand you that are NOT in the repo:**
 - **`.env` secret values** (Shopify tokens, Recraft/OpenAI keys) — see HANDOFF.md §4 for the key names to recreate.
-- **The working tree itself if you're on a new machine** — this is a local-only repo with no git remote and a single scaffold commit; the real work lives in the files, not in git history.
+- *(Code is on GitHub now — clone `https://github.com/DCMaker56/winsome-life-hydrogen` (private). Generated illustration output (~460 MB) is not in git; get it from Daniel if needed.)*
+
+**Commit each feedback batch** and `git push` so GitHub stays the source of truth.
 
 **Top open thread right now:** the personalization font picker is locked to 10 fonts; 5 render from real files, **5 still need font files from Sydney** (Buffalo, Jimmy Script, Chloe, Windslow Regular, Eyesome Script). Chase those, self-host them, redeploy. See HANDOFF.md §6 + §14.
 
