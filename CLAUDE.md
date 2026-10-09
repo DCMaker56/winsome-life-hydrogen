@@ -38,13 +38,21 @@ Before you touch anything, know these five things (full detail in HANDOFF.md):
 
 ## Rules for cloud sessions (claude.ai/code — e.g. Sydney's sessions)
 
-Sydney (CEO, non-technical) makes changes from claude.ai/code. When you are running there:
-- **Never push to `main`.** Work on a new branch with a short descriptive name (e.g. `hero-text-mobile`), commit, push, and offer to open a pull request.
-- Every push deploys automatically; the commit gets a **"Website preview"** check whose **Details** link opens that branch's preview. Tell her to use it, and that she must be logged in to Shopify to view it.
-- **Merging the PR into `main` publishes it** to the main storefront within a few minutes. Remind her to check the preview before merging.
-- **Never deploy manually**, never ask for or add secrets/`.env` values, and never edit `.github/workflows/` unless Daniel asks.
-- Explain what you changed in plain, non-technical language, and say plainly if something needs Daniel (fonts files, Shopify settings, secrets).
-- Run `pnpm install` then `pnpm run typecheck` before pushing; fix errors you introduced.
+Sydney (CEO, non-technical) makes changes from claude.ai/code and never opens GitHub. Follow this **preview → publish** process every time, entirely inside the conversation:
+
+1. **Make the change on a new branch** with a short descriptive name (e.g. `hero-text-mobile`), based on the latest `origin/main`. Run `pnpm install` then `pnpm run typecheck`; fix errors you introduced. Commit and push the branch. **Don't open a pull request** unless she asks.
+2. **Get the preview link.** Every push deploys automatically (GitHub Actions → Oxygen, ~3–6 min). Poll until the commit has a `Website preview` status:
+   `gh api repos/DCMaker56/winsome-life-hydrogen/commits/<sha>/status --jq '.statuses[] | select(.context=="Website preview") | .target_url'`
+   If the workflow run fails (`gh run list --branch <branch>`, `gh run view <id> --log-failed`), fix it and push again.
+3. **Send her the link in the chat** with a plain-language summary of what changed. Remind her she must be logged in to Shopify in the same browser to open it, and to check on her phone too. Ask: "Reply **publish** when you're happy, or tell me what to change."
+4. **Revisions:** commit to the same branch, push, and send the new preview link.
+5. **Publish only when she explicitly says so** ("publish", "looks good, go live", etc.): `git fetch origin && git rebase origin/main`, re-run typecheck, then `git push origin HEAD:main`. Wait for the `main` commit's `Website preview` status to succeed and tell her it's live (main storefront, ~5 min).
+6. **Undo on request:** `git revert` the commit(s) on `main`, push to `main`, and confirm when the redeploy succeeds. Nothing is ever lost.
+
+Also:
+- **Never push to `main` without her explicit go-ahead in the conversation.** Never deploy manually (`shopify hydrogen deploy`), never ask for or add secrets/`.env` values, never delete branches, and never edit `.github/workflows/` unless Daniel asks.
+- Talk in plain, non-technical language. Say plainly if something needs Daniel (font files, Shopify settings, secrets, access problems).
+- Product names, prices and photos live in Shopify admin, not this repo — point her there for those.
 
 ## Working agreements
 - Match the live site first; innovate second unless told otherwise.
