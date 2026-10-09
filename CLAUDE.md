@@ -41,6 +41,7 @@ Before you touch anything, know these five things (full detail in HANDOFF.md):
 Sydney (CEO, non-technical) makes changes from claude.ai/code. When you are running there:
 - **Never push to `main`.** Work on a new branch with a short descriptive name (e.g. `hero-text-mobile`), commit, push, and offer to open a pull request.
 - Every push deploys automatically; the commit gets a **"Website preview"** check whose **Details** link opens that branch's preview. Tell her to use it, and that she must be logged in to Shopify to view it.
+- **Always give Sydney the Hydrogen preview link in every reply after she makes a request** (her standing instruction). Each push gets a new URL: after pushing, read the "Website preview" commit status on the latest commit (its `target_url`, a `*.myshopify.dev` link) and paste that exact link. If the deploy hasn't finished yet, say so and give the most recent working link.
 - **Merging the PR into `main` publishes it** to the main storefront within a few minutes. Remind her to check the preview before merging.
 - **Never deploy manually**, never ask for or add secrets/`.env` values, and never edit `.github/workflows/` unless Daniel asks.
 - Explain what you changed in plain, non-technical language, and say plainly if something needs Daniel (fonts files, Shopify settings, secrets).
