@@ -64,7 +64,8 @@ Run `npm run codegen` first if you touched any GraphQL query, or typecheck will 
 ### Git
 - **Remote:** private GitHub repo **https://github.com/DCMaker56/winsome-life-hydrogen** (branch `main`, tracking `origin/main`). Pushed 2026-10-09.
 - **History:** `046b32b Scaffold Storefront` → `efe7c74 Baseline` (snapshot of all work through 2026-10-09). From here on, **commit each feedback batch** before/after deploying so changes can be rolled back.
-- **Deploy is still manual via Oxygen** (`shopify hydrogen deploy`), not triggered by GitHub pushes. GitHub→Oxygen auto-deploy is a possible next step.
+- **Deploys are automatic (since 2026-10-09):** `.github/workflows/oxygen-deploy.yml` runs on every push. Push/merge to **`main`** → storefront's **Production** environment (the main `winsome-hy…myshopify.dev` URL). Any **other branch** → its own **Preview** deployment URL. Uses pnpm + Node 24; auth via repo secret `SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN` (Shopify Oxygen deployment token, valid 1 year — renew ~Oct 2027). Runtime env vars live in Shopify → Storefront settings → Environments and variables. Manual CLI deploy still works as a fallback.
+- **Workflow:** make changes on a branch → check its preview URL → merge to `main` → auto-deploys. Don't commit straight to `main` for anything risky.
 - **Not in git (by design):** `.env` / `.env.*`, `node_modules`, `dist`, `.shopify`, and the generated illustration output `illustrations/generated/` + `illustrations/netlify-app/` (~460 MB; pipeline scripts *are* tracked). Those generated images exist only on Daniel's Mac.
 - New machine: `git clone https://github.com/DCMaker56/winsome-life-hydrogen.git`, then recreate `.env` (§4) and `npm install`.
 

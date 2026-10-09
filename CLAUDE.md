@@ -31,7 +31,7 @@ Before you touch anything, know these five things (full detail in HANDOFF.md):
 - **Full handoff / source of truth:** [`HANDOFF.md`](./HANDOFF.md)
 - **Dir:** `/Users/daniel/ClaudeCode/winsome-life-hydrogen`
 - **Dev:** `npm run dev` → http://localhost:3000
-- **Deploy:** `cd /Users/daniel/ClaudeCode/winsome-life-hydrogen && npx shopify hydrogen deploy --force --env preview`
+- **Deploy:** automatic — push to `main` deploys (GitHub Actions → Oxygen); other branches get preview URLs. Manual fallback: `cd /Users/daniel/ClaudeCode/winsome-life-hydrogen && npx shopify hydrogen deploy --force --env preview`
 - **Codegen (after GraphQL edits):** `npm run codegen`
 - **Typecheck:** `npm run typecheck`
 - **Illustration work:** invoke the `winsome-illustrations` skill first — those decisions are settled, don't improvise.
