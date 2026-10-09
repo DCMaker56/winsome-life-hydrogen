@@ -74,19 +74,6 @@ export default function HeroSection() {
           aria-hidden
         />
 
-        {/* Big decorative "H" — sits on the opposite side from the tagline so
-            the two never overlap. */}
-        <div
-          className={`absolute inset-y-0 z-10 flex items-center pointer-events-none transition-all duration-700 ${
-            side === "right" ? "left-6 md:left-[8%]" : "right-6 md:right-[8%]"
-          }`}
-          aria-hidden
-        >
-          <span className="font-serif font-medium text-[#2D2D2D] leading-none text-[9rem] md:text-[14rem] lg:text-[18rem] drop-shadow-[0_2px_12px_rgba(250,248,245,0.7)]">
-            H
-          </span>
-        </div>
-
         {/* Content */}
         <div
           className={`relative z-10 flex-1 flex items-center container py-14 lg:py-16 transition-all duration-700 ${
