@@ -12,6 +12,7 @@ import type {
   RegularSearchQuery,
   PredictiveSearchQuery,
 } from 'storefrontapi.generated';
+import {isAddOnHandle} from '~/lib/addons';
 
 export const meta: Route.MetaFunction = () => {
   return [{title: `Hydrogen | Search`}];
@@ -238,6 +239,11 @@ async function regularSearch({
     throw new Error('No search data returned from Shopify API');
   }
 
+  // Add-ons (the paid proof) aren't browsable products.
+  items.products.nodes = items.products.nodes.filter(
+    (p) => !isAddOnHandle(p.handle),
+  );
+
   const total = Object.values(items).reduce(
     (acc: number, {nodes}: {nodes: Array<unknown>}) => acc + nodes.length,
     0,
@@ -416,6 +422,8 @@ async function predictiveSearch({
   if (!items) {
     throw new Error('No predictive search data returned from Shopify API');
   }
+
+  items.products = items.products.filter((p) => !isAddOnHandle(p.handle));
 
   const total = Object.values(items).reduce(
     (acc: number, item: Array<unknown>) => acc + item.length,

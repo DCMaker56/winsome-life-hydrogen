@@ -193,7 +193,7 @@ export default function HomePage() {
 const HOME_PRODUCTS_QUERY = `#graphql
   query HomeProducts($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    products(first: 24, sortKey: BEST_SELLING) {
+    products(first: 24, sortKey: BEST_SELLING, query: "tag_not:add-on") {
       nodes {
         id
         handle

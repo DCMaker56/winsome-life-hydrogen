@@ -21,6 +21,7 @@ import {
   ShopPayButton,
 } from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
+import {PROOF_PRODUCT_HANDLE} from '~/lib/addons';
 import {
   graphqlToAppProduct,
   type GraphqlProduct,
@@ -106,8 +107,6 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   return {product, appProduct, related, proof};
 }
 
-/** Shopify handle of the "Product Proof" add-on (Shopify admin → Products). */
-const PROOF_PRODUCT_HANDLE = 'product-proof';
 
 /**
  * Per-product personalization overrides, keyed by product handle. Default (see

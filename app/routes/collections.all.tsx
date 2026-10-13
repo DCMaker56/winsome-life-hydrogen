@@ -116,7 +116,7 @@ const CATALOG_QUERY = `#graphql
     $startCursor: String
     $endCursor: String
   ) @inContext(country: $country, language: $language) {
-    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
+    products(first: $first, last: $last, before: $startCursor, after: $endCursor, query: "tag_not:add-on") {
       nodes { ...CatalogProduct }
       pageInfo {
         hasPreviousPage
