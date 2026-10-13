@@ -396,7 +396,10 @@ export function PersonalizationPanel({
         {/* ── Font picker — shows customer's own text ── */}
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
-            Font
+            Font{" "}
+            <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
+              (choose from the font styles below for your text)
+            </span>
           </legend>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {schema.fonts.map((f) => {
