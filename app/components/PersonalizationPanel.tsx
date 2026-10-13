@@ -35,6 +35,9 @@ interface PersonalizationPanelProps {
   /** Show the live text preview box. Off for now (Sydney): customers just
    *  pick their options; each font tile still shows their text. */
   showPreview?: boolean;
+  /** Start with nothing chosen (font, ink, choice fields) and mark them
+   *  required — the customer makes every choice. */
+  requireChoices?: boolean;
 }
 
 export function PersonalizationPanel({
@@ -45,6 +48,7 @@ export function PersonalizationPanel({
   hideMonogram,
   textLabel,
   showPreview = false,
+  requireChoices = false,
 }: PersonalizationPanelProps) {
   const hasMonogram = !hideMonogram && !!schema.monogramStyles?.length;
   const monogramStyle: MonogramStyle | undefined = useMemo(() => {
@@ -57,6 +61,7 @@ export function PersonalizationPanel({
 
   // Ensure fontKey/inkKey stay valid
   useEffect(() => {
+    if (requireChoices) return;
     if (!schema.fonts.some((f) => f.key === value.fontKey)) {
       onChange({ ...value, fontKey: schema.fonts[0].key });
     }
@@ -222,7 +227,7 @@ export function PersonalizationPanel({
               type="text"
               value={value.fields["text"] ?? ""}
               onChange={(e) => setField("text", e.target.value.slice(0, textField.maxLength))}
-              placeholder={textField.placeholder || "Your name or a phrase"}
+              placeholder={textField.placeholder}
               maxLength={textField.maxLength}
               className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
             />
@@ -438,7 +443,8 @@ export function PersonalizationPanel({
         {/* ── Font picker — shows customer's own text ── */}
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
-            Font{" "}
+            Font
+            {requireChoices && <span className="text-[#C9A96E]"> *</span>}{" "}
             <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
               Choose from fonts below for your text
             </span>
@@ -478,6 +484,7 @@ export function PersonalizationPanel({
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
             Ink Color
+            {requireChoices && <span className="text-[#C9A96E]"> *</span>}
           </legend>
           <div className="grid grid-cols-5 gap-2">
             {schema.inkColors.map((c) => {

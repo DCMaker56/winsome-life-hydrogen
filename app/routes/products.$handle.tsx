@@ -129,6 +129,7 @@ const PDP_PERSONALIZATION_OVERRIDES: Record<
           options: ['Top Center', 'Bottom Left'],
           maxLength: 20,
           placeholder: '',
+          required: true,
         },
       ],
     },
@@ -143,7 +144,7 @@ const RETURN_ADDRESS_FIELD: PersonalizationField = {
     'Name & Return Address (only for orders with return address printing on envelopes)',
   type: 'longtext',
   maxLength: 200,
-  placeholder: 'The Smith Family\n123 Magnolia Lane\nDallas, TX 75201',
+  placeholder: '',
   helpText:
     'Exactly as you want it printed on the back of the envelope. Printed in the same font and color as your card unless you note otherwise.',
 };
@@ -171,12 +172,12 @@ export default function ProductRoute() {
       const base = schema
         ? defaultPersonalizationValue(schema)
         : {mode: 'name' as const, fontKey: '', inkKey: '', fields: {}};
-      // Start with an empty Text box (the font samples still show "Amelia"
-      // until the customer types) so a placeholder name can't be ordered.
+      // Start blank — empty Text box, no font, ink or choices picked — so the
+      // customer makes every choice and no sample can be ordered by accident.
       // When monogram is hidden, start in name mode with no stray letters.
       return pdpOverride.hideMonogram
-        ? {...base, mode: 'name', fields: {text: ''}}
-        : {...base, fields: {...base.fields, text: ''}};
+        ? {...base, mode: 'name', fontKey: '', inkKey: '', fields: {text: ''}}
+        : {...base, fontKey: '', inkKey: '', fields: {...base.fields, text: ''}};
     },
   );
   const [selectedImage, setSelectedImage] = useState(0);
@@ -228,7 +229,8 @@ export default function ProductRoute() {
       schema && {
         ...schema,
         fields: [
-          ...schema.fields,
+          // Blank boxes (no sample text) — Sydney found it confusing.
+          ...schema.fields.map((f) => ({...f, placeholder: ''})),
           ...(pdpOverride.extraFields ?? []),
           ...(offersReturnAddress
             ? [{...RETURN_ADDRESS_FIELD, required: wantsReturnAddress}]
@@ -255,6 +257,8 @@ export default function ProductRoute() {
               ? pdpOverride.textLabel ?? f.label
               : f.label.replace(/\s*\(.*\)$/, ''),
           ),
+        ...(personalization.fontKey ? [] : ['Font']),
+        ...(personalization.inkKey ? [] : ['Ink Color']),
         ...(!proofApproved && !wantsProof
           ? [
               proof
@@ -532,6 +536,7 @@ export default function ProductRoute() {
                   value={personalization}
                   onChange={setPersonalization}
                   hideMonogram={pdpOverride.hideMonogram}
+                  requireChoices
                   textLabel={pdpOverride.textLabel}
                 />
               </div>
