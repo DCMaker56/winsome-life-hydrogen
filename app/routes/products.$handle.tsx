@@ -22,6 +22,7 @@ import {
 } from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {PROOF_PRODUCT_HANDLE} from '~/lib/addons';
+import {questionsToFields} from '~/lib/personalization-questions';
 import {
   graphqlToAppProduct,
   type GraphqlProduct,
@@ -109,37 +110,29 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       ? {variantId: proofVariant.id, price: Number(proofVariant.price.amount)}
       : null;
 
-  return {product, appProduct, related, proof};
+  // This product's own questions, managed in Shopify admin.
+  const extraQuestions = questionsToFields(
+    product.personalizationQuestions?.references?.nodes as
+      | Parameters<typeof questionsToFields>[0]
+      | undefined,
+  );
+
+  return {product, appProduct, related, proof, extraQuestions};
 }
 
 
 /**
  * Per-product personalization overrides, keyed by product handle. Default (see
  * below) is name-only with a "Text" label. Add a handle here to re-enable the
- * monogram option, relabel, or add the product's own questions from the live
- * site (e.g. where the illustration sits), e.g.:
+ * monogram option or relabel, e.g.:
  *   'some-monogram-notecard-handle': {hideMonogram: false},
+ * A product's own questions (e.g. where the illustration sits) live in
+ * Shopify admin — see app/lib/personalization-questions.ts.
  */
 const PDP_PERSONALIZATION_OVERRIDES: Record<
   string,
-  {hideMonogram?: boolean; textLabel?: string; extraFields?: PersonalizationField[]}
-> = {
-  'magnolia-stationery-set-magnolia-stationary-magnolia-flower-notecards-floral-notes-custom-personalized-magnolia-stationery-1':
-    {
-      extraFields: [
-        {
-          key: 'Magnolia Placement',
-          label: 'Magnolia Placement',
-          type: 'choice',
-          options: ['Top Center', 'Bottom Left'],
-          maxLength: 20,
-          placeholder: '',
-          required: true,
-          group: 'placement',
-        },
-      ],
-    },
-};
+  {hideMonogram?: boolean; textLabel?: string}
+> = {};
 
 /** The live site's envelope field, shown on every product sold with a
  *  return-address option (e.g. "10 + Return Address"). It's required only
@@ -157,7 +150,8 @@ const RETURN_ADDRESS_FIELD: PersonalizationField = {
 };
 
 export default function ProductRoute() {
-  const {product, appProduct, related, proof} = useLoaderData<typeof loader>();
+  const {product, appProduct, related, proof, extraQuestions} =
+    useLoaderData<typeof loader>();
 
   const preset = VARIANT_PRESETS[appProduct.type];
   // Existing products are the classic shopping experience: the product photo
@@ -244,13 +238,13 @@ export default function ProductRoute() {
         fields: [
           // Blank boxes (no sample text) — Sydney found it confusing.
           ...schema.fields.map((f) => ({...f, placeholder: ''})),
-          ...(pdpOverride.extraFields ?? []),
+          ...extraQuestions,
           ...(offersReturnAddress
             ? [{...RETURN_ADDRESS_FIELD, required: wantsReturnAddress}]
             : []),
         ],
       },
-    [schema, pdpOverride.extraFields, offersReturnAddress, wantsReturnAddress],
+    [schema, extraQuestions, offersReturnAddress, wantsReturnAddress],
   );
 
   // Listed in page order: text, font, ink color, then the extra questions.
@@ -903,6 +897,13 @@ const PRODUCT_QUERY = `#graphql
       productType
       tags
       options { name optionValues { name } }
+      personalizationQuestions: metafield(namespace: "winsome", key: "personalization_questions") {
+        references(first: 30) {
+          nodes {
+            ... on Metaobject { fields { key value } }
+          }
+        }
+      }
       featuredImage { url altText width height }
       images(first: 100) {
         nodes { url altText }
