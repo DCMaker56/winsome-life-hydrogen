@@ -106,7 +106,7 @@ export function PersonalizationPanel({
   const liveText =
     value.mode === "monogram"
       ? value.fields["monogram-letters"]?.toUpperCase() || "AEW"
-      : value.fields["text"] || "Amelia";
+      : value.fields["text"] || "Sample Text";
 
   // Monogram styles grouped by letter count — default to 3 letters (most traditional)
   const [letterCountFilter, setLetterCountFilter] = useState<1 | 2 | 3>(

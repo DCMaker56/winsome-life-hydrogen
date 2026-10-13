@@ -172,8 +172,8 @@ export default function ProductRoute() {
       const base = schema
         ? defaultPersonalizationValue(schema)
         : {mode: 'name' as const, fontKey: '', inkKey: '', fields: {}};
-      // Start blank — empty Text box, no font, ink or choices picked — so the
-      // customer makes every choice and no sample can be ordered by accident.
+      // Start blank — empty Text box (font samples read "Sample Text"), no font,
+      // ink or choices picked — so the customer makes every choice.
       // When monogram is hidden, start in name mode with no stray letters.
       return pdpOverride.hideMonogram
         ? {...base, mode: 'name', fontKey: '', inkKey: '', fields: {text: ''}}

@@ -279,7 +279,7 @@ export function InlinePersonalizer({
         <div className="grid grid-cols-3 gap-2">
           {FONTS.map((f) => {
             const active = value.fontKey === f.key;
-            const sample = (value.name || "Amelia").split(" ")[0];
+            const sample = value.name ? value.name.split(" ")[0] : "Sample Text";
             return (
               <button
                 key={f.key}
