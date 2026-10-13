@@ -383,7 +383,7 @@ export function PersonalizationPanel({
             </span>
           </legend>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {schema.fonts.map((f) => {
+            {schema.fonts.map((f, i) => {
               const active = value.fontKey === f.key;
               return (
                 <button
@@ -406,6 +406,10 @@ export function PersonalizationPanel({
                     style={{ fontFamily: f.fontFamily, fontWeight: f.fontWeight }}
                   >
                     {liveText}
+                  </span>
+                  {/* Matches the font chart and order details ("Font 4 – Buffalo"). */}
+                  <span className="font-sans font-medium text-[9px] tracking-[0.1em] uppercase text-[#2D2D2D]/55 mt-1 block">
+                    Font {i + 1}
                   </span>
                 </button>
               );

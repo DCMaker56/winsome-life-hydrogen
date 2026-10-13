@@ -277,7 +277,7 @@ export function InlinePersonalizer({
           <h3 className="font-serif text-lg text-[#2D2D2D]">Pick a font</h3>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {FONTS.map((f) => {
+          {FONTS.map((f, i) => {
             const active = value.fontKey === f.key;
             const sample = value.name ? value.name.split(" ")[0] : "Sample Text";
             return (
@@ -299,6 +299,9 @@ export function InlinePersonalizer({
                   style={{ fontFamily: f.fontFamily }}
                 >
                   {sample}
+                </span>
+                <span className="font-sans font-medium text-[8px] tracking-[0.1em] uppercase text-[#2D2D2D]/50 mt-0.5 block">
+                  Font {i + 1}
                 </span>
               </button>
             );
