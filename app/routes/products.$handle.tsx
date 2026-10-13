@@ -70,10 +70,15 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   if (!handle) throw new Error('Expected product handle');
 
   const {storefront} = context;
-  const [{product}] = await Promise.all([
+  const [{product}, proofData] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
+    // The paid proof add-on is its own Shopify product; if it isn't set up
+    // (or isn't on this sales channel) the option simply doesn't show.
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: PROOF_PRODUCT_HANDLE}})
+      .catch(() => null),
   ]);
   if (!product?.id) throw new Response(null, {status: 404});
 
@@ -92,8 +97,17 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       .map((p) => graphqlToAppProduct(p as unknown as GraphqlProduct)),
   };
 
-  return {product, appProduct, related};
+  const proofVariant = proofData?.product?.variants?.nodes?.[0];
+  const proof =
+    proofVariant?.availableForSale && handle !== PROOF_PRODUCT_HANDLE
+      ? {variantId: proofVariant.id, price: Number(proofVariant.price.amount)}
+      : null;
+
+  return {product, appProduct, related, proof};
 }
+
+/** Shopify handle of the "Product Proof" add-on (Shopify admin → Products). */
+const PROOF_PRODUCT_HANDLE = 'product-proof';
 
 /**
  * Per-product personalization overrides, keyed by product handle. Default (see
@@ -136,7 +150,7 @@ const RETURN_ADDRESS_FIELD: PersonalizationField = {
 };
 
 export default function ProductRoute() {
-  const {product, appProduct, related} = useLoaderData<typeof loader>();
+  const {product, appProduct, related, proof} = useLoaderData<typeof loader>();
 
   const preset = VARIANT_PRESETS[appProduct.type];
   // Existing products are the classic shopping experience: the product photo
@@ -167,6 +181,10 @@ export default function ProductRoute() {
   // Rifle-style checkpoint: made-to-order + final sale means the customer
   // must explicitly approve their personalization before it can be purchased.
   const [proofApproved, setProofApproved] = useState(false);
+  // Paid add-on: a full product proof emailed within 2 business days. The
+  // customer approves the design from that email instead of up front.
+  const [proofRequested, setProofRequested] = useState(false);
+  const wantsProof = !!proof && proofRequested;
 
   // Real Shopify variants (sizes, sheets, set quantities, …) + purchase qty.
   const variants = product.variants?.nodes ?? [];
@@ -218,7 +236,12 @@ export default function ProductRoute() {
   const lineAttributes = [
     ...(activeSchema ? buildLineAttributes(personalization, activeSchema) : []),
     ...(personalizable
-      ? [{key: '_Proof Approved', value: proofApproved ? 'Yes' : 'No'}]
+      ? [
+          {
+            key: '_Proof Approved',
+            value: wantsProof ? 'No — proof requested' : proofApproved ? 'Yes' : 'No',
+          },
+        ]
       : []),
   ];
 
@@ -483,9 +506,29 @@ export default function ProductRoute() {
               </div>
             )}
 
+            {/* Paid proof add-on — sits at the bottom of the personalization. */}
+            {personalizable && proof && (
+              <label className="flex items-start gap-3 mb-4 p-4 bg-white border border-[#C9A96E]/25 rounded-sm cursor-pointer hover:border-[#C9A96E]/60 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={proofRequested}
+                  onChange={(e) => setProofRequested(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[#C9A96E]"
+                />
+                <span className="font-sans font-light text-[13px] text-[#2D2D2D]/75 leading-relaxed">
+                  <span className="font-medium text-[#2D2D2D]">
+                    Request a full product proof (+${proof.price.toFixed(2)})
+                  </span>{' '}
+                  We&rsquo;ll email a proof of your design within 2 business
+                  days of your order, and print once you approve it.
+                </span>
+              </label>
+            )}
+
             {/* Review & approve — the made-to-order checkpoint. The customer's
-                approval is what lets production print without a designer pass. */}
-            {personalizable && (
+                approval is what lets production print without a designer pass.
+                Requesting a proof replaces it: they approve from the email. */}
+            {personalizable && !wantsProof && (
               <label className="flex items-start gap-3 mb-4 p-4 bg-white border border-[#C9A96E]/25 rounded-sm cursor-pointer hover:border-[#C9A96E]/60 transition-colors">
                 <input
                   type="checkbox"
@@ -514,6 +557,20 @@ export default function ProductRoute() {
                     quantity,
                     attributes: lineAttributes,
                   },
+                  ...(wantsProof
+                    ? [
+                        {
+                          merchandiseId: proof.variantId,
+                          quantity: 1,
+                          attributes: [
+                            {key: 'Proof for', value: appProduct.title},
+                            ...(selectedVariant?.title
+                              ? [{key: 'Option', value: selectedVariant.title}]
+                              : []),
+                          ],
+                        },
+                      ]
+                    : []),
                 ],
               }}
               action={CartForm.ACTIONS.LinesAdd}
@@ -523,14 +580,14 @@ export default function ProductRoute() {
                   type="submit"
                   disabled={
                     !variantId ||
-                    (personalizable && !proofApproved) ||
+                    (personalizable && !proofApproved && !wantsProof) ||
                     fetcher.state !== 'idle'
                   }
                   className="w-full bg-[#2D2D2D] text-white font-sans font-medium text-sm tracking-[0.15em] uppercase py-4 hover:bg-[#C9A96E] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {fetcher.state !== 'idle'
                     ? 'Adding…'
-                    : personalizable && !proofApproved
+                    : personalizable && !proofApproved && !wantsProof
                       ? 'Approve Your Design Above'
                       : 'Add to Cart'}
                 </button>
@@ -748,6 +805,20 @@ const PRODUCT_QUERY = `#graphql
         price { amount }
         compareAtPrice { amount }
         availableForSale
+      }
+    }
+  }
+` as const;
+
+const PROOF_PRODUCT_QUERY = `#graphql
+  query ProofProduct(
+    $country: CountryCode
+    $handle: String!
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    product(handle: $handle) {
+      variants(first: 1) {
+        nodes { id availableForSale price { amount } }
       }
     }
   }
