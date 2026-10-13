@@ -511,7 +511,10 @@ export default function ProductRoute() {
             {personalizable && (
               <fieldset className="mb-4 space-y-2">
                 <legend className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
-                  Before We Print
+                  Before We Print{' '}
+                  <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
+                    Choose one
+                  </span>
                 </legend>
                 {[
                   {
