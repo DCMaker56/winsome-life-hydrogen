@@ -11,7 +11,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Type, Pen, RotateCcw } from "lucide-react";
-import type { PersonalizationSchema, MonogramStyle } from "@/lib/variants";
+import { sortByFieldGroup, type PersonalizationSchema, type MonogramStyle } from "@/lib/variants";
 
 export type PersonalizationMode = "name" | "monogram";
 
@@ -121,8 +121,8 @@ export function PersonalizationPanel({
   const textField = schema.fields.find((f) => f.key === "text");
   const monoField = schema.fields.find((f) => f.type === "monogram-letters");
   // Other fields (custom-message, etc.)
-  const extraFields = schema.fields.filter(
-    (f) => f.key !== "text" && f.type !== "monogram-letters",
+  const extraFields = sortByFieldGroup(
+    schema.fields.filter((f) => f.key !== "text" && f.type !== "monogram-letters"),
   );
 
   return (
@@ -373,73 +373,6 @@ export function PersonalizationPanel({
           </>
         )}
 
-        {/* ── Extra fields (custom-message, etc.) ── */}
-        {extraFields.length > 0 && (
-          <div className="space-y-4">
-            {extraFields.map((field) => {
-              const current = value.fields[field.key] ?? "";
-              return (
-                <div key={field.key}>
-                  <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
-                    {field.label}
-                    {field.required && <span className="text-[#C9A96E]"> *</span>}
-                  </label>
-                  {field.type === "choice" ? (
-                    <div className="flex flex-wrap gap-2">
-                      {(field.options ?? []).map((opt) => {
-                        const active = current === opt;
-                        return (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setField(field.key, opt)}
-                            aria-pressed={active}
-                            className={cn(
-                              "font-sans px-4 py-2.5 text-sm transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
-                              active
-                                ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5 text-[#2D2D2D]"
-                                : "border border-[#C9A96E]/25 text-[#2D2D2D]/70 hover:border-[#C9A96E]/60",
-                            )}
-                          >
-                            {opt}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : field.type === "longtext" ? (
-                    <textarea
-                      value={current}
-                      onChange={(e) =>
-                        setField(field.key, e.target.value.slice(0, field.maxLength))
-                      }
-                      placeholder={field.placeholder}
-                      maxLength={field.maxLength}
-                      rows={field.maxLength > 80 ? 4 : 2}
-                      className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={current}
-                      onChange={(e) =>
-                        setField(field.key, e.target.value.slice(0, field.maxLength))
-                      }
-                      placeholder={field.placeholder}
-                      maxLength={field.maxLength}
-                      className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-                    />
-                  )}
-                  {field.helpText && (
-                    <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1">
-                      {field.helpText}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
         {/* ── Font picker — shows customer's own text ── */}
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
@@ -522,6 +455,74 @@ export function PersonalizationPanel({
             })}
           </div>
         </fieldset>
+
+        {/* ── Extra questions, after text/font/ink: border → icon → placement →
+             return address (sortByFieldGroup) ── */}
+        {extraFields.length > 0 && (
+          <div className="space-y-4">
+            {extraFields.map((field) => {
+              const current = value.fields[field.key] ?? "";
+              return (
+                <div key={field.key}>
+                  <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
+                    {field.label}
+                    {field.required && <span className="text-[#C9A96E]"> *</span>}
+                  </label>
+                  {field.type === "choice" ? (
+                    <div className="flex flex-wrap gap-2">
+                      {(field.options ?? []).map((opt) => {
+                        const active = current === opt;
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => setField(field.key, opt)}
+                            aria-pressed={active}
+                            className={cn(
+                              "font-sans px-4 py-2.5 text-sm transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
+                              active
+                                ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5 text-[#2D2D2D]"
+                                : "border border-[#C9A96E]/25 text-[#2D2D2D]/70 hover:border-[#C9A96E]/60",
+                            )}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : field.type === "longtext" ? (
+                    <textarea
+                      value={current}
+                      onChange={(e) =>
+                        setField(field.key, e.target.value.slice(0, field.maxLength))
+                      }
+                      placeholder={field.placeholder}
+                      maxLength={field.maxLength}
+                      rows={field.maxLength > 80 ? 4 : 2}
+                      className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={current}
+                      onChange={(e) =>
+                        setField(field.key, e.target.value.slice(0, field.maxLength))
+                      }
+                      placeholder={field.placeholder}
+                      maxLength={field.maxLength}
+                      className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+                    />
+                  )}
+                  {field.helpText && (
+                    <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1">
+                      {field.helpText}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* ── Reset link ── */}
         <div className="flex items-center justify-between pt-2 border-t border-[#C9A96E]/15">

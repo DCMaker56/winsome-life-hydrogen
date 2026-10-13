@@ -28,6 +28,7 @@ import {
 } from '~/lib/shopify-transform';
 import {
   VARIANT_PRESETS,
+  sortByFieldGroup,
   type PersonalizationField,
   type PersonalizationSchema,
 } from '~/lib/variants';
@@ -134,6 +135,7 @@ const PDP_PERSONALIZATION_OVERRIDES: Record<
           maxLength: 20,
           placeholder: '',
           required: true,
+          group: 'placement',
         },
       ],
     },
@@ -149,6 +151,7 @@ const RETURN_ADDRESS_FIELD: PersonalizationField = {
   type: 'longtext',
   maxLength: 200,
   placeholder: '',
+  group: 'return-address',
   helpText:
     'Exactly as you want it printed on the back of the envelope. Printed in the same font and color as your card unless you note otherwise.',
 };
@@ -250,25 +253,28 @@ export default function ProductRoute() {
     [schema, pdpOverride.extraFields, offersReturnAddress, wantsReturnAddress],
   );
 
+  // Listed in page order: text, font, ink color, then the extra questions.
+  const isMissing = (f: PersonalizationField) => {
+    if (!f.required) return false;
+    if (f.key === 'text' && personalization.mode === 'monogram') return false;
+    if (f.type === 'monogram-letters' && personalization.mode !== 'monogram')
+      return false;
+    return !(personalization.fields[f.key] ?? '').trim();
+  };
+  const fieldLabel = (f: PersonalizationField) =>
+    f.key === 'text'
+      ? pdpOverride.textLabel ?? f.label
+      : f.label.replace(/\s*\(.*\)$/, '');
+  const shownFields = activeSchema?.fields ?? [];
   const missingInfo = !personalizable
     ? []
     : [
-        ...(activeSchema?.fields ?? [])
-          .filter((f) => {
-            if (!f.required) return false;
-            const isText = f.key === 'text';
-            const isLetters = f.type === 'monogram-letters';
-            if (isText && personalization.mode === 'monogram') return false;
-            if (isLetters && personalization.mode !== 'monogram') return false;
-            return !(personalization.fields[f.key] ?? '').trim();
-          })
-          .map((f) =>
-            f.key === 'text'
-              ? pdpOverride.textLabel ?? f.label
-              : f.label.replace(/\s*\(.*\)$/, ''),
-          ),
+        ...shownFields.filter(isTextField).filter(isMissing).map(fieldLabel),
         ...(personalization.fontKey ? [] : ['Font']),
         ...(personalization.inkKey ? [] : ['Ink Color']),
+        ...sortByFieldGroup(shownFields.filter((f) => !isTextField(f)))
+          .filter(isMissing)
+          .map(fieldLabel),
         ...(!proofApproved && !wantsProof
           ? [
               proof
@@ -789,6 +795,10 @@ export default function ProductRoute() {
  * survive into checkout, and land on the order so the production team has
  * the structured data they need to fulfill.
  */
+/** The text questions (name/text, monogram letters) that come before font and ink. */
+const isTextField = (f: PersonalizationField) =>
+  f.key === 'text' || f.type === 'monogram-letters';
+
 function buildLineAttributes(
   p: PersonalizationValue,
   schema: PersonalizationSchema,
@@ -798,15 +808,18 @@ function buildLineAttributes(
   // the live site's orders read — e.g. "Font: Font 4 – Buffalo".
   const attrs: Array<{key: string; value: string}> = [];
   if (p.mode) attrs.push({key: '_Personalization Mode', value: p.mode});
-  for (const f of schema.fields) {
+  const pushField = (f: PersonalizationField) => {
     const v = (p.fields?.[f.key] ?? '').trim();
-    if (!v) continue;
-    if (f.key === 'text' && p.mode === 'monogram') continue;
-    if (f.type === 'monogram-letters' && p.mode !== 'monogram') continue;
+    if (!v) return;
+    if (f.key === 'text' && p.mode === 'monogram') return;
+    if (f.type === 'monogram-letters' && p.mode !== 'monogram') return;
     const label =
       f.key === 'text' ? textLabel : f.label.replace(/\s*\(.*\)$/, '');
     attrs.push({key: label, value: v});
-  }
+  };
+  // Same order the customer fills them in: text, font, ink color, then
+  // border → icon → placement → return address.
+  schema.fields.filter(isTextField).forEach(pushField);
   if (p.mode === 'monogram' && p.monogramStyleKey) {
     const style = schema.monogramStyles?.find((s) => s.key === p.monogramStyleKey);
     attrs.push({key: 'Monogram Style', value: style?.label ?? p.monogramStyleKey});
@@ -819,6 +832,7 @@ function buildLineAttributes(
     });
   const ink = schema.inkColors.find((c) => c.key === p.inkKey);
   if (ink) attrs.push({key: 'Ink Color', value: ink.label});
+  sortByFieldGroup(schema.fields.filter((f) => !isTextField(f))).forEach(pushField);
   return attrs;
 }
 

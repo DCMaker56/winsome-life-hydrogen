@@ -90,11 +90,28 @@ export interface PersonalizationField {
   maxLength: number;
   /** "choice" fields only — the options, shown as buttons; the first is the default. */
   options?: string[];
+  /** Where the question sits (Sydney's rule): text, font and ink color come
+   *  first, then border, icon choice, icon placement, and return address last.
+   *  Ungrouped extra fields count as text questions. */
+  group?: FieldGroup;
   placeholder: string;
   helpText?: string;
   required?: boolean;
   /** Which monogram styles use this field (by key). If omitted, always shown. */
   onlyForMonogramStyles?: string[];
+}
+
+export type FieldGroup = "text" | "border" | "icon" | "placement" | "return-address";
+
+const FIELD_GROUP_ORDER: FieldGroup[] = ["text", "border", "icon", "placement", "return-address"];
+
+/** Sort extra personalization questions into Sydney's order (stable within a group). */
+export function sortByFieldGroup<T extends { group?: FieldGroup }>(fields: T[]): T[] {
+  return [...fields].sort(
+    (a, b) =>
+      FIELD_GROUP_ORDER.indexOf(a.group ?? "text") -
+      FIELD_GROUP_ORDER.indexOf(b.group ?? "text"),
+  );
 }
 
 export interface PersonalizationSchema {
