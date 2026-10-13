@@ -110,8 +110,13 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       ? {variantId: proofVariant.id, price: Number(proofVariant.price.amount)}
       : null;
 
-  // This product's own questions, managed in Shopify admin.
-  const extraQuestions = questionsToFields(
+  // This product's own questions, managed in Shopify admin. While the
+  // product's "Personalization questions draft" switch is on they only show
+  // on review links (?drafts=1), so Sydney can approve them before customers
+  // see them.
+  const isDraft = product.personalizationDraft?.value === 'true';
+  const showDrafts = new URL(request.url).searchParams.has('drafts');
+  const extraQuestions = isDraft && !showDrafts ? [] : questionsToFields(
     product.personalizationQuestions?.references?.nodes as
       | Parameters<typeof questionsToFields>[0]
       | undefined,
@@ -897,6 +902,9 @@ const PRODUCT_QUERY = `#graphql
       productType
       tags
       options { name optionValues { name } }
+      personalizationDraft: metafield(namespace: "winsome", key: "personalization_draft") {
+        value
+      }
       personalizationQuestions: metafield(namespace: "winsome", key: "personalization_questions") {
         references(first: 30) {
           nodes {

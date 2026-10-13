@@ -2,7 +2,9 @@
  * Per-product personalization questions, managed in Shopify admin: each
  * product's "Personalization questions" metafield (winsome.personalization_questions)
  * lists "Personalization question" metaobject entries. Text, Font and Ink
- * Color are always asked; these are the product's extra questions.
+ * Color are always asked; these are the product's extra questions. A product
+ * whose "Personalization questions draft" switch (winsome.personalization_draft)
+ * is on only shows them on links with ?drafts=1.
  */
 import type {FieldGroup, PersonalizationField} from '~/lib/variants';
 
