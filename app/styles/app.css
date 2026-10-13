@@ -53,10 +53,9 @@
 }
 
 /* Personalization picker fonts (Buffalo, Jimmy Script, Chloe, Windslow, Eyesome
-   Script) — self-hosted the same way as Parisian Script. Jimmy Script, Chloe and
-   Eyesome Script are TrueType conversions with unique internal names ("Winsome
-   …"): the original CFF files fell back on Chrome/macOS (CoreText) while loading
-   fine elsewhere. */
+   Script) — self-hosted the same way as Parisian Script. On Oxygen these are
+   served from cdn.shopify.com, which must stay in the CSP fontSrc
+   (app/entry.server.tsx) or every self-hosted font is blocked. */
 @font-face {
   font-family: "Buffalo";
   src:
@@ -71,7 +70,7 @@
   font-family: "Jimmy Script";
   src:
     url("./JimmyScript.woff2") format("woff2"),
-    url("./JimmyScript.ttf") format("truetype");
+    url("./JimmyScript.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -81,7 +80,7 @@
   font-family: "Chloe";
   src:
     url("./Chloe.woff2") format("woff2"),
-    url("./Chloe.ttf") format("truetype");
+    url("./Chloe.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -101,7 +100,7 @@
   font-family: "Eyesome Script";
   src:
     url("./EyesomeScript.woff2") format("woff2"),
-    url("./EyesomeScript.ttf") format("truetype");
+    url("./EyesomeScript.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;

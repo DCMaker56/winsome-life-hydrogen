@@ -48,10 +48,13 @@ export default async function handleRequest(
       "'unsafe-inline'",
       'https://fonts.googleapis.com',
     ],
+    // Oxygen serves our bundled assets (self-hosted fonts in app/styles) from
+    // cdn.shopify.com, not 'self' — without it every custom font is blocked.
     fontSrc: [
       "'self'",
       'data:',
       'https://fonts.gstatic.com',
+      'https://cdn.shopify.com',
     ],
     connectSrc: [
       "'self'",
