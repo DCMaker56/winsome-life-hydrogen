@@ -179,11 +179,11 @@ export default function ProductRoute() {
   const [selectedImage, setSelectedImage] = useState(0);
   // Rifle-style checkpoint: made-to-order + final sale means the customer
   // must explicitly approve their personalization before it can be purchased.
-  const [proofApproved, setProofApproved] = useState(false);
-  // Paid add-on: a full product proof emailed within 2 business days. The
-  // customer approves the design from that email instead of up front.
-  const [proofRequested, setProofRequested] = useState(false);
-  const wantsProof = !!proof && proofRequested;
+  // The customer either approves the design as shown, or pays for a full
+  // proof (emailed within 2 business days) and approves from that email.
+  const [approvalChoice, setApprovalChoice] = useState<'' | 'approve' | 'proof'>('');
+  const proofApproved = approvalChoice === 'approve';
+  const wantsProof = !!proof && approvalChoice === 'proof';
 
   // Real Shopify variants (sizes, sheets, set quantities, …) + purchase qty.
   const variants = product.variants?.nodes ?? [];
@@ -505,45 +505,53 @@ export default function ProductRoute() {
               </div>
             )}
 
-            {/* Paid proof add-on — sits at the bottom of the personalization. */}
-            {personalizable && proof && (
-              <label className="flex items-start gap-3 mb-4 p-4 bg-white border border-[#C9A96E]/25 rounded-sm cursor-pointer hover:border-[#C9A96E]/60 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={proofRequested}
-                  onChange={(e) => setProofRequested(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0 accent-[#C9A96E]"
-                />
-                <span className="font-sans font-light text-[13px] text-[#2D2D2D]/75 leading-relaxed">
-                  <span className="font-medium text-[#2D2D2D]">
-                    Request a full product proof (+${proof.price.toFixed(2)})
-                  </span>{' '}
-                  We&rsquo;ll email a proof of your design within 2 business
-                  days of your order, and print once you approve it.
-                </span>
-              </label>
-            )}
-
-            {/* Review & approve — the made-to-order checkpoint. The customer's
-                approval is what lets production print without a designer pass.
-                Requesting a proof replaces it: they approve from the email. */}
-            {personalizable && !wantsProof && (
-              <label className="flex items-start gap-3 mb-4 p-4 bg-white border border-[#C9A96E]/25 rounded-sm cursor-pointer hover:border-[#C9A96E]/60 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={proofApproved}
-                  onChange={(e) => setProofApproved(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0 accent-[#C9A96E]"
-                />
-                <span className="font-sans font-light text-[13px] text-[#2D2D2D]/75 leading-relaxed">
-                  <span className="font-medium text-[#2D2D2D]">
-                    I&rsquo;ve reviewed my personalization and approve this
-                    design.
-                  </span>{' '}
-                  Personalized pieces are made to order exactly as shown and
-                  cannot be changed or returned after checkout.
-                </span>
-              </label>
+            {/* Before we print — approve as shown, or request a paid proof.
+                The approval is what lets production print without a designer
+                pass; with a proof, the customer approves from the email. */}
+            {personalizable && (
+              <fieldset className="mb-4 space-y-2">
+                <legend className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
+                  Before We Print
+                </legend>
+                {[
+                  {
+                    value: 'approve' as const,
+                    title: 'I approve my design as shown.',
+                    text: 'Personalized pieces are made to order exactly as shown and cannot be changed or returned after checkout.',
+                  },
+                  ...(proof
+                    ? [
+                        {
+                          value: 'proof' as const,
+                          title: `Send me a full proof first (+$${proof.price.toFixed(2)}).`,
+                          text: 'Emailed within 2 business days of your order; we print once you approve it.',
+                        },
+                      ]
+                    : []),
+                ].map((opt) => (
+                  <label
+                    key={opt.value}
+                    className={`flex items-start gap-3 p-4 bg-white border rounded-sm cursor-pointer transition-colors ${
+                      approvalChoice === opt.value
+                        ? 'border-[#C9A96E]'
+                        : 'border-[#C9A96E]/25 hover:border-[#C9A96E]/60'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="approval"
+                      value={opt.value}
+                      checked={approvalChoice === opt.value}
+                      onChange={() => setApprovalChoice(opt.value)}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-[#C9A96E]"
+                    />
+                    <span className="font-sans font-light text-[13px] text-[#2D2D2D]/75 leading-relaxed">
+                      <span className="font-medium text-[#2D2D2D]">{opt.title}</span>{' '}
+                      {opt.text}
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
             )}
 
             {/* Add to Cart with Shopify line item properties */}
@@ -587,7 +595,9 @@ export default function ProductRoute() {
                   {fetcher.state !== 'idle'
                     ? 'Adding…'
                     : personalizable && !proofApproved && !wantsProof
-                      ? 'Approve Your Design Above'
+                      ? proof
+                        ? 'Approve Your Design or Choose a Proof'
+                        : 'Approve Your Design Above'
                       : 'Add to Cart'}
                 </button>
               )}
