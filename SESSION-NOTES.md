@@ -8,9 +8,13 @@
 
 1. Wrote this handoff file (`SESSION-NOTES.md`).
 2. **Added the 5 missing personalization fonts** that Sydney uploaded: Buffalo, Jimmy Script, Chloe, Windslow and Eyesome Script. Each `.otf` was converted to `.woff2` and self-hosted in `app/styles/`. The `@font-face` rules in `app/styles/app.css` now use relative `url()`s, like Parisian Script, and the old `/fonts/` placeholder stubs were removed. All 10 picker fonts now render from real files.
-3. Updated `HANDOFF.md` §6 and §14 to match.
+3. **Fixed a site-wide font bug:** the security policy (CSP `fontSrc` in `app/entry.server.tsx`) didn't allow `https://cdn.shopify.com`, which is where Oxygen serves the site's bundled files. Every self-hosted font was blocked, Parisian Script (logo subtitle, hero "You.") included; it only looked right to Sydney because she has those fonts installed. Found with a temporary `/font-check` diagnostic page, since removed. Sydney's Chrome now shows all 10 picker fonts loading for real.
+4. Font picker changes requested by Sydney: removed the font names under the samples (kept as screen-reader labels), added the helper text "Choose from fonts below for your text" next to "Font", and stopped tall scripts (Eyesome) from being clipped. Applied to both `PersonalizationPanel.tsx` (product pages) and `studio/InlinePersonalizer.tsx`.
+5. Updated `HANDOFF.md` §6 and §14 to match.
 
-Files touched: `app/styles/app.css`, `app/styles/{Buffalo,JimmyScript,Chloe,Windslow,EyesomeScript}.{otf,woff2}`, `HANDOFF.md`, `SESSION-NOTES.md`.
+Files touched: `app/entry.server.tsx`, `app/styles/app.css`, `app/styles/{Buffalo,JimmyScript,Chloe,Windslow,EyesomeScript}.{otf,woff2}`, `app/components/PersonalizationPanel.tsx`, `app/components/studio/InlinePersonalizer.tsx`, `HANDOFF.md`, `SESSION-NOTES.md`.
+
+Decision: Chloe is the bold display serif from The Type Founders; that's the file Sydney supplied and it matches her reference image.
 
 The changes are on the preview branch only. **Nothing has been published to `main` yet**; Sydney is reviewing the preview first.
 
@@ -40,7 +44,8 @@ These are the latest commits already on the branch, carried over from earlier se
 ## Open items
 
 1. **Publish the fonts:** waiting on Sydney to check the preview and say "publish".
-1. **Jimmy Script license:** the font file is marked "preview & print" only. Sydney should confirm her license covers website use.
+1. **Font licenses:** the Jimmy Script file is marked "preview & print" only, and The Type Founders (Chloe) sell web use separately. Sydney should confirm both licenses cover the website.
+1. **Pre-existing typecheck errors:** 7 TypeScript errors exist on `main` (in `useBYOProgress.ts`, `useGiftMode.ts`, `usePersistFn.ts`, `gift-sets.$handle.tsx`, etc.), none from this session. The build still succeeds.
 2. **`.env` secrets** must be recreated by Daniel for local development (Shopify tokens, Recraft/OpenAI keys). See `HANDOFF.md` §4.
 3. **Next feedback batch** from Sydney.
 4. **Backlog** (from `HANDOFF.md` §14):
