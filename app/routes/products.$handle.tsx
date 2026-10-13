@@ -11,7 +11,7 @@
  * checkout + the order detail.
  */
 import {useMemo, useState} from 'react';
-import {ChevronLeft, ChevronRight} from 'lucide-react';
+import {ChevronDown, ChevronLeft, ChevronRight} from 'lucide-react';
 import {redirect, useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {
@@ -478,35 +478,68 @@ export default function ProductRoute() {
             {/* Real Shopify variant options — size, sheets, set quantity, etc. */}
             {optionGroups.length > 0 && (
               <div className="mb-6 space-y-5">
-                {optionGroups.map((opt) => (
-                  <div key={opt.name}>
-                    <div className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
-                      {opt.name}
+                {optionGroups.map((opt) =>
+                  // Long lists (e.g. 26 quantity & return-address choices)
+                  // read better as a dropdown; short ones stay as buttons.
+                  opt.optionValues.length > OPTION_DROPDOWN_THRESHOLD ? (
+                    <div key={opt.name}>
+                      <label
+                        htmlFor={`option-${opt.name}`}
+                        className="block font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5"
+                      >
+                        {opt.name}
+                      </label>
+                      <div className="relative">
+                        <select
+                          id={`option-${opt.name}`}
+                          value={selOptions[opt.name] ?? ''}
+                          onChange={(e) =>
+                            setSelOptions((s) => ({...s, [opt.name]: e.target.value}))
+                          }
+                          className="w-full appearance-none bg-white border border-[#C9A96E]/40 px-4 py-3 pr-10 text-sm font-sans text-[#2D2D2D] hover:border-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
+                        >
+                          {opt.optionValues.map((ov) => (
+                            <option key={ov.name} value={ov.name}>
+                              {ov.name}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown
+                          aria-hidden
+                          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#2D2D2D]/60"
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {opt.optionValues.map((ov) => {
-                        const active = selOptions[opt.name] === ov.name;
-                        return (
-                          <button
-                            key={ov.name}
-                            type="button"
-                            onClick={() =>
-                              setSelOptions((s) => ({...s, [opt.name]: ov.name}))
-                            }
-                            aria-pressed={active}
-                            className={`px-4 py-2 text-sm font-sans border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
-                              active
-                                ? 'border-[#2D2D2D] bg-[#2D2D2D] text-white'
-                                : 'border-[#C9A96E]/40 text-[#2D2D2D] hover:border-[#2D2D2D]'
-                            }`}
-                          >
-                            {ov.name}
-                          </button>
-                        );
-                      })}
+                  ) : (
+                    <div key={opt.name}>
+                      <div className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
+                        {opt.name}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {opt.optionValues.map((ov) => {
+                          const active = selOptions[opt.name] === ov.name;
+                          return (
+                            <button
+                              key={ov.name}
+                              type="button"
+                              onClick={() =>
+                                setSelOptions((s) => ({...s, [opt.name]: ov.name}))
+                              }
+                              aria-pressed={active}
+                              className={`px-4 py-2 text-sm font-sans border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
+                                active
+                                  ? 'border-[#2D2D2D] bg-[#2D2D2D] text-white'
+                                  : 'border-[#C9A96E]/40 text-[#2D2D2D] hover:border-[#2D2D2D]'
+                              }`}
+                            >
+                              {ov.name}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             )}
 
@@ -795,6 +828,9 @@ export default function ProductRoute() {
  * survive into checkout, and land on the order so the production team has
  * the structured data they need to fulfill.
  */
+/** Variant options with more choices than this show as a dropdown. */
+const OPTION_DROPDOWN_THRESHOLD = 6;
+
 /** The text questions (name/text, monogram letters) that come before font and ink. */
 const isTextField = (f: PersonalizationField) =>
   f.key === 'text' || f.type === 'monogram-letters';
