@@ -26,7 +26,11 @@ import {
   graphqlToAppProduct,
   type GraphqlProduct,
 } from '~/lib/shopify-transform';
-import {VARIANT_PRESETS, type PersonalizationField} from '~/lib/variants';
+import {
+  VARIANT_PRESETS,
+  type PersonalizationField,
+  type PersonalizationSchema,
+} from '~/lib/variants';
 import {
   PersonalizationPanel,
   defaultPersonalizationValue,
@@ -269,12 +273,14 @@ export default function ProductRoute() {
       ];
 
   const lineAttributes = [
-    ...(activeSchema ? buildLineAttributes(personalization, activeSchema) : []),
-    ...(personalizable
+    ...(activeSchema
+      ? buildLineAttributes(personalization, activeSchema, pdpOverride.textLabel)
+      : []),
+    ...(personalizable && (proofApproved || wantsProof)
       ? [
           {
-            key: '_Proof Approved',
-            value: wantsProof ? 'No — proof requested' : proofApproved ? 'Yes' : 'No',
+            key: 'Before We Print',
+            value: wantsProof ? 'Proof requested' : 'Design approved as shown',
           },
         ]
       : []),
@@ -779,19 +785,34 @@ export default function ProductRoute() {
  */
 function buildLineAttributes(
   p: PersonalizationValue,
-  schema: {fields: PersonalizationField[]},
+  schema: PersonalizationSchema,
+  textLabel: string,
 ) {
-  // Only send fields this product is currently showing.
-  const shown = new Set(schema.fields.map((f) => f.key));
+  // Readable labels for production (and the customer's cart), matching how
+  // the live site's orders read — e.g. "Font: Font 4 – Buffalo".
   const attrs: Array<{key: string; value: string}> = [];
   if (p.mode) attrs.push({key: '_Personalization Mode', value: p.mode});
-  if (p.monogramStyleKey)
-    attrs.push({key: '_Monogram Style', value: p.monogramStyleKey});
-  if (p.fontKey) attrs.push({key: '_Font', value: p.fontKey});
-  if (p.inkKey) attrs.push({key: '_Ink Color', value: p.inkKey});
-  for (const [k, v] of Object.entries(p.fields ?? {})) {
-    if (v && shown.has(k)) attrs.push({key: `_${k}`, value: String(v)});
+  for (const f of schema.fields) {
+    const v = (p.fields?.[f.key] ?? '').trim();
+    if (!v) continue;
+    if (f.key === 'text' && p.mode === 'monogram') continue;
+    if (f.type === 'monogram-letters' && p.mode !== 'monogram') continue;
+    const label =
+      f.key === 'text' ? textLabel : f.label.replace(/\s*\(.*\)$/, '');
+    attrs.push({key: label, value: v});
   }
+  if (p.mode === 'monogram' && p.monogramStyleKey) {
+    const style = schema.monogramStyles?.find((s) => s.key === p.monogramStyleKey);
+    attrs.push({key: 'Monogram Style', value: style?.label ?? p.monogramStyleKey});
+  }
+  const fontIndex = schema.fonts.findIndex((f) => f.key === p.fontKey);
+  if (fontIndex >= 0)
+    attrs.push({
+      key: 'Font',
+      value: `Font ${fontIndex + 1} – ${schema.fonts[fontIndex].label}`,
+    });
+  const ink = schema.inkColors.find((c) => c.key === p.inkKey);
+  if (ink) attrs.push({key: 'Ink Color', value: ink.label});
   return attrs;
 }
 
