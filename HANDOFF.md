@@ -146,22 +146,21 @@ This is the **"classic" personalize-only experience** for existing catalog produ
    | 1 | Cormorant SC Bold | ✅ live (Google Fonts, weight 700) |
    | 2 | Cormorant Garamond Medium | ✅ live (Google Fonts, weight 500) |
    | 3 | Pinyon Script | ✅ live (Google Fonts) |
-   | 4 | **Buffalo** | ⛔ **font file needed** (falls back to cursive) |
-   | 5 | **Jimmy Script** | ⛔ **font file needed** (fallback Sacramento) |
+   | 4 | **Buffalo** | ✅ live (self-hosted, 2026-10-13) |
+   | 5 | **Jimmy Script** | ✅ live (self-hosted, 2026-10-13) |
    | 6 | Bebas Neue | ✅ live (Google Fonts) |
-   | 7 | **Chloe** | ⛔ **font file needed** (fallback Great Vibes) |
-   | 8 | **Windslow Regular** | ⛔ **font file needed** (fallback Cormorant Garamond) |
-   | 9 | **Eyesome Script** | ⛔ **font file needed** (fallback Sacramento) |
+   | 7 | **Chloe** | ✅ live (self-hosted, 2026-10-13) |
+   | 8 | **Windslow Regular** | ✅ live (self-hosted, 2026-10-13) |
+   | 9 | **Eyesome Script** | ✅ live (self-hosted, 2026-10-13) |
    | 10 | Parisian Script | ✅ live (self-hosted, see below) |
 
 ### Font-loading mechanics (learned the hard way):
 - **Parisian Script** is self-hosted. Files live at `app/styles/ParisianScript.woff2` + `.otf`, referenced in `app.css` with a **relative** `url("./ParisianScript.woff2")`. Vite then bundles them into **content-hashed** asset filenames (e.g. `ParisianScript-DvlqgKr8.woff2`), which **cache-busts** — this was the fix for Sydney repeatedly seeing a stale cached font. **Always self-host custom fonts via a relative `url()` in `app.css`, never an absolute `/fonts/...` path** (absolute paths are left unprocessed → no cache-busting → stale-cache complaints).
-- There are 5 `@font-face` **stubs** in `app.css` (Buffalo, Jimmy Script, Chloe, Windslow, Eyesome Script) currently pointing at `url("/fonts/<Name>.woff2")` (public path) so they **fail gracefully to fallbacks** until the real files arrive.
+- Buffalo, Jimmy Script, Chloe, Windslow and Eyesome Script are self-hosted exactly like Parisian (`app/styles/<Name>.woff2` + `.otf`, relative `url()`), added 2026-10-13 from files Sydney supplied.
 - `document.fonts.check(...)` returns **false for a font that hasn't painted yet** (lazy load) — that's a false negative, not a broken font. Verify a font actually renders by **measuring rendered text width** vs. a known fallback (e.g. Cormorant SC 255px vs serif 244px = it loaded).
 
-### ⏳ OUTSTANDING — get these from Sydney (she offered):
-Drop these into `public/fonts/` (and/or convert to woff2 + self-host relative like Parisian). **`.otf` / `.ttf` is fine — convert with `fonttools` + `brotli`.** Then update the 5 `@font-face` rules to the hashed relative paths.
-- `Buffalo.woff2`, `JimmyScript.woff2`, `Chloe.woff2`, `Windslow.woff2`, `EyesomeScript.woff2`
+### ✅ All 10 picker fonts now render from real files (2026-10-13)
+- ⚠️ **Jimmy Script licensing:** its OS/2 `fsType` is 4 ("preview & print" embedding), which often signals a desktop-only license. Sydney was asked to confirm web use is covered.
 
 ---
 
@@ -230,7 +229,7 @@ Winsome's watercolor icons/illustrations are produced by a **separate operating 
 - ✅ SEO (JSON-LD, redirects, robots, sitemap, canonical), gtag (AW-17795546793), Contact + About functional.
 
 ### Immediate next steps for the new agent
-1. **Get the 5 font files from Sydney** (Buffalo, Jimmy Script, Chloe, Windslow Regular, Eyesome Script), self-host them (relative `url()` in `app.css`, convert to woff2), redeploy. This is the top open thread.
+1. ~~Get the 5 font files from Sydney~~ — done 2026-10-13 (all 5 self-hosted). Remaining: confirm Jimmy Script web license (§6).
 2. Recreate `.env` with real secret values (from Daniel / Shopify admin) — see §4.
 3. Await the next feedback batch from Sydney via Daniel.
 

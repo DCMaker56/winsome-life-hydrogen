@@ -52,8 +52,8 @@
   font-display: swap;
 }
 
-/* Buffalo, Jimmy Script, Chloe, Windslow — personalization fonts, self-hosted
-   the same way as Parisian Script. */
+/* Personalization picker fonts (Buffalo, Jimmy Script, Chloe, Windslow, Eyesome
+   Script) — self-hosted the same way as Parisian Script. */
 @font-face {
   font-family: "Buffalo";
   src:
@@ -94,14 +94,13 @@
   font-display: swap;
 }
 
-/* Commercial personalization fonts — awaiting files from Sydney. These point at
-   /fonts/<name>.woff2 (public dir); until the files are dropped in they simply
-   fall back to the next family in each FONTS stack. Absolute /fonts URLs are not
-   bundled by Vite, so a missing file never breaks the build. Drop the woff2 (or
-   send otf/ttf to convert) into public/fonts/ and these render exactly. */
 @font-face {
   font-family: "Eyesome Script";
-  src: url("/fonts/EyesomeScript.woff2") format("woff2");
+  src:
+    url("./EyesomeScript.woff2") format("woff2"),
+    url("./EyesomeScript.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 

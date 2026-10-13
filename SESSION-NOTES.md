@@ -6,7 +6,13 @@
 
 ## This session
 
-No website changes were made in this session. The only work was writing this handoff file (`SESSION-NOTES.md`). No code, styles, fonts, GraphQL queries or deploy settings were touched, and nothing was published to `main`.
+1. Wrote this handoff file (`SESSION-NOTES.md`).
+2. **Added the 5 missing personalization fonts** that Sydney uploaded: Buffalo, Jimmy Script, Chloe, Windslow and Eyesome Script. Each `.otf` was converted to `.woff2` and self-hosted in `app/styles/`. The `@font-face` rules in `app/styles/app.css` now use relative `url()`s, like Parisian Script, and the old `/fonts/` placeholder stubs were removed. All 10 picker fonts now render from real files.
+3. Updated `HANDOFF.md` §6 and §14 to match.
+
+Files touched: `app/styles/app.css`, `app/styles/{Buffalo,JimmyScript,Chloe,Windslow,EyesomeScript}.{otf,woff2}`, `HANDOFF.md`, `SESSION-NOTES.md`.
+
+The changes are on the preview branch only. **Nothing has been published to `main` yet**; Sydney is reviewing the preview first.
 
 ## Where the project stands (most recent work, 2026-10-09)
 
@@ -33,7 +39,8 @@ These are the latest commits already on the branch, carried over from earlier se
 
 ## Open items
 
-1. **5 missing font files** (top priority): Buffalo, Jimmy Script, Chloe, Windslow Regular, Eyesome Script. Sydney needs to supply them; they then get self-hosted in `app/styles/app.css` and redeployed. See `HANDOFF.md` §6 and §14.
+1. **Publish the fonts:** waiting on Sydney to check the preview and say "publish".
+1. **Jimmy Script license:** the font file is marked "preview & print" only. Sydney should confirm her license covers website use.
 2. **`.env` secrets** must be recreated by Daniel for local development (Shopify tokens, Recraft/OpenAI keys). See `HANDOFF.md` §4.
 3. **Next feedback batch** from Sydney.
 4. **Backlog** (from `HANDOFF.md` §14):
