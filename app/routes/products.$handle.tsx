@@ -222,11 +222,17 @@ export default function ProductRoute() {
   // The schema this product actually shows: its preset fields, plus its own
   // extra questions, plus the envelope return address when the product sells
   // return-address printing.
+  // A variant prints return addresses when its value says so ("10 + Return
+  // Address") or it answers a return-address option with Yes ("Return
+  // Address on Back of Envelope: Yes").
+  const printsReturnAddress = (o: {name: string; value: string}) =>
+    /return address/i.test(o.value) ||
+    (/return address/i.test(o.name) && /^yes\b/i.test(o.value));
   const offersReturnAddress = variants.some((v) =>
-    v.selectedOptions.some((o) => /return address/i.test(o.value)),
+    v.selectedOptions.some(printsReturnAddress),
   );
   const wantsReturnAddress = (selectedVariant?.selectedOptions ?? []).some(
-    (o) => /return address/i.test(o.value),
+    printsReturnAddress,
   );
   const activeSchema = useMemo(
     () =>
