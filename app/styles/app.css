@@ -52,16 +52,22 @@
   font-display: swap;
 }
 
+/* Buffalo — personalization font, self-hosted the same way as Parisian Script. */
+@font-face {
+  font-family: "Buffalo";
+  src:
+    url("./Buffalo.woff2") format("woff2"),
+    url("./Buffalo.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Commercial personalization fonts — awaiting files from Sydney. These point at
    /fonts/<name>.woff2 (public dir); until the files are dropped in they simply
    fall back to the next family in each FONTS stack. Absolute /fonts URLs are not
    bundled by Vite, so a missing file never breaks the build. Drop the woff2 (or
    send otf/ttf to convert) into public/fonts/ and these render exactly. */
-@font-face {
-  font-family: "Buffalo";
-  src: url("/fonts/Buffalo.woff2") format("woff2");
-  font-display: swap;
-}
 @font-face {
   font-family: "Jimmy Script";
   src: url("/fonts/JimmyScript.woff2") format("woff2");
