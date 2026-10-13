@@ -414,8 +414,10 @@ export function PersonalizationPanel({
                       : "border border-[#C9A96E]/25 hover:border-[#C9A96E]/60",
                   )}
                 >
+                  {/* py/-my gives tall scripts (Eyesome) room above/below the
+                      line so `truncate`'s overflow clip doesn't cut their loops. */}
                   <span
-                    className="block text-xl leading-tight text-[#2D2D2D] truncate"
+                    className="block text-xl leading-tight text-[#2D2D2D] truncate py-2 -my-2"
                     style={{ fontFamily: f.fontFamily, fontWeight: f.fontWeight }}
                   >
                     {liveText}
