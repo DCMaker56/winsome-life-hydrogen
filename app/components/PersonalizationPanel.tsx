@@ -398,7 +398,7 @@ export function PersonalizationPanel({
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
             Font{" "}
             <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
-              (choose from the font styles below for your text)
+              Choose from fonts below for your text
             </span>
           </legend>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
