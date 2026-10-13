@@ -121,17 +121,18 @@ const PDP_PERSONALIZATION_OVERRIDES: Record<
     },
 };
 
-/** Shown whenever the chosen variant includes return-address printing
- *  (e.g. "10 + Return Address"), matching the live site's envelope field. */
+/** The live site's envelope field, shown on every product sold with a
+ *  return-address option (e.g. "10 + Return Address"). It's required only
+ *  once the customer picks a return-address variant. */
 const RETURN_ADDRESS_FIELD: PersonalizationField = {
-  key: 'Return Address',
-  label: 'Name & Return Address for the Envelope',
+  key: 'Name & Return Address',
+  label:
+    'Name & Return Address (only for orders with return address printing on envelopes)',
   type: 'longtext',
   maxLength: 200,
   placeholder: 'The Smith Family\n123 Magnolia Lane\nDallas, TX 75201',
   helpText:
     'Exactly as you want it printed on the back of the envelope. Printed in the same font and color as your card unless you note otherwise.',
-  required: true,
 };
 
 export default function ProductRoute() {
@@ -191,8 +192,11 @@ export default function ProductRoute() {
   const personalizable = !!schema;
 
   // The schema this product actually shows: its preset fields, plus its own
-  // extra questions, plus the envelope return address when the chosen
-  // variant includes return-address printing.
+  // extra questions, plus the envelope return address when the product sells
+  // return-address printing.
+  const offersReturnAddress = variants.some((v) =>
+    v.selectedOptions.some((o) => /return address/i.test(o.value)),
+  );
   const wantsReturnAddress = (selectedVariant?.selectedOptions ?? []).some(
     (o) => /return address/i.test(o.value),
   );
@@ -203,10 +207,12 @@ export default function ProductRoute() {
         fields: [
           ...schema.fields,
           ...(pdpOverride.extraFields ?? []),
-          ...(wantsReturnAddress ? [RETURN_ADDRESS_FIELD] : []),
+          ...(offersReturnAddress
+            ? [{...RETURN_ADDRESS_FIELD, required: wantsReturnAddress}]
+            : []),
         ],
       },
-    [schema, pdpOverride.extraFields, wantsReturnAddress],
+    [schema, pdpOverride.extraFields, offersReturnAddress, wantsReturnAddress],
   );
 
   const lineAttributes = [
@@ -658,8 +664,7 @@ function buildLineAttributes(
   p: PersonalizationValue,
   schema: {fields: PersonalizationField[]},
 ) {
-  // Only send fields this product is currently showing (e.g. drop a typed
-  // return address once the customer switches to blank envelopes).
+  // Only send fields this product is currently showing.
   const shown = new Set(schema.fields.map((f) => f.key));
   const attrs: Array<{key: string; value: string}> = [];
   if (p.mode) attrs.push({key: '_Personalization Mode', value: p.mode});
@@ -708,7 +713,7 @@ const PRODUCT_QUERY = `#graphql
       images(first: 100) {
         nodes { url altText }
       }
-      variants(first: 50) {
+      variants(first: 250) {
         nodes {
           ...ProductVariant
           compareAtPrice { amount }
