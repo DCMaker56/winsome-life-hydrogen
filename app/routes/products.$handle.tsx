@@ -10,7 +10,7 @@
  * serialized into Shopify cart line item properties so they survive into
  * checkout + the order detail.
  */
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {ChevronLeft, ChevronRight} from 'lucide-react';
 import {redirect, useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/products.$handle';
@@ -25,7 +25,7 @@ import {
   graphqlToAppProduct,
   type GraphqlProduct,
 } from '~/lib/shopify-transform';
-import {VARIANT_PRESETS} from '~/lib/variants';
+import {VARIANT_PRESETS, type PersonalizationField} from '~/lib/variants';
 import {
   PersonalizationPanel,
   defaultPersonalizationValue,
@@ -98,13 +98,41 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 /**
  * Per-product personalization overrides, keyed by product handle. Default (see
  * below) is name-only with a "Text" label. Add a handle here to re-enable the
- * monogram option or relabel, e.g.:
+ * monogram option, relabel, or add the product's own questions from the live
+ * site (e.g. where the illustration sits), e.g.:
  *   'some-monogram-notecard-handle': {hideMonogram: false},
  */
 const PDP_PERSONALIZATION_OVERRIDES: Record<
   string,
-  {hideMonogram?: boolean; textLabel?: string}
-> = {};
+  {hideMonogram?: boolean; textLabel?: string; extraFields?: PersonalizationField[]}
+> = {
+  'magnolia-stationery-set-magnolia-stationary-magnolia-flower-notecards-floral-notes-custom-personalized-magnolia-stationery-1':
+    {
+      extraFields: [
+        {
+          key: 'Magnolia Placement',
+          label: 'Magnolia Placement',
+          type: 'choice',
+          options: ['Top Center', 'Bottom Left'],
+          maxLength: 20,
+          placeholder: '',
+        },
+      ],
+    },
+};
+
+/** Shown whenever the chosen variant includes return-address printing
+ *  (e.g. "10 + Return Address"), matching the live site's envelope field. */
+const RETURN_ADDRESS_FIELD: PersonalizationField = {
+  key: 'Return Address',
+  label: 'Name & Return Address for the Envelope',
+  type: 'longtext',
+  maxLength: 200,
+  placeholder: 'The Smith Family\n123 Magnolia Lane\nDallas, TX 75201',
+  helpText:
+    'Exactly as you want it printed on the back of the envelope. Printed in the same font and color as your card unless you note otherwise.',
+  required: true,
+};
 
 export default function ProductRoute() {
   const {product, appProduct, related} = useLoaderData<typeof loader>();
@@ -118,9 +146,10 @@ export default function ProductRoute() {
   // Per-product personalization tweaks (keyed by handle). Sydney: most items are
   // name-only for now — monogram is opt-in per item — and the field reads "Text".
   // (Scale this via a Shopify tag/metafield once the monogram list is defined.)
-  const pdpOverride = PDP_PERSONALIZATION_OVERRIDES[appProduct.slug] ?? {
+  const pdpOverride = {
     hideMonogram: true,
     textLabel: 'Text',
+    ...PDP_PERSONALIZATION_OVERRIDES[appProduct.slug],
   };
 
   const [personalization, setPersonalization] = useState<PersonalizationValue>(
@@ -161,8 +190,27 @@ export default function ProductRoute() {
   const unitCompareAt = rawCompareAt > unitPrice ? rawCompareAt : undefined;
   const personalizable = !!schema;
 
+  // The schema this product actually shows: its preset fields, plus its own
+  // extra questions, plus the envelope return address when the chosen
+  // variant includes return-address printing.
+  const wantsReturnAddress = (selectedVariant?.selectedOptions ?? []).some(
+    (o) => /return address/i.test(o.value),
+  );
+  const activeSchema = useMemo(
+    () =>
+      schema && {
+        ...schema,
+        fields: [
+          ...schema.fields,
+          ...(pdpOverride.extraFields ?? []),
+          ...(wantsReturnAddress ? [RETURN_ADDRESS_FIELD] : []),
+        ],
+      },
+    [schema, pdpOverride.extraFields, wantsReturnAddress],
+  );
+
   const lineAttributes = [
-    ...(schema ? buildLineAttributes(personalization) : []),
+    ...(activeSchema ? buildLineAttributes(personalization, activeSchema) : []),
     ...(personalizable
       ? [{key: '_Proof Approved', value: proofApproved ? 'Yes' : 'No'}]
       : []),
@@ -420,7 +468,7 @@ export default function ProductRoute() {
             {schema && (
               <div className="mb-6">
                 <PersonalizationPanel
-                  schema={schema}
+                  schema={activeSchema ?? schema}
                   value={personalization}
                   onChange={setPersonalization}
                   hideMonogram={pdpOverride.hideMonogram}
@@ -606,7 +654,13 @@ export default function ProductRoute() {
  * survive into checkout, and land on the order so the production team has
  * the structured data they need to fulfill.
  */
-function buildLineAttributes(p: PersonalizationValue) {
+function buildLineAttributes(
+  p: PersonalizationValue,
+  schema: {fields: PersonalizationField[]},
+) {
+  // Only send fields this product is currently showing (e.g. drop a typed
+  // return address once the customer switches to blank envelopes).
+  const shown = new Set(schema.fields.map((f) => f.key));
   const attrs: Array<{key: string; value: string}> = [];
   if (p.mode) attrs.push({key: '_Personalization Mode', value: p.mode});
   if (p.monogramStyleKey)
@@ -614,7 +668,7 @@ function buildLineAttributes(p: PersonalizationValue) {
   if (p.fontKey) attrs.push({key: '_Font', value: p.fontKey});
   if (p.inkKey) attrs.push({key: '_Ink Color', value: p.inkKey});
   for (const [k, v] of Object.entries(p.fields ?? {})) {
-    if (v) attrs.push({key: `_${k}`, value: String(v)});
+    if (v && shown.has(k)) attrs.push({key: `_${k}`, value: String(v)});
   }
   return attrs;
 }

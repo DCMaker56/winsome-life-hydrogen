@@ -86,8 +86,10 @@ export interface InkColorOption {
 export interface PersonalizationField {
   key: string;
   label: string;
-  type: "text" | "monogram-letters" | "longtext";
+  type: "text" | "monogram-letters" | "longtext" | "choice";
   maxLength: number;
+  /** "choice" fields only — the options, shown as buttons; the first is the default. */
+  options?: string[];
   placeholder: string;
   helpText?: string;
   required?: boolean;

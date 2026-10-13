@@ -59,6 +59,19 @@ export function PersonalizationPanel({
     if (!schema.inkColors.some((c) => c.key === value.inkKey)) {
       onChange({ ...value, inkKey: schema.inkColors[0].key });
     }
+    // Choice fields always carry a value: default to the first option.
+    const missing = schema.fields.filter(
+      (f) => f.type === "choice" && f.options?.length && !f.options.includes(value.fields[f.key] ?? ""),
+    );
+    if (missing.length) {
+      onChange({
+        ...value,
+        fields: {
+          ...value.fields,
+          ...Object.fromEntries(missing.map((f) => [f.key, f.options![0]])),
+        },
+      });
+    }
   }, [schema]);
 
   const setField = (key: string, v: string) =>
@@ -358,8 +371,31 @@ export function PersonalizationPanel({
                 <div key={field.key}>
                   <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
                     {field.label}
+                    {field.required && <span className="text-[#C9A96E]"> *</span>}
                   </label>
-                  {field.type === "longtext" ? (
+                  {field.type === "choice" ? (
+                    <div className="flex flex-wrap gap-2">
+                      {(field.options ?? []).map((opt) => {
+                        const active = current === opt;
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => setField(field.key, opt)}
+                            aria-pressed={active}
+                            className={cn(
+                              "font-sans px-4 py-2.5 text-sm transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
+                              active
+                                ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5 text-[#2D2D2D]"
+                                : "border border-[#C9A96E]/25 text-[#2D2D2D]/70 hover:border-[#C9A96E]/60",
+                            )}
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : field.type === "longtext" ? (
                     <textarea
                       value={current}
                       onChange={(e) =>
@@ -367,7 +403,7 @@ export function PersonalizationPanel({
                       }
                       placeholder={field.placeholder}
                       maxLength={field.maxLength}
-                      rows={2}
+                      rows={field.maxLength > 80 ? 4 : 2}
                       className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
                     />
                   ) : (
