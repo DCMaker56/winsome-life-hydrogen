@@ -407,6 +407,7 @@ export function PersonalizationPanel({
                   key={f.key}
                   onClick={() => onChange({ ...value, fontKey: f.key })}
                   aria-pressed={active}
+                  aria-label={f.label}
                   className={cn(
                     "px-3 py-3 text-center transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2",
                     active
@@ -421,9 +422,6 @@ export function PersonalizationPanel({
                     style={{ fontFamily: f.fontFamily, fontWeight: f.fontWeight }}
                   >
                     {liveText}
-                  </span>
-                  <span className="font-sans font-medium text-[9px] tracking-[0.1em] uppercase text-[#2D2D2D]/55 mt-1 block">
-                    {f.label}
                   </span>
                 </button>
               );

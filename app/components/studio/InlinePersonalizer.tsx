@@ -286,20 +286,19 @@ export function InlinePersonalizer({
                 type="button"
                 onClick={() => set({ fontKey: f.key })}
                 aria-pressed={active}
+                aria-label={f.label}
                 className={`px-2 py-2.5 text-center transition-all ${
                   active
                     ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5"
                     : "border border-[#C9A96E]/25 hover:border-[#C9A96E]/60"
                 }`}
               >
+                {/* py/-my keeps tall script loops from being clipped by `truncate`. */}
                 <span
-                  className="block text-lg leading-tight text-[#2D2D2D] truncate"
+                  className="block text-lg leading-tight text-[#2D2D2D] truncate py-2 -my-2"
                   style={{ fontFamily: f.fontFamily }}
                 >
                   {sample}
-                </span>
-                <span className="font-sans font-medium text-[8px] tracking-[0.1em] uppercase text-[#2D2D2D]/50 mt-0.5 block">
-                  {f.label}
                 </span>
               </button>
             );
