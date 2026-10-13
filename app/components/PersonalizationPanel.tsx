@@ -32,6 +32,9 @@ interface PersonalizationPanelProps {
   hideMonogram?: boolean;
   /** Override the text-field label (e.g. "Text" instead of "Name"). */
   textLabel?: string;
+  /** Show the live text preview box. Off for now (Sydney): customers just
+   *  pick their options; each font tile still shows their text. */
+  showPreview?: boolean;
 }
 
 export function PersonalizationPanel({
@@ -41,6 +44,7 @@ export function PersonalizationPanel({
   className,
   hideMonogram,
   textLabel,
+  showPreview = false,
 }: PersonalizationPanelProps) {
   const hasMonogram = !hideMonogram && !!schema.monogramStyles?.length;
   const monogramStyle: MonogramStyle | undefined = useMemo(() => {
@@ -142,24 +146,26 @@ export function PersonalizationPanel({
 
       {/* ── Inline preview chip — shows the customer's text in chosen font + ink.
              Clearly labeled as a font/ink preview, NOT the printed product. ── */}
-      <div className="px-5 md:px-6 pt-5">
-        <div className="relative flex items-center justify-center min-h-[92px] bg-[#FAF8F5] border border-[#C9A96E]/15 rounded-sm px-4 pt-7 pb-5">
-          <span className="absolute top-2 left-3 right-3 font-sans font-medium text-[9px] tracking-[0.14em] uppercase text-[#2D2D2D]/45">
-            Preview <span className="normal-case tracking-normal text-[#2D2D2D]/35">(this is the text how it will appear on your item)</span>
-          </span>
-          <span
-            className={cn(
-              "leading-none text-center break-words",
-              value.mode === "monogram"
-                ? "text-4xl tracking-[0.12em] uppercase"
-                : "text-3xl",
-            )}
-            style={{fontFamily: activeFont.fontFamily, fontWeight: activeFont.fontWeight, color: ink.hex}}
-          >
-            {liveText}
-          </span>
+      {showPreview && (
+        <div className="px-5 md:px-6 pt-5">
+          <div className="relative flex items-center justify-center min-h-[92px] bg-[#FAF8F5] border border-[#C9A96E]/15 rounded-sm px-4 pt-7 pb-5">
+            <span className="absolute top-2 left-3 right-3 font-sans font-medium text-[9px] tracking-[0.14em] uppercase text-[#2D2D2D]/45">
+              Preview <span className="normal-case tracking-normal text-[#2D2D2D]/35">(this is the text how it will appear on your item)</span>
+            </span>
+            <span
+              className={cn(
+                "leading-none text-center break-words",
+                value.mode === "monogram"
+                  ? "text-4xl tracking-[0.12em] uppercase"
+                  : "text-3xl",
+              )}
+              style={{fontFamily: activeFont.fontFamily, fontWeight: activeFont.fontWeight, color: ink.hex}}
+            >
+              {liveText}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Mode toggle: Name vs Monogram ── */}
       {hasMonogram && (

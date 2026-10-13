@@ -171,12 +171,18 @@ export default function ProductRoute() {
       const base = schema
         ? defaultPersonalizationValue(schema)
         : {mode: 'name' as const, fontKey: '', inkKey: '', fields: {}};
-      // When monogram is hidden, start in name mode so the live preview reads
-      // the Text field (not the monogram letters).
-      return pdpOverride.hideMonogram ? {...base, mode: 'name'} : base;
+      // Start with an empty Text box (the font samples still show "Amelia"
+      // until the customer types) so a placeholder name can't be ordered.
+      // When monogram is hidden, start in name mode with no stray letters.
+      return pdpOverride.hideMonogram
+        ? {...base, mode: 'name', fields: {text: ''}}
+        : {...base, fields: {...base.fields, text: ''}};
     },
   );
   const [selectedImage, setSelectedImage] = useState(0);
+  // Add to Cart stays clickable; a click with required info missing shows
+  // what's still needed instead of adding to the cart.
+  const [triedAddToCart, setTriedAddToCart] = useState(false);
   // Rifle-style checkpoint: made-to-order + final sale means the customer
   // must explicitly approve their personalization before it can be purchased.
   // The customer either approves the design as shown, or pays for a full
@@ -231,6 +237,32 @@ export default function ProductRoute() {
       },
     [schema, pdpOverride.extraFields, offersReturnAddress, wantsReturnAddress],
   );
+
+  const missingInfo = !personalizable
+    ? []
+    : [
+        ...(activeSchema?.fields ?? [])
+          .filter((f) => {
+            if (!f.required) return false;
+            const isText = f.key === 'text';
+            const isLetters = f.type === 'monogram-letters';
+            if (isText && personalization.mode === 'monogram') return false;
+            if (isLetters && personalization.mode !== 'monogram') return false;
+            return !(personalization.fields[f.key] ?? '').trim();
+          })
+          .map((f) =>
+            f.key === 'text'
+              ? pdpOverride.textLabel ?? f.label
+              : f.label.replace(/\s*\(.*\)$/, ''),
+          ),
+        ...(!proofApproved && !wantsProof
+          ? [
+              proof
+                ? 'Before We Print: approve your design or choose a proof'
+                : 'Approve your design',
+            ]
+          : []),
+      ];
 
   const lineAttributes = [
     ...(activeSchema ? buildLineAttributes(personalization, activeSchema) : []),
@@ -588,23 +620,34 @@ export default function ProductRoute() {
               {(fetcher) => (
                 <button
                   type="submit"
-                  disabled={
-                    !variantId ||
-                    (personalizable && !proofApproved && !wantsProof) ||
-                    fetcher.state !== 'idle'
-                  }
+                  onClick={(e) => {
+                    if (missingInfo.length) {
+                      e.preventDefault();
+                      setTriedAddToCart(true);
+                    }
+                  }}
+                  disabled={!variantId || fetcher.state !== 'idle'}
                   className="w-full bg-[#2D2D2D] text-white font-sans font-medium text-sm tracking-[0.15em] uppercase py-4 hover:bg-[#C9A96E] transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {fetcher.state !== 'idle'
-                    ? 'Adding…'
-                    : personalizable && !proofApproved && !wantsProof
-                      ? proof
-                        ? 'Approve Your Design or Choose a Proof'
-                        : 'Approve Your Design Above'
-                      : 'Add to Cart'}
+                  {fetcher.state !== 'idle' ? 'Adding…' : 'Add to Cart'}
                 </button>
               )}
             </CartForm>
+            {triedAddToCart && missingInfo.length > 0 && (
+              <div
+                role="alert"
+                className="mt-3 p-3 border border-[#B23A3A]/40 bg-[#B23A3A]/5 rounded-sm font-sans text-[13px] text-[#B23A3A]"
+              >
+                <p className="font-medium mb-1">
+                  Please complete the following before adding to your cart:
+                </p>
+                <ul className="list-disc pl-5 space-y-0.5">
+                  {missingInfo.map((m) => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Express checkout skips cart line attributes, which would strip
                 the personalization from a final-sale order — only offer it on
