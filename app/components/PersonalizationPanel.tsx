@@ -423,41 +423,11 @@ export function PersonalizationPanel({
             Ink Color
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}
           </legend>
-          <div className="grid grid-cols-5 gap-2">
-            {schema.inkColors.map((c) => {
-              const active = value.inkKey === c.key;
-              return (
-                <button
-                  type="button"
-                  key={c.key}
-                  onClick={() => onChange({ ...value, inkKey: c.key })}
-                  aria-pressed={active}
-                  className={cn(
-                    "flex flex-col items-center gap-1.5 py-2 px-1 rounded transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
-                    active ? "bg-[#C9A96E]/10" : "hover:bg-[#C9A96E]/5",
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "w-7 h-7 rounded-full border-2 transition-all shrink-0",
-                      active
-                        ? "border-[#2D2D2D] scale-110"
-                        : "border-[#C9A96E]/25",
-                    )}
-                    style={{ backgroundColor: c.hex }}
-                  />
-                  <span
-                    className={cn(
-                      "font-sans text-[9px] tracking-wide uppercase leading-tight text-center",
-                      active ? "text-[#2D2D2D] font-medium" : "text-[#2D2D2D]/45",
-                    )}
-                  >
-                    {c.label}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <SwatchGrid
+            swatches={schema.inkColors}
+            selected={value.inkKey}
+            onSelect={(key) => onChange({ ...value, inkKey: key })}
+          />
         </fieldset>
 
         {/* ── Extra questions, after text/font/ink: border → icon → placement →
@@ -472,7 +442,24 @@ export function PersonalizationPanel({
                     {field.label}
                     {field.required && <span className="text-[#C9A96E]"> *</span>}
                   </label>
-                  {field.type === "choice" ? (
+                  {field.type === "color" ? (
+                    <SwatchGrid
+                      swatches={[AS_PICTURED, ...schema.inkColors]}
+                      selected={
+                        current === AS_PICTURED.label
+                          ? AS_PICTURED.key
+                          : schema.inkColors.find((c) => c.label === current)?.key ?? ""
+                      }
+                      onSelect={(key) =>
+                        setField(
+                          field.key,
+                          key === AS_PICTURED.key
+                            ? AS_PICTURED.label
+                            : schema.inkColors.find((c) => c.key === key)?.label ?? "",
+                        )
+                      }
+                    />
+                  ) : field.type === "choice" ? (
                     <div className="flex flex-wrap gap-2">
                       {(field.options ?? []).map((opt) => {
                         const active = current === opt;
@@ -573,4 +560,59 @@ export function defaultPersonalizationValue(
       "monogram-letters": "ABC",
     },
   };
+}
+
+/** "Color" questions lead with this, for customers who want the design as photographed. */
+const AS_PICTURED = {
+  key: "as-pictured",
+  label: "As Pictured",
+  // A multi-color dot reads as "the original colors".
+  background: "conic-gradient(#EE1C25, #F5910D, #F7E24A, #178A3E, #1450A0, #8E15A8, #EE1C25)",
+};
+
+/** Round color swatches with labels — used for Ink Color and "Color" questions. */
+function SwatchGrid({
+  swatches,
+  selected,
+  onSelect,
+}: {
+  swatches: Array<{ key: string; label: string; hex?: string; background?: string }>;
+  selected: string;
+  onSelect: (key: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-5 gap-2">
+      {swatches.map((c) => {
+        const active = selected === c.key;
+        return (
+          <button
+            type="button"
+            key={c.key}
+            onClick={() => onSelect(c.key)}
+            aria-pressed={active}
+            className={cn(
+              "flex flex-col items-center gap-1.5 py-2 px-1 rounded transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
+              active ? "bg-[#C9A96E]/10" : "hover:bg-[#C9A96E]/5",
+            )}
+          >
+            <div
+              className={cn(
+                "w-7 h-7 rounded-full border-2 transition-all shrink-0",
+                active ? "border-[#2D2D2D] scale-110" : "border-[#C9A96E]/25",
+              )}
+              style={{ background: c.background ?? c.hex }}
+            />
+            <span
+              className={cn(
+                "font-sans text-[9px] tracking-wide uppercase leading-tight text-center",
+                active ? "text-[#2D2D2D] font-medium" : "text-[#2D2D2D]/45",
+              )}
+            >
+              {c.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
 }

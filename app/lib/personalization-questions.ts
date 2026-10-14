@@ -39,11 +39,13 @@ export function questionsToFields(
     const answerType = get('answer_type');
     const options = parseList(get('choices'));
     const type: PersonalizationField['type'] =
-      answerType === 'Pick one' && options.length
-        ? 'choice'
-        : answerType === 'Long text'
-          ? 'longtext'
-          : 'text';
+      answerType === 'Color'
+        ? 'color'
+        : answerType === 'Pick one' && options.length
+          ? 'choice'
+          : answerType === 'Long text'
+            ? 'longtext'
+            : 'text';
     return [
       {
         key: label,
