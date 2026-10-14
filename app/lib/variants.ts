@@ -86,7 +86,8 @@ export interface InkColorOption {
 export interface PersonalizationField {
   key: string;
   label: string;
-  type: "text" | "monogram-letters" | "longtext" | "choice";
+  /** "color": "As Pictured" plus the ink chart swatches; the value is the color's name. */
+  type: "text" | "monogram-letters" | "longtext" | "choice" | "color";
   maxLength: number;
   /** "choice" fields only — the options, shown as buttons; the first is the default. */
   options?: string[];
