@@ -8,7 +8,10 @@ import '@total-typescript/ts-reset';
 
 declare global {
   interface Env {
-    /** Admin API token (custom app, write_metaobjects) — saves corporate inquiries. */
+    /** Dev Dashboard app credentials (write_metaobjects) — save corporate inquiries. */
+    SHOPIFY_ADMIN_CLIENT_ID?: string;
+    SHOPIFY_ADMIN_CLIENT_SECRET?: string;
+    /** Legacy alternative: a token from an existing admin-created custom app. */
     PRIVATE_ADMIN_API_TOKEN?: string;
   }
 }

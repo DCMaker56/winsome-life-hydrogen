@@ -83,6 +83,8 @@ PUBLIC_STOREFRONT_ID
 PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID   # only for /account routes
 PUBLIC_CUSTOMER_ACCOUNT_API_URL
 PUBLIC_CHECKOUT_DOMAIN
+SHOPIFY_ADMIN_CLIENT_ID                  # corporate inquiry form: Dev Dashboard app (read/write_metaobjects)
+SHOPIFY_ADMIN_CLIENT_SECRET              # corporate inquiry form: client secret for the same app
 RECRAFT_API_KEY                          # illustration pipeline
 OPENAI_API_KEY                           # illustration pipeline (gpt-image-1)
 ```
