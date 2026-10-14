@@ -86,13 +86,14 @@ export interface InkColorOption {
 export interface PersonalizationField {
   key: string;
   label: string;
-  /** "color": "As Pictured" plus the ink chart swatches; the value is the color's name. */
+  /** "color": the ink chart swatches; the value is the color's name. */
   type: "text" | "monogram-letters" | "longtext" | "choice" | "color";
   maxLength: number;
   /** "choice" fields only — the options, shown as buttons; the first is the default. */
   options?: string[];
   /** Where the question sits (Sydney's rule): text, font and ink color come
-   *  first, then border, icon choice, icon placement, and return address last.
+   *  first, then border, icon choice, icon placement, additional instructions,
+   *  and return address last.
    *  Ungrouped extra fields count as text questions. */
   group?: FieldGroup;
   placeholder: string;
@@ -102,9 +103,9 @@ export interface PersonalizationField {
   onlyForMonogramStyles?: string[];
 }
 
-export type FieldGroup = "text" | "border" | "icon" | "placement" | "return-address";
+export type FieldGroup = "text" | "border" | "icon" | "placement" | "notes" | "return-address";
 
-const FIELD_GROUP_ORDER: FieldGroup[] = ["text", "border", "icon", "placement", "return-address"];
+const FIELD_GROUP_ORDER: FieldGroup[] = ["text", "border", "icon", "placement", "notes", "return-address"];
 
 /** Sort extra personalization questions into Sydney's order (stable within a group). */
 export function sortByFieldGroup<T extends { group?: FieldGroup }>(fields: T[]): T[] {

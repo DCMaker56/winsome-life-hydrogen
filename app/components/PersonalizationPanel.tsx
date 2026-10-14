@@ -444,19 +444,10 @@ export function PersonalizationPanel({
                   </label>
                   {field.type === "color" ? (
                     <SwatchGrid
-                      swatches={[AS_PICTURED, ...schema.inkColors]}
-                      selected={
-                        current === AS_PICTURED.label
-                          ? AS_PICTURED.key
-                          : schema.inkColors.find((c) => c.label === current)?.key ?? ""
-                      }
+                      swatches={schema.inkColors}
+                      selected={schema.inkColors.find((c) => c.label === current)?.key ?? ""}
                       onSelect={(key) =>
-                        setField(
-                          field.key,
-                          key === AS_PICTURED.key
-                            ? AS_PICTURED.label
-                            : schema.inkColors.find((c) => c.key === key)?.label ?? "",
-                        )
+                        setField(field.key, schema.inkColors.find((c) => c.key === key)?.label ?? "")
                       }
                     />
                   ) : field.type === "choice" ? (
@@ -562,21 +553,13 @@ export function defaultPersonalizationValue(
   };
 }
 
-/** "Color" questions lead with this, for customers who want the design as photographed. */
-const AS_PICTURED = {
-  key: "as-pictured",
-  label: "As Pictured",
-  // A multi-color dot reads as "the original colors".
-  background: "conic-gradient(#EE1C25, #F5910D, #F7E24A, #178A3E, #1450A0, #8E15A8, #EE1C25)",
-};
-
 /** Round color swatches with labels — used for Ink Color and "Color" questions. */
 function SwatchGrid({
   swatches,
   selected,
   onSelect,
 }: {
-  swatches: Array<{ key: string; label: string; hex?: string; background?: string }>;
+  swatches: Array<{ key: string; label: string; hex: string }>;
   selected: string;
   onSelect: (key: string) => void;
 }) {
@@ -600,7 +583,7 @@ function SwatchGrid({
                 "w-7 h-7 rounded-full border-2 transition-all shrink-0",
                 active ? "border-[#2D2D2D] scale-110" : "border-[#C9A96E]/25",
               )}
-              style={{ background: c.background ?? c.hex }}
+              style={{ backgroundColor: c.hex }}
             />
             <span
               className={cn(

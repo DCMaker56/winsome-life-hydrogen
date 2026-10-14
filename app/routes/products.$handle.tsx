@@ -139,6 +139,17 @@ const PDP_PERSONALIZATION_OVERRIDES: Record<
   {hideMonogram?: boolean; textLabel?: string}
 > = {};
 
+/** The live site's optional catch-all, on every personalized product. */
+const ADDITIONAL_INSTRUCTIONS_FIELD: PersonalizationField = {
+  key: 'Additional Instructions',
+  label:
+    'Any additional personalization instructions? (if nothing, leave blank or type n/a)',
+  type: 'longtext',
+  maxLength: 300,
+  placeholder: '',
+  group: 'notes',
+};
+
 /** The live site's envelope field, shown on every product sold with a
  *  return-address option (e.g. "10 + Return Address"). It's required only
  *  once the customer picks a return-address variant. */
@@ -244,6 +255,7 @@ export default function ProductRoute() {
           // Blank boxes (no sample text) — Sydney found it confusing.
           ...schema.fields.map((f) => ({...f, placeholder: ''})),
           ...extraQuestions,
+          ADDITIONAL_INSTRUCTIONS_FIELD,
           ...(offersReturnAddress
             ? [{...RETURN_ADDRESS_FIELD, required: wantsReturnAddress}]
             : []),
