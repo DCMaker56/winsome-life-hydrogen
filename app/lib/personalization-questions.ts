@@ -61,3 +61,10 @@ export function questionsToFields(
     ];
   });
 }
+
+/** Standard questions a product can skip via its "Hide standard questions" field. */
+export type HiddenStandard = 'Text' | 'Font' | 'Ink Color' | 'Additional instructions';
+
+export function parseHiddenStandard(value?: string | null): HiddenStandard[] {
+  return parseList(value) as HiddenStandard[];
+}

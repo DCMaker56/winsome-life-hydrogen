@@ -38,6 +38,9 @@ interface PersonalizationPanelProps {
   /** Start with nothing chosen (font, ink, choice fields) and mark them
    *  required — the customer makes every choice. */
   requireChoices?: boolean;
+  /** Skip the Font / Ink Color pickers (product's "Hide standard questions"). */
+  hideFont?: boolean;
+  hideInk?: boolean;
 }
 
 export function PersonalizationPanel({
@@ -49,6 +52,8 @@ export function PersonalizationPanel({
   textLabel,
   showPreview = false,
   requireChoices = false,
+  hideFont = false,
+  hideInk = false,
 }: PersonalizationPanelProps) {
   const hasMonogram = !hideMonogram && !!schema.monogramStyles?.length;
   const monogramStyle: MonogramStyle | undefined = useMemo(() => {
@@ -374,6 +379,7 @@ export function PersonalizationPanel({
         )}
 
         {/* ── Font picker — shows customer's own text ── */}
+        {!hideFont && (
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
             Font
@@ -416,8 +422,10 @@ export function PersonalizationPanel({
             })}
           </div>
         </fieldset>
+        )}
 
         {/* ── Ink color picker — with visible labels ── */}
+        {!hideInk && (
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
             Ink Color
@@ -430,6 +438,7 @@ export function PersonalizationPanel({
             onSelect={(key) => onChange({ ...value, inkKey: key })}
           />
         </fieldset>
+        )}
 
         {/* ── Extra questions, after text/font/ink: border → icon → placement →
              return address (sortByFieldGroup) ── */}

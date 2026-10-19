@@ -22,7 +22,10 @@ import {
 } from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {PROOF_PRODUCT_HANDLE} from '~/lib/addons';
-import {questionsToFields} from '~/lib/personalization-questions';
+import {
+  parseHiddenStandard,
+  questionsToFields,
+} from '~/lib/personalization-questions';
 import {
   graphqlToAppProduct,
   type GraphqlProduct,
@@ -116,13 +119,20 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   // see them.
   const isDraft = product.personalizationDraft?.value === 'true';
   const showDrafts = new URL(request.url).searchParams.has('drafts');
-  const extraQuestions = isDraft && !showDrafts ? [] : questionsToFields(
+  const useOwnSetup = !isDraft || showDrafts;
+  const extraQuestions = !useOwnSetup ? [] : questionsToFields(
     product.personalizationQuestions?.references?.nodes as
       | Parameters<typeof questionsToFields>[0]
       | undefined,
   );
+  // Standard questions this product skips ("Hide standard questions"), e.g.
+  // state cards ask only for colors. Held back with the draft too, so a
+  // product never loses its standard questions before its own go live.
+  const hidden = useOwnSetup
+    ? parseHiddenStandard(product.personalizationHide?.value)
+    : [];
 
-  return {product, appProduct, related, proof, extraQuestions};
+  return {product, appProduct, related, proof, extraQuestions, hidden};
 }
 
 
@@ -166,8 +176,12 @@ const RETURN_ADDRESS_FIELD: PersonalizationField = {
 };
 
 export default function ProductRoute() {
-  const {product, appProduct, related, proof, extraQuestions} =
+  const {product, appProduct, related, proof, extraQuestions, hidden} =
     useLoaderData<typeof loader>();
+  const hideText = hidden.includes('Text');
+  const hideFont = hidden.includes('Font');
+  const hideInk = hidden.includes('Ink Color');
+  const hideInstructions = hidden.includes('Additional instructions');
 
   const preset = VARIANT_PRESETS[appProduct.type];
   // Existing products are the classic shopping experience: the product photo
@@ -253,15 +267,17 @@ export default function ProductRoute() {
         ...schema,
         fields: [
           // Blank boxes (no sample text) — Sydney found it confusing.
-          ...schema.fields.map((f) => ({...f, placeholder: ''})),
+          ...schema.fields
+            .filter((f) => !(hideText && isTextField(f)))
+            .map((f) => ({...f, placeholder: ''})),
           ...extraQuestions,
-          ADDITIONAL_INSTRUCTIONS_FIELD,
+          ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
           ...(offersReturnAddress
             ? [{...RETURN_ADDRESS_FIELD, required: wantsReturnAddress}]
             : []),
         ],
       },
-    [schema, extraQuestions, offersReturnAddress, wantsReturnAddress],
+    [schema, extraQuestions, hideText, hideInstructions, offersReturnAddress, wantsReturnAddress],
   );
 
   // Listed in page order: text, font, ink color, then the extra questions.
@@ -281,8 +297,8 @@ export default function ProductRoute() {
     ? []
     : [
         ...shownFields.filter(isTextField).filter(isMissing).map(fieldLabel),
-        ...(personalization.fontKey ? [] : ['Font']),
-        ...(personalization.inkKey ? [] : ['Ink Color']),
+        ...(hideFont || personalization.fontKey ? [] : ['Font']),
+        ...(hideInk || personalization.inkKey ? [] : ['Ink Color']),
         ...sortByFieldGroup(shownFields.filter((f) => !isTextField(f)))
           .filter(isMissing)
           .map(fieldLabel),
@@ -599,6 +615,8 @@ export default function ProductRoute() {
                   onChange={setPersonalization}
                   hideMonogram={pdpOverride.hideMonogram}
                   requireChoices
+                  hideFont={hideFont}
+                  hideInk={hideInk}
                   textLabel={pdpOverride.textLabel}
                 />
               </div>
@@ -914,6 +932,9 @@ const PRODUCT_QUERY = `#graphql
       productType
       tags
       options { name optionValues { name } }
+      personalizationHide: metafield(namespace: "winsome", key: "personalization_hide") {
+        value
+      }
       personalizationDraft: metafield(namespace: "winsome", key: "personalization_draft") {
         value
       }
