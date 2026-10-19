@@ -557,7 +557,7 @@ export function defaultPersonalizationValue(
 
 /** Round color swatches — used for Ink Color and "Color" questions. `compact`
  *  (Sydney's choice for every color picker) packs 10 smaller swatches per row
- *  and shows the chosen color's name underneath, so pages stay short. */
+ *  and shows the chosen color's name just under the question title. */
 function SwatchGrid({
   swatches,
   selected,
@@ -573,6 +573,15 @@ function SwatchGrid({
     const chosen = swatches.find((c) => c.key === selected);
     return (
       <div>
+        <p className="font-sans text-[11px] tracking-wide uppercase -mt-1 mb-2 text-[#2D2D2D]/55">
+          {chosen ? (
+            <>
+              Selected: <span className="font-medium text-[#2D2D2D]">{chosen.label}</span>
+            </>
+          ) : (
+            "Tap a color"
+          )}
+        </p>
         <div className="grid grid-cols-10 gap-1.5">
           {swatches.map((c) => {
             const active = selected === c.key;
@@ -597,15 +606,6 @@ function SwatchGrid({
             );
           })}
         </div>
-        <p className="font-sans text-[11px] tracking-wide uppercase mt-2 text-[#2D2D2D]/55">
-          {chosen ? (
-            <>
-              Selected: <span className="font-medium text-[#2D2D2D]">{chosen.label}</span>
-            </>
-          ) : (
-            "Tap a color"
-          )}
-        </p>
       </div>
     );
   }
