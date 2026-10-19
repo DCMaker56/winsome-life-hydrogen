@@ -8,7 +8,13 @@
  */
 import type {FieldGroup, PersonalizationField} from '~/lib/variants';
 
-type MetaobjectFields = {fields: Array<{key: string; value?: string | null}>};
+type MetaobjectFields = {
+  fields: Array<{
+    key: string;
+    value?: string | null;
+    references?: {nodes: Array<{image?: {url: string} | null}>} | null;
+  }>;
+};
 
 const SECTION_TO_GROUP: Record<string, FieldGroup> = {
   Text: 'text',
@@ -38,6 +44,9 @@ export function questionsToFields(
     if (!label) return [];
     const answerType = get('answer_type');
     const options = parseList(get('choices'));
+    const images = (
+      entry.fields.find((f) => f.key === 'choice_images')?.references?.nodes ?? []
+    ).map((n) => n.image?.url ?? null);
     const type: PersonalizationField['type'] =
       answerType === 'Color'
         ? 'color'
@@ -52,6 +61,10 @@ export function questionsToFields(
         label,
         type,
         options: type === 'choice' ? options : undefined,
+        optionImages:
+          type === 'choice' && images.some(Boolean)
+            ? options.map((_, i) => images[i] ?? null)
+            : undefined,
         maxLength: type === 'longtext' ? 300 : 100,
         placeholder: '',
         helpText: get('help_text') || undefined,

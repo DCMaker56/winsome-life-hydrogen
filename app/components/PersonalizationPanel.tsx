@@ -461,6 +461,41 @@ export function PersonalizationPanel({
                         setField(field.key, schema.inkColors.find((c) => c.key === key)?.label ?? "")
                       }
                     />
+                  ) : field.type === "choice" && field.optionImages ? (
+                    <div className="grid grid-cols-3 gap-2">
+                      {(field.options ?? []).map((opt, i) => {
+                        const active = current === opt;
+                        const img = field.optionImages?.[i];
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => setField(field.key, opt)}
+                            aria-pressed={active}
+                            className={cn(
+                              "flex flex-col items-center gap-1.5 p-2 bg-white transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
+                              active
+                                ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5"
+                                : "border border-[#C9A96E]/25 hover:border-[#C9A96E]/60",
+                            )}
+                          >
+                            {img ? (
+                              <img
+                                src={`${img}${img.includes("?") ? "&" : "?"}width=240`}
+                                alt=""
+                                loading="lazy"
+                                className="w-full aspect-square object-contain"
+                              />
+                            ) : (
+                              <span className="w-full aspect-square bg-[#FAF8F5]" />
+                            )}
+                            <span className="font-sans text-[11px] leading-tight text-center text-[#2D2D2D]">
+                              {opt}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   ) : field.type === "choice" ? (
                     <div className="flex flex-wrap gap-2">
                       {(field.options ?? []).map((opt) => {

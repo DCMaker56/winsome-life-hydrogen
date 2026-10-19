@@ -941,7 +941,15 @@ const PRODUCT_QUERY = `#graphql
       personalizationQuestions: metafield(namespace: "winsome", key: "personalization_questions") {
         references(first: 30) {
           nodes {
-            ... on Metaobject { fields { key value } }
+            ... on Metaobject {
+              fields {
+                key
+                value
+                references(first: 10) {
+                  nodes { ... on MediaImage { image { url } } }
+                }
+              }
+            }
           }
         }
       }

@@ -91,6 +91,8 @@ export interface PersonalizationField {
   maxLength: number;
   /** "choice" fields only — the options, shown as buttons; the first is the default. */
   options?: string[];
+  /** Optional picture per option (same order) — shown as picture tiles. */
+  optionImages?: Array<string | null>;
   /** Where the question sits (Sydney's rule): text, font and ink color come
    *  first, then border, icon choice, icon placement, additional instructions,
    *  and return address last.
