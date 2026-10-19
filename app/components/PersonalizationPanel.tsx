@@ -444,6 +444,7 @@ export function PersonalizationPanel({
                   </label>
                   {field.type === "color" ? (
                     <SwatchGrid
+                      compact
                       swatches={schema.inkColors}
                       selected={schema.inkColors.find((c) => c.label === current)?.key ?? ""}
                       onSelect={(key) =>
@@ -553,16 +554,60 @@ export function defaultPersonalizationValue(
   };
 }
 
-/** Round color swatches with labels — used for Ink Color and "Color" questions. */
+/** Round color swatches — used for Ink Color and "Color" questions. `compact`
+ *  (Color questions) packs 10 smaller swatches per row and shows the chosen
+ *  color's name underneath, so pages with several colors stay short. */
 function SwatchGrid({
   swatches,
   selected,
   onSelect,
+  compact = false,
 }: {
   swatches: Array<{ key: string; label: string; hex: string }>;
   selected: string;
   onSelect: (key: string) => void;
+  compact?: boolean;
 }) {
+  if (compact) {
+    const chosen = swatches.find((c) => c.key === selected);
+    return (
+      <div>
+        <div className="grid grid-cols-10 gap-1.5">
+          {swatches.map((c) => {
+            const active = selected === c.key;
+            return (
+              <button
+                type="button"
+                key={c.key}
+                onClick={() => onSelect(c.key)}
+                aria-pressed={active}
+                aria-label={c.label}
+                title={c.label}
+                className="flex items-center justify-center aspect-square rounded-full focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
+              >
+                <span
+                  className={cn(
+                    "block w-full h-full max-w-6 max-h-6 rounded-full border-2 transition-all",
+                    active ? "border-[#2D2D2D] scale-110" : "border-[#C9A96E]/25 hover:border-[#2D2D2D]/40",
+                  )}
+                  style={{ backgroundColor: c.hex }}
+                />
+              </button>
+            );
+          })}
+        </div>
+        <p className="font-sans text-[11px] tracking-wide uppercase mt-2 text-[#2D2D2D]/55">
+          {chosen ? (
+            <>
+              Selected: <span className="font-medium text-[#2D2D2D]">{chosen.label}</span>
+            </>
+          ) : (
+            "Tap a color"
+          )}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="grid grid-cols-5 gap-2">
       {swatches.map((c) => {
