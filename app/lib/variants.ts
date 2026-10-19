@@ -296,7 +296,7 @@ const STANDARD_PERSONALIZATION: PersonalizationSchema = {
 const NOTEPAD_PERSONALIZATION: PersonalizationSchema = {
   ...STANDARD_PERSONALIZATION,
   intro:
-    "Add your name or monogram to the top of every sheet. Choose a font and ink color to match your style.",
+    "Add your name or monogram to the top of every sheet. Choose a font and text color to match your style.",
   required: true,
 };
 

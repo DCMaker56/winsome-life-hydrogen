@@ -180,7 +180,7 @@ export default function ProductRoute() {
     useLoaderData<typeof loader>();
   const hideText = hidden.includes('Text');
   const hideFont = hidden.includes('Font');
-  const hideInk = hidden.includes('Ink Color');
+  const hideInk = hidden.includes('Text Color') || hidden.includes('Ink Color');
   const hideInstructions = hidden.includes('Additional instructions');
 
   const preset = VARIANT_PRESETS[appProduct.type];
@@ -298,7 +298,7 @@ export default function ProductRoute() {
     : [
         ...shownFields.filter(isTextField).filter(isMissing).map(fieldLabel),
         ...(hideFont || personalization.fontKey ? [] : ['Font']),
-        ...(hideInk || personalization.inkKey ? [] : ['Ink Color']),
+        ...(hideInk || personalization.inkKey ? [] : ['Text Color']),
         ...sortByFieldGroup(shownFields.filter((f) => !isTextField(f)))
           .filter(isMissing)
           .map(fieldLabel),
@@ -896,7 +896,7 @@ function buildLineAttributes(
       value: `Font ${fontIndex + 1} – ${schema.fonts[fontIndex].label}`,
     });
   const ink = schema.inkColors.find((c) => c.key === p.inkKey);
-  if (ink) attrs.push({key: 'Ink Color', value: ink.label});
+  if (ink) attrs.push({key: 'Text Color', value: ink.label});
   sortByFieldGroup(schema.fields.filter((f) => !isTextField(f))).forEach(pushField);
   return attrs;
 }

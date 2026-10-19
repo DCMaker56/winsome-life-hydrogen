@@ -1025,7 +1025,7 @@ function PersonalizeStep({
           <div className="mb-6">
             <div className="flex items-baseline justify-between mb-3">
               <p className="font-sans font-semibold text-xs tracking-[0.2em] uppercase text-[#C9A96E]">
-                Ink Color
+                Text Color
               </p>
               <span className="font-sans text-xs text-[#2D2D2D]/50">
                 {ink.label}

@@ -428,7 +428,7 @@ export function PersonalizationPanel({
         {!hideInk && (
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
-            Ink Color
+            Text Color
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}
           </legend>
           <SwatchGrid

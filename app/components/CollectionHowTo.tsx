@@ -15,7 +15,7 @@ const STEPS = [
   {
     icon: Wand2,
     title: "Personalize it",
-    body: "Swap the illustration, add your text, choose a font and ink color — with a live preview.",
+    body: "Swap the illustration, add your text, choose a font and text color — with a live preview.",
   },
   {
     icon: Repeat,

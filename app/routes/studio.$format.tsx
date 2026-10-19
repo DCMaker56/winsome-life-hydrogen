@@ -52,7 +52,7 @@ export const meta: Route.MetaFunction = ({ data }) => [
   {
     name: "description",
     content:
-      "Personalize your stationery with a live preview — names, monograms, fonts, and ink colors, updated as you type.",
+      "Personalize your stationery with a live preview — names, monograms, fonts, and text colors, updated as you type.",
   },
 ];
 
@@ -592,7 +592,7 @@ export default function StudioRoute() {
                   </div>
                 </Field>
 
-                <Field label="Ink color">
+                <Field label="Text color">
                   <div className="grid grid-cols-5 gap-1.5">
                     {INK_COLORS.map((c) => {
                       const active = config.inkKey === c.key;
