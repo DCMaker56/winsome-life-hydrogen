@@ -424,6 +424,7 @@ export function PersonalizationPanel({
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}
           </legend>
           <SwatchGrid
+            compact
             swatches={schema.inkColors}
             selected={value.inkKey}
             onSelect={(key) => onChange({ ...value, inkKey: key })}
@@ -555,8 +556,8 @@ export function defaultPersonalizationValue(
 }
 
 /** Round color swatches — used for Ink Color and "Color" questions. `compact`
- *  (Color questions) packs 10 smaller swatches per row and shows the chosen
- *  color's name underneath, so pages with several colors stay short. */
+ *  (Sydney's choice for every color picker) packs 10 smaller swatches per row
+ *  and shows the chosen color's name underneath, so pages stay short. */
 function SwatchGrid({
   swatches,
   selected,
