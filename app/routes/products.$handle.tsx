@@ -981,7 +981,7 @@ const PRODUCT_QUERY = `#graphql
               fields {
                 key
                 value
-                references(first: 10) {
+                references(first: 50) {
                   nodes { ... on MediaImage { image { url } } }
                 }
               }
