@@ -132,7 +132,24 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     ? parseHiddenStandard(product.personalizationHide?.value)
     : [];
 
-  return {product, appProduct, related, proof, extraQuestions, hidden};
+  // Per-product Text box tweaks ("Text box length" / "Text box label").
+  const textLength = useOwnSetup
+    ? Number(product.personalizationTextLength?.value) || undefined
+    : undefined;
+  const textLabel = useOwnSetup
+    ? product.personalizationTextLabel?.value?.trim() || undefined
+    : undefined;
+
+  return {
+    product,
+    appProduct,
+    related,
+    proof,
+    extraQuestions,
+    hidden,
+    textLength,
+    textLabel,
+  };
 }
 
 
@@ -176,8 +193,16 @@ const RETURN_ADDRESS_FIELD: PersonalizationField = {
 };
 
 export default function ProductRoute() {
-  const {product, appProduct, related, proof, extraQuestions, hidden} =
-    useLoaderData<typeof loader>();
+  const {
+    product,
+    appProduct,
+    related,
+    proof,
+    extraQuestions,
+    hidden,
+    textLength,
+    textLabel,
+  } = useLoaderData<typeof loader>();
   const hideText = hidden.includes('Text');
   const hideFont = hidden.includes('Font');
   const hideInk = hidden.includes('Text Color') || hidden.includes('Ink Color');
@@ -196,6 +221,7 @@ export default function ProductRoute() {
     hideMonogram: true,
     textLabel: 'Text',
     ...PDP_PERSONALIZATION_OVERRIDES[appProduct.slug],
+    ...(textLabel ? {textLabel} : {}),
   };
 
   const [personalization, setPersonalization] = useState<PersonalizationValue>(
@@ -269,7 +295,11 @@ export default function ProductRoute() {
           // Blank boxes (no sample text) — Sydney found it confusing.
           ...schema.fields
             .filter((f) => !(hideText && isTextField(f)))
-            .map((f) => ({...f, placeholder: ''})),
+            .map((f) => ({
+              ...f,
+              placeholder: '',
+              ...(textLength && f.key === 'text' ? {maxLength: textLength} : {}),
+            })),
           ...extraQuestions,
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
           ...(offersReturnAddress
@@ -277,7 +307,7 @@ export default function ProductRoute() {
             : []),
         ],
       },
-    [schema, extraQuestions, hideText, hideInstructions, offersReturnAddress, wantsReturnAddress],
+    [schema, extraQuestions, hideText, hideInstructions, textLength, offersReturnAddress, wantsReturnAddress],
   );
 
   // Listed in page order: text, font, ink color, then the extra questions.
@@ -932,6 +962,12 @@ const PRODUCT_QUERY = `#graphql
       productType
       tags
       options { name optionValues { name } }
+      personalizationTextLength: metafield(namespace: "winsome", key: "personalization_text_length") {
+        value
+      }
+      personalizationTextLabel: metafield(namespace: "winsome", key: "personalization_text_label") {
+        value
+      }
       personalizationHide: metafield(namespace: "winsome", key: "personalization_hide") {
         value
       }

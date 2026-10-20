@@ -228,14 +228,26 @@ export function PersonalizationPanel({
               {textLabel ?? textField.label}
               {textField.required && <span className="text-[#C9A96E]"> *</span>}
             </label>
-            <input
-              type="text"
-              value={value.fields["text"] ?? ""}
-              onChange={(e) => setField("text", e.target.value.slice(0, textField.maxLength))}
-              placeholder={textField.placeholder}
-              maxLength={textField.maxLength}
-              className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-            />
+            {textField.maxLength > 60 ? (
+              // Long text allowance (product's "Text box length") gets a taller box.
+              <textarea
+                value={value.fields["text"] ?? ""}
+                onChange={(e) => setField("text", e.target.value.slice(0, textField.maxLength))}
+                placeholder={textField.placeholder}
+                maxLength={textField.maxLength}
+                rows={4}
+                className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+              />
+            ) : (
+              <input
+                type="text"
+                value={value.fields["text"] ?? ""}
+                onChange={(e) => setField("text", e.target.value.slice(0, textField.maxLength))}
+                placeholder={textField.placeholder}
+                maxLength={textField.maxLength}
+                className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+              />
+            )}
             <div className="flex items-baseline justify-between mt-1.5">
               {textField.helpText && (
                 <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50">
