@@ -139,24 +139,29 @@ export function cleanProductTitle(raw: string): string {
   return first;
 }
 
-/** Map Shopify product_type / tags to our internal type. */
+/** Map Shopify product_type / tags to our internal type. The title decides
+ *  first; tags are only a fallback because they're full of cross-sell words
+ *  ("soccer notepad" on a notecard). Whole words only — "art" must not match
+ *  "partner", "heart", "tartan" or "party". */
 export function inferProductType(p: ShopifyProduct): ProductType {
+  const match = (s: string): ProductType | null => {
+    if (/\b(wine|prosecco|champagne)\s*tags?\b/.test(s)) return "wine-tag";
+    if (/\b(gift|hang)\s*tags?\b|\bstickers?\b|\benclosure/.test(s)) return "gift-tag";
+    if (/\b(note|memo)\s*pads?\b|\bnotepads?\b/.test(s)) return "notepad";
+    if (/\bcalendars?\b/.test(s)) return "calendar";
+    if (/\bnote\s*cards?\b|\bstationery\b|\bstationary\b|\bcards?\b|\bthank you\b/.test(s))
+      return "notecard";
+    if (/\bart(work)?\b|\bart prints?\b|\bwall\s*art\b|\bwatercolor\s*prints?\b/.test(s))
+      return "artwork";
+    return null;
+  };
   const tagText = tagsAsArray(p.tags).join(" ");
-  const text = (
-    (p.product_type ?? "") +
-    " " +
-    tagText +
-    " " +
-    (p.title ?? "")
-  ).toLowerCase();
-
-  if (/wine\s*tag|prosecco|champagne\s*tag/.test(text)) return "wine-tag";
-  if (/gift\s*tag|sticker|hang\s*tag|enclosure/.test(text)) return "gift-tag";
-  if (/notepad|note\s*pad|memo\s*pad/.test(text)) return "notepad";
-  if (/calendar/.test(text)) return "calendar";
-  if (/art(work)?|print|wall\s*art|watercolor\s*print/.test(text)) return "artwork";
-  // Default — anything with "notecard", "stationery", "card", "thank you", "save the date"
-  return "notecard";
+  return (
+    match((p.title ?? "").toLowerCase()) ??
+    match(((p.product_type ?? "") + " " + tagText).toLowerCase()) ??
+    // Default — anything with "notecard", "stationery", "card", "thank you", "save the date"
+    "notecard"
+  );
 }
 
 /** Map Shopify tags + product_type to category slugs. */
