@@ -150,7 +150,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 
   // Per-product Text box tweaks ("Text box length" / "Text box label").
   const textLength = useOwnSetup
-    ? Number(product.personalizationTextLength?.value) || undefined
+    ? // Sydney: every Text box takes at least 150 characters.
+      Math.max(Number(product.personalizationTextLength?.value) || 0, 150)
     : undefined;
   const textLabel = useOwnSetup
     ? product.personalizationTextLabel?.value?.trim() || undefined
