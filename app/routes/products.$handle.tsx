@@ -419,10 +419,10 @@ export default function ProductRoute() {
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-10 lg:gap-16">
           {/* LEFT: product photos — browsable with arrows + a thumbnail strip,
               sized so the thumbnails stay above the fold. */}
-          <div className="md:sticky md:top-[120px] md:self-start">
+          <div className="min-w-0 md:sticky md:top-[120px] md:self-start">
             <div
               className="group relative overflow-hidden bg-white border border-[#C9A96E]/10 aspect-[4/5]"
               style={{maxHeight: 'calc(100vh - 300px)'}}
@@ -479,8 +479,9 @@ export default function ProductRoute() {
               )}
             </div>
 
-            {/* Thumbnail strip — product photos */}
-            <div className="flex gap-3 mt-4 overflow-x-auto pb-1">
+            {/* Thumbnails — wrap onto more rows so a long photo set never
+                widens this column and squeezes the buy box. */}
+            <div className="flex flex-wrap gap-3 mt-4">
               {appProduct.images.map((img, i) => (
                 <button
                   key={i}
@@ -505,7 +506,7 @@ export default function ProductRoute() {
           </div>
 
           {/* RIGHT: buy box */}
-          <div>
+          <div className="min-w-0">
             {appProduct.badge && (
               <span className="inline-block bg-[#C9A96E]/15 text-[#8a6a3a] text-[10px] tracking-[0.2em] uppercase px-2.5 py-1 mb-3">
                 {appProduct.badge}
