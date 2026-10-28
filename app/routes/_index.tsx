@@ -165,16 +165,16 @@ export default function HomePage() {
   return (
     <CatalogProvider products={products} collections={COLLECTIONS}>
       <main className="min-h-screen bg-[#FAF8F5]">
-        {/* Order per Sydney: Hero → Best Sellers/Holiday → Shop by Interest →
-            Founder's Welcome → value bar → quotes → Trending → Notes Worth
+        {/* Order per Sydney: Hero → Best Sellers/Holiday → reviews → Shop by
+            Interest → Founder's Welcome → value bar → Trending → Notes Worth
             Saluting → Shop by Product Type. */}
         <HeroSection />
         <Marquee />
         <TwoUpFeature holidayImage={holidayImage} />
+        <SocialProof />
         <DesignWall interests={interests} />
         <BrandStory />
         <ValueProps />
-        <SocialProof />
         <TrendingPopular />
         <CollectionRow
           title="Notes Worth"

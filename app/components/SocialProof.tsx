@@ -3,11 +3,16 @@
  *
  * Per Sydney: no headings. Each review is just the name (first letter in
  * Parisian script, the rest in print), the quote, then five stars below.
- * Three show at once; you scroll/page to the next three. Reviews are
- * placeholders for now.
+ * One large review shows at a time and advances on its own every 6 seconds
+ * (long enough to read one). Visitors can swipe, use the arrows or tap a dot;
+ * auto-advance pauses while they hover, focus or touch the reviews, while the
+ * section is off screen, and entirely for reduced-motion users.
+ * Reviews are placeholders for now.
  */
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+
+const ADVANCE_MS = 6000;
 
 const reviews = [
   {
@@ -59,77 +64,169 @@ const reviews = [
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex gap-1" aria-label={`${rating} out of 5 stars`}>
+    <div className="flex gap-1.5" aria-label={`${rating} out of 5 stars`}>
       {Array.from({ length: rating }).map((_, i) => (
-        <Star key={i} size={16} className="fill-[#C9A96E] text-[#C9A96E]" />
+        <Star key={i} size={20} className="fill-[#C9A96E] text-[#C9A96E]" />
       ))}
     </div>
   );
 }
 
-function ReviewCard({ review }: { review: (typeof reviews)[number] }) {
+function ReviewSlide({
+  review,
+  index,
+  total,
+}: {
+  review: (typeof reviews)[number];
+  index: number;
+  total: number;
+}) {
   const first = review.name.charAt(0);
   const rest = review.name.slice(1);
   return (
-    <figure className="snap-start shrink-0 w-full sm:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)] bg-white px-8 py-9 flex flex-col items-center text-center ring-1 ring-[#C9A96E]/12">
-      <figcaption className="font-medium text-[#2D2D2D] leading-none mb-4">
-        <span
-          className="text-[2rem] align-middle text-[#2D2D2D]"
-          style={{ fontFamily: "'Parisian Script', 'Great Vibes', cursive" }}
-        >
-          {first}
-        </span>
-        <span className="font-sans text-lg tracking-[0.04em] align-middle">
-          {rest}
-        </span>
-      </figcaption>
-      <blockquote className="font-sans font-light text-[#2D2D2D]/70 leading-relaxed text-[15px] mb-6">
-        &ldquo;{review.text}&rdquo;
+    <figure
+      className="snap-center shrink-0 w-full flex flex-col items-center text-center px-14 sm:px-16 lg:px-24"
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`Review ${index + 1} of ${total}`}
+    >
+      <span
+        aria-hidden
+        className="font-serif text-[#C9A96E]/50 text-7xl md:text-8xl leading-none h-10 md:h-12 select-none"
+      >
+        &ldquo;
+      </span>
+      <blockquote className="font-serif text-[#2D2D2D] text-2xl md:text-[2rem] lg:text-[2.4rem] leading-snug max-w-3xl text-balance">
+        {review.text}
       </blockquote>
-      <div className="mt-auto">
+      <figcaption className="mt-8 flex flex-col items-center gap-3">
+        <span className="font-medium text-[#2D2D2D] leading-none">
+          <span
+            className="text-[2.6rem] align-middle"
+            style={{ fontFamily: "'Parisian Script', 'Great Vibes', cursive" }}
+          >
+            {first}
+          </span>
+          <span className="font-sans text-xl tracking-[0.04em] align-middle">
+            {rest}
+          </span>
+        </span>
         <StarRating rating={review.rating} />
-      </div>
+      </figcaption>
     </figure>
   );
 }
 
 export default function SocialProof() {
+  const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
-  const page = (dir: 1 | -1) => {
+  const goTo = useCallback((i: number) => {
     const el = trackRef.current;
     if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" });
+    const n = (i + reviews.length) % reviews.length;
+    el.scrollTo({ left: n * el.clientWidth, behavior: "smooth" });
+    setActive(n);
+  }, []);
+
+  // Keep the dots in sync when the visitor swipes.
+  const onScroll = () => {
+    const el = trackRef.current;
+    if (!el || !el.clientWidth) return;
+    setActive(Math.round(el.scrollLeft / el.clientWidth));
   };
 
+  useEffect(() => {
+    setReduceMotion(
+      window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ?? false,
+    );
+    const el = sectionRef.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), {
+      threshold: 0.4,
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (paused || !inView || reduceMotion) return;
+    const t = window.setTimeout(() => {
+      if (document.visibilityState === "visible") goTo(active + 1);
+    }, ADVANCE_MS);
+    return () => window.clearTimeout(t);
+  }, [active, paused, inView, reduceMotion, goTo]);
+
+  const arrow =
+    "flex absolute top-1/2 -translate-y-1/2 z-10 w-11 h-11 md:w-12 md:h-12 items-center justify-center rounded-full bg-white ring-1 ring-[#C9A96E]/25 text-[#2D2D2D] hover:bg-[#C9A96E] hover:text-white transition-colors shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C9A96E]";
+
   return (
-    <section className="py-20 lg:py-24 bg-[#ECF2F5]" aria-label="Customer reviews">
-      <div className="container relative">
-        {/* Arrows */}
+    <section
+      ref={sectionRef}
+      className="py-20 lg:py-28 bg-[#CADEEA]"
+      aria-roledescription="carousel"
+      aria-label="Customer reviews"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
+    >
+      <div className="container relative max-w-6xl">
         <button
           type="button"
-          onClick={() => page(-1)}
-          aria-label="Previous reviews"
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 w-11 h-11 items-center justify-center rounded-full bg-white ring-1 ring-[#C9A96E]/25 text-[#2D2D2D] hover:bg-[#C9A96E] hover:text-white transition-colors shadow-sm"
+          onClick={() => goTo(active - 1)}
+          aria-label="Previous review"
+          className={`${arrow} left-1 md:left-0 md:-translate-x-2`}
         >
           <ChevronLeft size={20} />
         </button>
         <button
           type="button"
-          onClick={() => page(1)}
-          aria-label="Next reviews"
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 w-11 h-11 items-center justify-center rounded-full bg-white ring-1 ring-[#C9A96E]/25 text-[#2D2D2D] hover:bg-[#C9A96E] hover:text-white transition-colors shadow-sm"
+          onClick={() => goTo(active + 1)}
+          aria-label="Next review"
+          className={`${arrow} right-1 md:right-0 md:translate-x-2`}
         >
           <ChevronRight size={20} />
         </button>
 
-        {/* Track — 3 per view, snap to the next 3 */}
+        {/* Track: one review per view, swipeable */}
         <div
           ref={trackRef}
-          className="flex gap-4 lg:gap-8 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          onScroll={onScroll}
+          className="flex overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          aria-live={paused ? "polite" : "off"}
         >
-          {reviews.map((review) => (
-            <ReviewCard key={review.name} review={review} />
+          {reviews.map((review, i) => (
+            <ReviewSlide
+              key={review.name}
+              review={review}
+              index={i}
+              total={reviews.length}
+            />
+          ))}
+        </div>
+
+        {/* Dots */}
+        <div className="mt-10 flex justify-center gap-2.5">
+          {reviews.map((r, i) => (
+            <button
+              key={r.name}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Show review ${i + 1}`}
+              aria-current={i === active}
+              className={`h-2 rounded-full transition-all ${
+                i === active
+                  ? "w-6 bg-[#2D2D2D]/70"
+                  : "w-2 bg-[#2D2D2D]/25 hover:bg-[#2D2D2D]/45"
+              }`}
+            />
           ))}
         </div>
       </div>

@@ -105,13 +105,13 @@ CSP is built with `createContentSecurityPolicy` and a nonce. **Any new external 
 Loader fetches multiple collections in **one aliased GraphQL query** (`c0:`, `t0:` alias pattern), plus `INTEREST_QUERY` and `PRODUCT_TYPE_QUERY`. Returns `interests`, `productTypes`, `holidayImage`.
 
 **Final section order (per Sydney — this is the source of truth):**
-1. **Hero** (`HeroSection.tsx`) — desk-scene slideshow; autumn slide FIRST with text on LEFT; "Uniquely You. On Paper." animates word-by-word; watercolor honeybee does a figure-8 around "You," landing top-right.
+1. **Hero** (`HeroSection.tsx`) — desk-scene slideshow; autumn slide FIRST with text on LEFT; "Uniquely You. On Paper." animates word-by-word; watercolor honeybee flies the path Sydney drew (bee-flight tool, Oct 2026) around "You." once, then settles.
 2. **Marquee** (`Marquee.tsx`) — blue `#CADEEA`.
 3. **Best Sellers / Holiday Essentials** (`TwoUpFeature.tsx`) — Holiday tile uses a real Christmas-collection product image via `holidayImage` prop.
-4. **Shop by Interest** (`DesignWall.tsx`) — 10 circular genre tiles; bg `#ECF2F5`.
-5. **Founder's Welcome** (`BrandStory.tsx`) — centered, script "FOUNDER'S WELCOME" title, bird-of-paradise floral (`birdofparadise.jpg`, `mix-blend-multiply`), Sydney signature script, Learn More; bg `#F6F0E7`.
-6. **Value bar** (`ValueProps.tsx`) — beige `#EAE1CE`; 4 props (Exceptional Customer Service · Fine Quality/Luxury Materials · Original Art/Stunning Watercolors · Personalized Gifts for All Interests).
-7. **Quotes** (`SocialProof.tsx`) — 3-up review carousel, script drop-cap first letter; bg `#ECF2F5`.
+4. **Quotes** (`SocialProof.tsx`) — one large review at a time, auto-advances every 6s (pauses on hover/touch/off-screen), arrows + dots + swipe, script drop-cap first letter; bg `#CADEEA`. Moved up under Best Sellers per Sydney (Oct 2026).
+5. **Shop by Interest** (`DesignWall.tsx`) — 10 circular genre tiles; bg `#ECF2F5`.
+6. **Founder's Welcome** (`BrandStory.tsx`) — centered, script "FOUNDER'S WELCOME" title, bird-of-paradise floral (`birdofparadise.jpg`, `mix-blend-multiply`), Sydney signature script, Learn More; bg `#F6F0E7`.
+7. **Value bar** (`ValueProps.tsx`) — beige `#EAE1CE`; 4 props (Exceptional Customer Service · Fine Quality/Luxury Materials · Original Art/Stunning Watercolors · Personalized Gifts for All Interests).
 8. **Trending & Popular** (`TrendingPopular.tsx`) — script T/P header + Sparkles flourish; left copy box `#CADEEA`; right scrolling carousel; section bg `#FAF8F5`.
 9. **Notes Worth Saluting** (`CollectionRow.tsx` with `stars` prop) — red `#9E1B32` / blue `#1B294E` stars under the title.
 10. **Shop by Product Type** (`ShopByProductType.tsx`) — 6 square tiles (icon chip + product image); bg `#ECF2F5`.
