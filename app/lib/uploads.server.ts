@@ -2,11 +2,15 @@
  * Customer uploads (pet photos, business logos) for personalization.
  *
  * Saves the file into the store's Shopify Files (Content → Files) and returns
- * a link that goes on the order as a line item property, so production can
- * open it straight from the order.
+ * a link to it in Shopify admin, which goes on the order as a line item
+ * property so production can open it straight from the order. After
+ * checkout, stampUploadedFiles() renames each file to start with its order
+ * number ("Order-1001-…") so Content → Files can be searched by order. (The
+ * admin link survives the rename; the file's CDN address doesn't.)
  *
  * Authenticates as the "Website Uploads" Dev Dashboard app (scopes
- * `write_files`, `read_files`) with the client credentials grant: the
+ * `write_files`, `read_files`, `read_orders`) with the client credentials
+ * grant: the
  * storefront's environment variables hold UPLOADS_CLIENT_ID and
  * UPLOADS_CLIENT_SECRET, exchanged for a 24-hour Admin API token as needed.
  */
@@ -87,11 +91,30 @@ const FILE_CREATE = `
     }
   }
 `;
-const FILE_URL = `
-  query UploadUrl($id: ID!) {
-    node(id: $id) {
-      ... on MediaImage { fileStatus image { url } }
-      ... on GenericFile { fileStatus url }
+const RECENT_ORDERS = `
+  query RecentOrdersWithUploads {
+    orders(first: 25, sortKey: CREATED_AT, reverse: true) {
+      nodes {
+        name
+        lineItems(first: 50) {
+          nodes { customAttributes { key value } }
+        }
+      }
+    }
+  }
+`;
+const FILES = `
+  query UploadedFiles($ids: [ID!]!) {
+    nodes(ids: $ids) {
+      ... on MediaImage { id alt image { url } }
+      ... on GenericFile { id alt url }
+    }
+  }
+`;
+const FILE_RENAME = `
+  mutation StampUpload($files: [FileUpdateInput!]!) {
+    fileUpdate(files: $files) {
+      userErrors { message }
     }
   }
 `;
@@ -134,21 +157,74 @@ export async function saveUpload(env: Env, file: File, label: string): Promise<U
     });
     const id = created.fileCreate.files[0]?.id;
     if (!id) throw new Error('File not created');
-
-    // Shopify processes the file for a moment before its link exists.
-    for (let i = 0; i < 8; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
-      const {node} = await admin<{
-        node?: {fileStatus?: string; image?: {url: string} | null; url?: string | null};
-      }>(token, FILE_URL, {id});
-      const url = node?.image?.url ?? node?.url;
-      if (url) return {ok: true, url, name: file.name};
-      if (node?.fileStatus === 'FAILED') return {ok: false, error: 'We couldn’t read that file. Please try another.'};
-    }
-    // Still processing: link to it in Shopify admin instead.
     return {ok: true, url: `${ADMIN_FILES_URL}/${id.split('/').pop()}`, name: file.name};
   } catch (err) {
     console.error('Upload failed:', err);
     return {ok: false, error: 'unavailable'};
+  }
+}
+
+// Stamping runs in the background after page loads; once every few minutes
+// per worker is plenty.
+const STAMP_INTERVAL_MS = 5 * 60 * 1000;
+let lastStamp = 0;
+
+/**
+ * Rename recently ordered uploads to start with their order number and note
+ * the order and question in the file's alt text. Files already stamped are
+ * skipped, so it's safe to run repeatedly.
+ */
+export async function stampUploadedFiles(env: Env): Promise<void> {
+  if (Date.now() - lastStamp < STAMP_INTERVAL_MS) return;
+  lastStamp = Date.now();
+  try {
+    const token = await getAdminToken(env);
+    if (!token) return;
+    const {orders} = await admin<{
+      orders: {
+        nodes: Array<{
+          name: string;
+          lineItems: {nodes: Array<{customAttributes: Array<{key: string; value?: string | null}>}>};
+        }>;
+      };
+    }>(token, RECENT_ORDERS, {});
+
+    // File id → the order (and question) it belongs to.
+    const owners = new Map<string, {order: string; label: string}>();
+    for (const order of orders.nodes) {
+      for (const line of order.lineItems.nodes) {
+        for (const {key, value} of line.customAttributes) {
+          const m = value?.match(/\/content\/files\/(\d+)/);
+          if (!m || !value?.startsWith(ADMIN_FILES_URL)) continue;
+          owners.set(m[1], {order: order.name, label: key});
+        }
+      }
+    }
+    if (!owners.size) return;
+
+    // Shopify resolves a file id whatever its type (image or PDF).
+    const ids = [...owners.keys()].map((n) => `gid://shopify/MediaImage/${n}`);
+    const {nodes} = await admin<{
+      nodes: Array<{id?: string; alt?: string | null; image?: {url: string} | null; url?: string | null} | null>;
+    }>(token, FILES, {ids});
+
+    const updates = nodes.flatMap((file) => {
+      if (!file?.id || file.alt?.startsWith('Order ')) return [];
+      const owner = owners.get(file.id.split('/').pop()!);
+      const url = file.image?.url ?? file.url;
+      if (!owner || !url) return [];
+      const current = decodeURIComponent(new URL(url).pathname.split('/').pop() ?? '');
+      const orderNo = owner.order.replace(/^#/, '');
+      return [
+        {
+          id: file.id,
+          filename: `Order-${orderNo}-${current}`,
+          alt: `Order ${owner.order} · ${owner.label}`.slice(0, 500),
+        },
+      ];
+    });
+    if (updates.length) await admin(token, FILE_RENAME, {files: updates});
+  } catch (err) {
+    console.error('Stamping uploads with order numbers failed:', err);
   }
 }

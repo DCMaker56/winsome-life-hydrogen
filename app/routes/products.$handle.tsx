@@ -22,6 +22,7 @@ import {
 } from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {PHOTO_FEE_PRODUCT_HANDLE, PROOF_PRODUCT_HANDLE} from '~/lib/addons';
+import {stampUploadedFiles} from '~/lib/uploads.server';
 import {
   parseHiddenStandard,
   questionsToFields,
@@ -80,6 +81,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   if (!handle) throw new Error('Expected product handle');
 
   const {storefront} = context;
+  // Background: put order numbers on files customers uploaded (see uploads.server).
+  context.waitUntil?.(stampUploadedFiles(context.env));
   const [{product}, proofData, photoFeeData] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},

@@ -4,7 +4,11 @@
  * store's Shopify Files and the link comes back for the cart line.
  */
 import type {Route} from './+types/api.upload';
-import {saveUpload, type UploadResult} from '~/lib/uploads.server';
+import {
+  saveUpload,
+  stampUploadedFiles,
+  type UploadResult,
+} from '~/lib/uploads.server';
 
 export async function action({request, context}: Route.ActionArgs) {
   if (request.method !== 'POST')
@@ -20,6 +24,7 @@ export async function action({request, context}: Route.ActionArgs) {
   if (!(file instanceof File) || file.size === 0)
     return Response.json({ok: false, error: 'Please choose a file to upload.'}, {status: 400});
 
+  context.waitUntil?.(stampUploadedFiles(context.env));
   const result: UploadResult = await saveUpload(
     context.env,
     file,

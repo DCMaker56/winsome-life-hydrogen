@@ -104,7 +104,7 @@ export function CartLineItem({
               {visibleAttributes.map((a) => (
                 <li key={a.key}>
                   <small>
-                    {a.key}: {a.value}
+                    {a.key}: {displayValue(a.value)}
                   </small>
                 </li>
               ))}
@@ -242,4 +242,10 @@ function CartLineUpdateButton({
  */
 function getUpdateKey(lineIds: string[]) {
   return [CartForm.ACTIONS.LinesUpdate, ...lineIds].join('-');
+}
+
+/** Uploads are stored as a link to the file in Shopify admin, which
+ *  customers can't open; just confirm the upload. */
+function displayValue(value?: string | null) {
+  return value?.startsWith('https://admin.shopify.com/') ? 'File uploaded ✓' : value;
 }
