@@ -150,7 +150,13 @@ export function PersonalizationPanel({
             }
           />
         ) : field.type === "choice" && field.optionImages ? (
-          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+          <div
+            className={cn(
+              "grid grid-cols-4 sm:grid-cols-5 gap-2",
+              // Long lists (e.g. 80+ breeds) scroll inside a box.
+              (field.options?.length ?? 0) > 20 && "max-h-[440px] overflow-y-auto pr-1",
+            )}
+          >
             {(field.options ?? []).map((opt, i) => {
               const active = current === opt;
               const img = field.optionImages?.[i];

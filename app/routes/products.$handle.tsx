@@ -139,6 +139,9 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const textLabel = useOwnSetup
     ? product.personalizationTextLabel?.value?.trim() || undefined
     : undefined;
+  const textHelp = useOwnSetup
+    ? product.personalizationTextHelp?.value?.trim() || undefined
+    : undefined;
 
   return {
     product,
@@ -149,6 +152,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     hidden,
     textLength,
     textLabel,
+    textHelp,
   };
 }
 
@@ -200,6 +204,7 @@ export default function ProductRoute() {
     hidden,
     textLength,
     textLabel,
+    textHelp,
   } = useLoaderData<typeof loader>();
   const hideText = hidden.includes('Text');
   const hideFont = hidden.includes('Font');
@@ -294,6 +299,7 @@ export default function ProductRoute() {
               ...f,
               placeholder: '',
               ...(textLength && f.key === 'text' ? {maxLength: textLength} : {}),
+              ...(textHelp && f.key === 'text' ? {helpText: textHelp} : {}),
             })),
           ...extraQuestions,
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
@@ -301,7 +307,7 @@ export default function ProductRoute() {
           ...(wantsReturnAddress ? [{...RETURN_ADDRESS_FIELD, required: true}] : []),
         ],
       },
-    [schema, extraQuestions, hideText, hideInstructions, textLength, wantsReturnAddress],
+    [schema, extraQuestions, hideText, hideInstructions, textLength, textHelp, wantsReturnAddress],
   );
 
   // e.g. a card whose only question is the return address, with blank
@@ -959,6 +965,9 @@ const PRODUCT_QUERY = `#graphql
       personalizationTextLabel: metafield(namespace: "winsome", key: "personalization_text_label") {
         value
       }
+      personalizationTextHelp: metafield(namespace: "winsome", key: "personalization_text_help") {
+        value
+      }
       personalizationHide: metafield(namespace: "winsome", key: "personalization_hide") {
         value
       }
@@ -972,7 +981,7 @@ const PRODUCT_QUERY = `#graphql
               fields {
                 key
                 value
-                references(first: 50) {
+                references(first: 150) {
                   nodes { ... on MediaImage { image { url } } }
                 }
               }
