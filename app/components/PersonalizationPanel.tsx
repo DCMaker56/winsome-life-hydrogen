@@ -688,7 +688,18 @@ function SwatchGrid({
         <p className="font-sans text-[11px] tracking-wide uppercase -mt-1 mb-2 text-[#2D2D2D]/55">
           {chosen ? (
             <>
-              Selected: <span className="font-medium text-[#2D2D2D]">{chosen.label}</span>
+              Selected:{" "}
+              {/* The name in its own color; light colors get a faint outline
+                  so they stay readable on the cream background. */}
+              <span
+                className="font-semibold text-xs"
+                style={{
+                  color: chosen.hex,
+                  textShadow: isLightColor(chosen.hex) ? "0 0 1px rgba(0,0,0,0.55)" : undefined,
+                }}
+              >
+                {chosen.label}
+              </span>
             </>
           ) : (
             "Tap a color"
@@ -756,6 +767,14 @@ function SwatchGrid({
       })}
     </div>
   );
+}
+
+/** True for pale colors (yellow, sand, baby blue…) that wash out on cream. */
+function isLightColor(hex: string) {
+  const n = parseInt(hex.replace("#", ""), 16);
+  if (Number.isNaN(n)) return false;
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  return 0.299 * r + 0.587 * g + 0.114 * b > 150;
 }
 
 /** Upload button for a customer photo/logo: sends it to /api/upload and keeps
