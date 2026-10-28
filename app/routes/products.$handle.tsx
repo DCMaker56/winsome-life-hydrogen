@@ -21,7 +21,7 @@ import {
   ShopPayButton,
 } from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {PROOF_PRODUCT_HANDLE} from '~/lib/addons';
+import {PHOTO_FEE_PRODUCT_HANDLE, PROOF_PRODUCT_HANDLE} from '~/lib/addons';
 import {
   parseHiddenStandard,
   questionsToFields,
@@ -80,7 +80,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   if (!handle) throw new Error('Expected product handle');
 
   const {storefront} = context;
-  const [{product}, proofData] = await Promise.all([
+  const [{product}, proofData, photoFeeData] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
@@ -88,6 +88,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // (or isn't on this sales channel) the option simply doesn't show.
     storefront
       .query(PROOF_PRODUCT_QUERY, {variables: {handle: PROOF_PRODUCT_HANDLE}})
+      .catch(() => null),
+    // Same for the custom photo charge (own pet photo instead of a breed).
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: PHOTO_FEE_PRODUCT_HANDLE}})
       .catch(() => null),
   ]);
   if (!product?.id) throw new Response(null, {status: 404});
@@ -112,6 +116,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     proofVariant?.availableForSale && handle !== PROOF_PRODUCT_HANDLE
       ? {variantId: proofVariant.id, price: Number(proofVariant.price.amount)}
       : null;
+  const photoFeeVariant = photoFeeData?.product?.variants?.nodes?.[0];
+  const photoFee = photoFeeVariant?.availableForSale
+    ? {variantId: photoFeeVariant.id, price: Number(photoFeeVariant.price.amount)}
+    : null;
 
   // This product's own questions, managed in Shopify admin. While the
   // product's "Personalization questions draft" switch is on they only show
@@ -120,8 +128,16 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const isDraft = product.personalizationDraft?.value === 'true';
   const showDrafts = new URL(request.url).searchParams.has('drafts');
   const useOwnSetup = !isDraft || showDrafts;
+  // Changes to a live product's questions are staged in its "Personalization
+  // questions (draft list)" field, which only review links use; publishing
+  // copies it over the live list.
+  const draftList = showDrafts
+    ? product.personalizationQuestionsDraft?.references?.nodes
+    : undefined;
   const extraQuestions = !useOwnSetup ? [] : questionsToFields(
-    product.personalizationQuestions?.references?.nodes as
+    (draftList?.length
+      ? draftList
+      : product.personalizationQuestions?.references?.nodes) as
       | Parameters<typeof questionsToFields>[0]
       | undefined,
   );
@@ -148,6 +164,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     appProduct,
     related,
     proof,
+    photoFee,
     extraQuestions,
     hidden,
     textLength,
@@ -200,6 +217,7 @@ export default function ProductRoute() {
     appProduct,
     related,
     proof,
+    photoFee,
     extraQuestions,
     hidden,
     textLength,
@@ -323,28 +341,51 @@ export default function ProductRoute() {
   const needsApproval = personalizable && panelHasQuestions;
   const addProof = needsApproval && wantsProof;
 
+  const shownFields = activeSchema?.fields ?? [];
+  const answered = (f: PersonalizationField) =>
+    Boolean((personalization.fields[f.key] ?? '').trim());
+  // Either/or questions (e.g. Dog Breed / Upload Your Own Photo): answering
+  // one covers both.
+  const partnerOf = (f: PersonalizationField) =>
+    shownFields.find(
+      (g) =>
+        g.key !== f.key && (g.key === f.alternativeTo || g.alternativeTo === f.key),
+    );
   // Listed in page order: text, font, ink color, then the extra questions.
   const isMissing = (f: PersonalizationField) => {
     if (!f.required) return false;
     if (f.key === 'text' && personalization.mode === 'monogram') return false;
     if (f.type === 'monogram-letters' && personalization.mode !== 'monogram')
       return false;
-    return !(personalization.fields[f.key] ?? '').trim();
+    const partner = partnerOf(f);
+    return !answered(f) && !(partner && answered(partner));
   };
-  const fieldLabel = (f: PersonalizationField) =>
+  const plainLabel = (f: PersonalizationField) =>
     f.key === 'text'
       ? pdpOverride.textLabel ?? f.label
       : f.label.replace(/\s*\(.*\)$/, '');
-  const shownFields = activeSchema?.fields ?? [];
+  // An either/or pair is listed once: "Dog Breed or Upload Your Own Photo".
+  const fieldLabel = (f: PersonalizationField) => {
+    const partner = partnerOf(f);
+    if (!partner) return plainLabel(f);
+    const [a, b] = sortByFieldGroup([f, partner]);
+    return `${plainLabel(a)} or ${plainLabel(b)}`;
+  };
+  const addPhotoFee = Boolean(
+    photoFee &&
+      shownFields.some((f) => f.type === 'upload' && f.photoFee && answered(f)),
+  );
   const missingInfo = !personalizable
     ? []
     : [
         ...shownFields.filter(isTextField).filter(isMissing).map(fieldLabel),
         ...(hideFont || personalization.fontKey ? [] : ['Font']),
         ...(hideInk || personalization.inkKey ? [] : ['Text Color']),
-        ...sortByFieldGroup(shownFields.filter((f) => !isTextField(f)))
-          .filter(isMissing)
-          .map(fieldLabel),
+        ...new Set(
+          sortByFieldGroup(shownFields.filter((f) => !isTextField(f)))
+            .filter(isMissing)
+            .map(fieldLabel),
+        ),
         ...(needsApproval && !proofApproved && !wantsProof
           ? [
               proof
@@ -742,6 +783,15 @@ export default function ProductRoute() {
                         },
                       ]
                     : []),
+                  ...(addPhotoFee && photoFee
+                    ? [
+                        {
+                          merchandiseId: photoFee.variantId,
+                          quantity: 1,
+                          attributes: [{key: 'For', value: appProduct.title}],
+                        },
+                      ]
+                    : []),
                 ],
               }}
               action={CartForm.ACTIONS.LinesAdd}
@@ -976,6 +1026,21 @@ const PRODUCT_QUERY = `#graphql
         value
       }
       personalizationQuestions: metafield(namespace: "winsome", key: "personalization_questions") {
+        references(first: 30) {
+          nodes {
+            ... on Metaobject {
+              fields {
+                key
+                value
+                references(first: 150) {
+                  nodes { ... on MediaImage { image { url } } }
+                }
+              }
+            }
+          }
+        }
+      }
+      personalizationQuestionsDraft: metafield(namespace: "winsome", key: "personalization_questions_draft") {
         references(first: 30) {
           nodes {
             ... on Metaobject {

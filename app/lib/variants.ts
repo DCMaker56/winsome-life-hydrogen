@@ -86,8 +86,9 @@ export interface InkColorOption {
 export interface PersonalizationField {
   key: string;
   label: string;
-  /** "color": the ink chart swatches; the value is the color's name. */
-  type: "text" | "monogram-letters" | "longtext" | "choice" | "color";
+  /** "color": the ink chart swatches; the value is the color's name.
+   *  "upload": a photo/logo the customer uploads; the value is its link. */
+  type: "text" | "monogram-letters" | "longtext" | "choice" | "color" | "upload";
   maxLength: number;
   /** "choice" fields only — the options, shown as buttons; the first is the default. */
   options?: string[];
@@ -103,6 +104,11 @@ export interface PersonalizationField {
   required?: boolean;
   /** Which monogram styles use this field (by key). If omitted, always shown. */
   onlyForMonogramStyles?: string[];
+  /** Label of another question this one can replace: answering either
+   *  satisfies both (e.g. "Upload Your Own Photo" instead of "Dog Breed"). */
+  alternativeTo?: string;
+  /** "upload" only — an upload adds the custom photo charge to the cart. */
+  photoFee?: boolean;
 }
 
 export type FieldGroup = "monogram" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";

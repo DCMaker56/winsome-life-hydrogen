@@ -13,5 +13,8 @@ declare global {
     SHOPIFY_ADMIN_CLIENT_SECRET?: string;
     /** Legacy alternative: a token from an existing admin-created custom app. */
     PRIVATE_ADMIN_API_TOKEN?: string;
+    /** "Website Uploads" app credentials (write_files) — save customer photo/logo uploads. */
+    UPLOADS_CLIENT_ID?: string;
+    UPLOADS_CLIENT_SECRET?: string;
   }
 }

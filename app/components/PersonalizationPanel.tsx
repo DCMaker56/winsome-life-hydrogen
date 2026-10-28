@@ -88,8 +88,18 @@ export function PersonalizationPanel({
     }
   }, [schema]);
 
-  const setField = (key: string, v: string) =>
-    onChange({ ...value, fields: { ...value.fields, [key]: v } });
+  // Answering one of an either/or pair (e.g. Dog Breed / Upload Your Own
+  // Photo) clears the other, so the order only carries one.
+  const setField = (key: string, v: string) => {
+    const fields = { ...value.fields, [key]: v };
+    if (v) {
+      const self = schema.fields.find((f) => f.key === key);
+      for (const f of schema.fields) {
+        if (f.key !== key && (f.key === self?.alternativeTo || f.alternativeTo === key)) fields[f.key] = "";
+      }
+    }
+    onChange({ ...value, fields });
+  };
 
   const setMode = (mode: PersonalizationMode) => {
     // Clear the opposing field when switching modes
@@ -215,6 +225,8 @@ export function PersonalizationPanel({
               );
             })}
           </div>
+        ) : field.type === "upload" ? (
+          <UploadField label={field.label} value={current} onChange={(url) => setField(field.key, url)} />
         ) : field.type === "longtext" ? (
           <textarea
             value={current}
@@ -716,6 +728,101 @@ function SwatchGrid({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/** Upload button for a customer photo/logo: sends it to /api/upload and keeps
+ *  the returned link as the answer. */
+function UploadField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [preview, setPreview] = useState("");
+
+  const upload = async (file: File) => {
+    setError("");
+    if (file.size > 15 * 1024 * 1024) {
+      setError("That file is over 15 MB. Please choose a smaller one.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      body.append("label", label);
+      const res = await fetch("/api/upload", { method: "POST", body });
+      const json = (await res.json()) as { ok: boolean; url?: string; error?: string };
+      if (!json.ok || !json.url) throw new Error(json.error || "Upload failed. Please try again.");
+      setFileName(file.name);
+      setPreview(file.type.startsWith("image/") ? URL.createObjectURL(file) : "");
+      onChange(json.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (value) {
+    return (
+      <div className="flex items-center gap-3 p-3 border border-[#C9A96E]/40 bg-[#FAF8F5] rounded-sm">
+        {preview ? (
+          <img src={preview} alt="" onError={() => setPreview("")} className="w-14 h-14 object-cover rounded-sm" />
+        ) : (
+          <span className="w-14 h-14 flex items-center justify-center bg-white text-[10px] font-sans text-[#2D2D2D]/60 rounded-sm">
+            FILE
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="font-sans text-sm text-[#2D2D2D] truncate">{fileName || "Uploaded"}</p>
+          <p className="font-sans text-[11px] text-[#2D2D2D]/55">Uploaded ✓</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            onChange("");
+            setFileName("");
+            setPreview("");
+          }}
+          className="font-sans text-xs underline text-[#2D2D2D]/70 hover:text-[#2D2D2D]"
+        >
+          Remove
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <label
+        className={cn(
+          "flex items-center justify-center gap-2 px-4 py-4 border border-dashed border-[#C9A96E]/60 bg-[#FAF8F5] rounded-sm cursor-pointer font-sans text-sm text-[#2D2D2D] hover:border-[#C9A96E] focus-within:outline-2 focus-within:outline-[#C9A96E]",
+          busy && "opacity-60 cursor-wait",
+        )}
+      >
+        <input
+          type="file"
+          accept="image/*,application/pdf"
+          className="sr-only"
+          disabled={busy}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (file) void upload(file);
+          }}
+        />
+        {busy ? "Uploading…" : "Choose a file to upload"}
+      </label>
+      {error && <p className="font-sans text-[11px] text-[#B23A3A] mt-1">{error}</p>}
     </div>
   );
 }

@@ -66,7 +66,9 @@ export function questionsToFields(
           ? 'choice'
           : answerType === 'Long text'
             ? 'longtext'
-            : 'text';
+            : answerType === 'File upload'
+              ? 'upload'
+              : 'text';
     return [
       {
         key: label,
@@ -86,6 +88,8 @@ export function questionsToFields(
         helpText: get('help_text') || undefined,
         required: get('required') === 'true',
         group: SECTION_TO_GROUP[get('section')] ?? 'text',
+        alternativeTo: get('alternative_to').trim() || undefined,
+        photoFee: type === 'upload' && get('photo_fee') === 'true',
       },
     ];
   });
