@@ -147,11 +147,25 @@ export function PersonalizationPanel({
   // One extra question (color / picture tiles / buttons / text box).
   const renderExtraField = (field: (typeof extraFields)[number]) => {
     const current = value.fields[field.key] ?? "";
+    // Second of an either/or pair (e.g. a photo upload instead of a breed):
+    // an "OR" divider, and no asterisk, so it doesn't read as a second
+    // required question.
+    const partnerIndex = extraFields.findIndex(
+      (g) => g.key !== field.key && (g.key === field.alternativeTo || g.alternativeTo === field.key),
+    );
+    const isAlternative = partnerIndex >= 0 && partnerIndex < extraFields.indexOf(field);
     return (
       <div key={field.key}>
+        {isAlternative && (
+          <div className="flex items-center gap-3 mb-3" aria-hidden>
+            <span className="h-px flex-1 bg-[#C9A96E]/30" />
+            <span className="font-sans font-medium text-xs tracking-[0.2em] text-[#8a6a3a]">OR</span>
+            <span className="h-px flex-1 bg-[#C9A96E]/30" />
+          </div>
+        )}
         <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
-          {field.label}
-          {field.required && <span className="text-[#C9A96E]"> *</span>}
+          {isAlternative ? `Or: ${field.label}` : field.label}
+          {field.required && !isAlternative && <span className="text-[#C9A96E]"> *</span>}
         </label>
         {field.type === "color" ? (
           <SwatchGrid
