@@ -241,7 +241,7 @@ export default function ProductRoute() {
   const [triedAddToCart, setTriedAddToCart] = useState(false);
   // Rifle-style checkpoint: made-to-order + final sale means the customer
   // must explicitly approve their personalization before it can be purchased.
-  // The customer either approves the design as shown, or pays for a full
+  // The customer either approves the personalization details, or pays for a full
   // proof (emailed within 2 business days) and approves from that email.
   const [approvalChoice, setApprovalChoice] = useState<'' | 'approve' | 'proof'>('');
   const proofApproved = approvalChoice === 'approve';
@@ -356,7 +356,7 @@ export default function ProductRoute() {
       ? [
           {
             key: 'Before We Print',
-            value: wantsProof ? 'Proof requested' : 'Design approved as shown',
+            value: wantsProof ? 'Proof requested' : 'Design approved with personalization details',
           },
         ]
       : []),
@@ -659,7 +659,7 @@ export default function ProductRoute() {
               </div>
             )}
 
-            {/* Before we print — approve as shown, or request a paid proof.
+            {/* Before we print — approve the details, or request a paid proof.
                 The approval is what lets production print without a designer
                 pass; with a proof, the customer approves from the email. */}
             {needsApproval && (
@@ -673,8 +673,8 @@ export default function ProductRoute() {
                 {[
                   {
                     value: 'approve' as const,
-                    title: 'I approve my design as shown.',
-                    text: 'Personalized pieces are made to order exactly as shown and cannot be changed or returned after checkout.',
+                    title: 'I approve my design with the personalization details above.',
+                    text: 'Personalized pieces are made to order with these details and cannot be changed or returned after checkout.',
                   },
                   ...(proof
                     ? [
