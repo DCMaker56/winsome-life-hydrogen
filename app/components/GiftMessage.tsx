@@ -76,14 +76,6 @@ export default function GiftMessage({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isGift && (
-            <span
-              className="font-sans font-semibold text-[10px] tracking-[0.1em] uppercase text-[#C9A96E]"
-
-            >
-              Complimentary
-            </span>
-          )}
           <motion.div
             animate={{ rotate: isGift ? 180 : 0 }}
             transition={{ duration: 0.3 }}
@@ -130,13 +122,7 @@ export default function GiftMessage({
                     lineHeight: 1.7,
                   }}
                 />
-                <div className="flex items-center justify-between mt-2">
-                  <p
-                    className="font-sans font-light text-[10px] text-[#2D2D2D]/30"
-
-                  >
-                    Handwritten on a Winsome notecard &amp; tucked inside
-                  </p>
+                <div className="flex items-center justify-end mt-2">
                   <span
                     className={`font-sans text-[10px] transition-colors ${
                       message.length > MAX_CHARS * 0.9
@@ -217,25 +203,14 @@ export default function GiftMessage({
               )}
 
               {/* Summary */}
-              <div className="mt-4 pt-4 border-t border-[#2D2D2D]/5 flex items-center gap-4">
-                {message.length > 0 && (
-                  <div className="flex items-center gap-1.5">
-                    <MessageSquare size={11} className="text-[#C9A96E]" />
-                    <span
-                      className="font-sans text-[10px] text-[#2D2D2D]/40"
-
-                    >
-                      Message included
-                    </span>
-                  </div>
-                )}
-                <span
-                  className="font-sans font-semibold ml-auto text-[10px] text-[#C9A96E]"
-
-                >
-                  Free
-                </span>
-              </div>
+              {message.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-[#2D2D2D]/5 flex items-center gap-1.5">
+                  <MessageSquare size={11} className="text-[#C9A96E]" />
+                  <span className="font-sans text-[10px] text-[#2D2D2D]/40">
+                    Message included
+                  </span>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

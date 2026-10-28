@@ -414,7 +414,6 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
               {[
                 'Free shipping over $75',
                 'Personalized for you',
-                'Gift-ready packaging',
               ].map((text) => (
                 <div key={text} className="flex items-center gap-1.5">
                   <Check

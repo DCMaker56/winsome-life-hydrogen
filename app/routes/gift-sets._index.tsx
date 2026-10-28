@@ -211,7 +211,7 @@ function HowItWorks() {
       number: '03',
       title: 'Gift the Full Collection',
       description:
-        'Five coordinated pieces — notecards, notepad, desk calendar, ceramic mug, and gift tags — packaged and ready to give.',
+        'Five coordinated pieces — notecards, notepad, desk calendar, ceramic mug, and gift tags — ready to give.',
     },
   ];
 

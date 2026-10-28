@@ -20,7 +20,6 @@ import {
   Check,
   Palette,
   Type,
-  Gift,
   FileText,
   StickyNote,
   Calendar,
@@ -1449,12 +1448,6 @@ function PersonalizeStep({
 
           {/* Trust signals */}
           <div className="flex items-center justify-center gap-6 mt-6 text-[#2D2D2D]/25">
-            <div className="flex items-center gap-1.5">
-              <Gift size={13} strokeWidth={1.5} />
-              <span className="font-sans text-[10px] tracking-[0.05em]">
-                Gift-ready packaging
-              </span>
-            </div>
             <div className="flex items-center gap-1.5">
               <Sparkles size={13} strokeWidth={1.5} />
               <span className="font-sans text-[10px] tracking-[0.05em]">
