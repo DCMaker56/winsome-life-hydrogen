@@ -18,6 +18,8 @@ type MetaobjectFields = {
 
 const SECTION_TO_GROUP: Record<string, FieldGroup> = {
   Monogram: 'monogram',
+  // Shown above the main text box too, e.g. "Text for Top of Card".
+  'Before text': 'monogram',
   Text: 'text',
   Border: 'border',
   Icon: 'icon',
