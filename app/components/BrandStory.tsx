@@ -45,16 +45,13 @@ export default function BrandStory() {
           </h2>
 
           <div className="space-y-5">
-            <p className="font-serif text-2xl md:text-3xl text-[#2D2D2D] leading-snug">
-              Welcome.{" "}
-              <span className="text-[#2D2D2D]/55">
-                We are so happy you&rsquo;re here.
-              </span>
+            <p className="font-sans font-light text-base lg:text-lg text-[#2D2D2D]/75 leading-relaxed">
+              Welcome. We are so happy you&rsquo;re here.
             </p>
             <p className="font-sans font-light text-base lg:text-lg text-[#2D2D2D]/75 leading-relaxed">
               At The Winsome Life, we believe the most meaningful things are
               personal. We create luxury stationery designed not just to be used,
-              but to be <em className="font-serif not-italic">treasured</em>.
+              but to be treasured.
             </p>
             <p className="font-sans font-light text-base lg:text-lg text-[#2D2D2D]/75 leading-relaxed">
               Every piece is crafted with care, with fine materials, made to
@@ -65,7 +62,7 @@ export default function BrandStory() {
           </div>
 
           <div className="mt-8">
-            <p className="font-sans text-base text-[#2D2D2D]/60 mb-1">
+            <p className="font-sans font-light text-base lg:text-lg text-[#2D2D2D]/75 leading-relaxed mb-1">
               Welcome again,
             </p>
             <p className="text-[2.4rem] text-[#2D2D2D] leading-none" style={script}>
