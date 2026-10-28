@@ -312,6 +312,10 @@ export default function ProductRoute() {
     (activeSchema?.fields ?? []).some(
       (f) => f.type !== 'monogram-letters' || !pdpOverride.hideMonogram,
     );
+  // Nothing personalized (e.g. blank envelopes on a return-address-only
+  // card) → nothing to approve or proof.
+  const needsApproval = personalizable && panelHasQuestions;
+  const addProof = needsApproval && wantsProof;
 
   // Listed in page order: text, font, ink color, then the extra questions.
   const isMissing = (f: PersonalizationField) => {
@@ -335,7 +339,7 @@ export default function ProductRoute() {
         ...sortByFieldGroup(shownFields.filter((f) => !isTextField(f)))
           .filter(isMissing)
           .map(fieldLabel),
-        ...(!proofApproved && !wantsProof
+        ...(needsApproval && !proofApproved && !wantsProof
           ? [
               proof
                 ? 'Before We Print: approve your design or choose a proof'
@@ -348,7 +352,7 @@ export default function ProductRoute() {
     ...(activeSchema
       ? buildLineAttributes(personalization, activeSchema, pdpOverride.textLabel)
       : []),
-    ...(personalizable && (proofApproved || wantsProof)
+    ...(needsApproval && (proofApproved || wantsProof)
       ? [
           {
             key: 'Before We Print',
@@ -658,7 +662,7 @@ export default function ProductRoute() {
             {/* Before we print — approve as shown, or request a paid proof.
                 The approval is what lets production print without a designer
                 pass; with a proof, the customer approves from the email. */}
-            {personalizable && (
+            {needsApproval && (
               <fieldset className="mb-4 space-y-2">
                 <legend className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
                   Before We Print{' '}
@@ -717,7 +721,7 @@ export default function ProductRoute() {
                     quantity,
                     attributes: lineAttributes,
                   },
-                  ...(wantsProof
+                  ...(addProof
                     ? [
                         {
                           merchandiseId: proof.variantId,
