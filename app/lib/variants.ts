@@ -109,6 +109,9 @@ export interface PersonalizationField {
   alternativeTo?: string;
   /** "upload" only — an upload adds the custom photo charge to the cart. */
   photoFee?: boolean;
+  /** Yes/no question that shows the Text, Font and Text Color questions only
+   *  once answered "Yes" (e.g. "Do you want to add additional text?"). */
+  revealsText?: boolean;
 }
 
 export type FieldGroup = "monogram" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";

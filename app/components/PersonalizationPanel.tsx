@@ -167,6 +167,10 @@ export function PersonalizationPanel({
           {isAlternative ? `Or: ${field.label}` : field.label}
           {field.required && !isAlternative && <span className="text-[#C9A96E]"> *</span>}
         </label>
+        {/* Upload instructions read best before the button. */}
+        {field.type === "upload" && field.helpText && (
+          <p className="font-sans text-xs text-[#2D2D2D]/70 leading-relaxed mb-2">{field.helpText}</p>
+        )}
         {field.type === "color" ? (
           <SwatchGrid
             compact
@@ -276,7 +280,7 @@ export function PersonalizationPanel({
             className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
           />
         )}
-        {field.helpText && (
+        {field.helpText && field.type !== "upload" && (
           <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1">
             {field.helpText}
           </p>

@@ -224,9 +224,6 @@ export default function ProductRoute() {
     textLabel,
     textHelp,
   } = useLoaderData<typeof loader>();
-  const hideText = hidden.includes('Text');
-  const hideFont = hidden.includes('Font');
-  const hideInk = hidden.includes('Text Color') || hidden.includes('Ink Color');
   const hideInstructions = hidden.includes('Additional instructions');
 
   const preset = VARIANT_PRESETS[appProduct.type];
@@ -258,6 +255,15 @@ export default function ProductRoute() {
         : {...base, fontKey: '', inkKey: '', fields: {...base.fields, text: ''}};
     },
   );
+  // A yes/no question like "Do you want to add additional text?" (business
+  // logo cards): until it's answered Yes, the Text, Font and Text Color
+  // questions stay hidden.
+  const textGate = extraQuestions.find((f) => f.revealsText);
+  const textOff = !!textGate && personalization.fields[textGate.key] !== 'Yes';
+  const hideText = hidden.includes('Text') || textOff;
+  const hideFont = hidden.includes('Font') || textOff;
+  const hideInk =
+    hidden.includes('Text Color') || hidden.includes('Ink Color') || textOff;
   const [selectedImage, setSelectedImage] = useState(0);
   // Add to Cart stays clickable; a click with required info missing shows
   // what's still needed instead of adding to the cart.
@@ -397,7 +403,14 @@ export default function ProductRoute() {
 
   const lineAttributes = [
     ...(activeSchema
-      ? buildLineAttributes(personalization, activeSchema, pdpOverride.textLabel)
+      ? buildLineAttributes(
+          // Text picked before answering No doesn't go on the order.
+          textOff
+            ? {...personalization, fontKey: '', inkKey: '', fields: {...personalization.fields, text: ''}}
+            : personalization,
+          activeSchema,
+          pdpOverride.textLabel,
+        )
       : []),
     ...(needsApproval && (proofApproved || wantsProof)
       ? [

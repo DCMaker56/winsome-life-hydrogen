@@ -90,6 +90,7 @@ export function questionsToFields(
         group: SECTION_TO_GROUP[get('section')] ?? 'text',
         alternativeTo: get('alternative_to').trim() || undefined,
         photoFee: type === 'upload' && get('photo_fee') === 'true',
+        revealsText: get('reveals_text') === 'true',
       },
     ];
   });
