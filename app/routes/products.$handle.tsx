@@ -327,10 +327,12 @@ export default function ProductRoute() {
               ...(textHelp && f.key === 'text' ? {helpText: textHelp} : {}),
             })),
           // Follow-up questions appear once their lead question is answered
-          // to match (e.g. the breed list after "Choose a breed").
+          // to match (e.g. the breed list after "Choose a breed"); without
+          // the lead question on this product they always show.
           ...extraQuestions.filter(
             (f) =>
               !f.showWhen ||
+              !extraQuestions.some((g) => g.key === f.showWhen?.key) ||
               personalization.fields[f.showWhen.key] === f.showWhen.value,
           ),
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
