@@ -35,7 +35,7 @@ async function getAdminToken(env: Env): Promise<string | null> {
   const clientSecret = env.SHOPIFY_ADMIN_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
     console.error(
-      'Corporate inquiry not saved: SHOPIFY_ADMIN_CLIENT_ID / SHOPIFY_ADMIN_CLIENT_SECRET are not configured.',
+      'Inquiry not saved: SHOPIFY_ADMIN_CLIENT_ID / SHOPIFY_ADMIN_CLIENT_SECRET are not configured.',
     );
     return null;
   }
@@ -51,12 +51,12 @@ async function getAdminToken(env: Env): Promise<string | null> {
     }),
   });
   if (!res.ok) {
-    console.error('Corporate inquiry not saved: token request failed, HTTP', res.status);
+    console.error('Inquiry not saved: token request failed, HTTP', res.status);
     return null;
   }
   const json = (await res.json()) as {access_token?: string; expires_in?: number};
   if (!json.access_token) {
-    console.error('Corporate inquiry not saved: token response had no access_token.');
+    console.error('Inquiry not saved: token response had no access_token.');
     return null;
   }
   // Refresh five minutes early; fall back to one hour if no expiry is given.
@@ -96,8 +96,8 @@ export function parseInquiry(form: FormData):
   return Object.keys(fieldErrors).length ? {fieldErrors} : {fields};
 }
 
-const CREATE_INQUIRY = `
-  mutation CreateCorporateInquiry($metaobject: MetaobjectCreateInput!) {
+const CREATE_METAOBJECT = `
+  mutation CreateInquiry($metaobject: MetaobjectCreateInput!) {
     metaobjectCreate(metaobject: $metaobject) {
       metaobject { id }
       userErrors { field message }
@@ -105,24 +105,19 @@ const CREATE_INQUIRY = `
   }
 `;
 
-export async function saveInquiry(
+/**
+ * Saves one metaobject entry of `type` in Shopify admin. Empty values are
+ * skipped. Returns true only when Shopify confirms the entry was created.
+ * Shared by every inquiry form on the site.
+ */
+export async function saveMetaobjectEntry(
   env: Env,
-  fields: InquiryFields,
-): Promise<InquiryResult> {
-  const metaobjectFields = [
-    {key: 'company', value: fields.company},
-    {key: 'contact_name', value: fields.name},
-    {key: 'email', value: fields.email},
-    {key: 'interests', value: JSON.stringify(fields.interests)},
-    {key: 'quantity', value: fields.quantity},
-    {key: 'project', value: fields.project},
-    {key: 'submitted_at', value: new Date().toISOString()},
-    {key: 'status', value: 'New'},
-  ].filter((f) => f.value !== '');
-
+  type: string,
+  fields: Array<{key: string; value: string}>,
+): Promise<boolean> {
   try {
     const token = await getAdminToken(env);
-    if (!token) return {ok: false, error: 'unavailable'};
+    if (!token) return false;
 
     const res = await fetch(
       `https://${ADMIN_SHOP_DOMAIN}/admin/api/${ADMIN_API_VERSION}/graphql.json`,
@@ -133,16 +128,16 @@ export async function saveInquiry(
           'X-Shopify-Access-Token': token,
         },
         body: JSON.stringify({
-          query: CREATE_INQUIRY,
+          query: CREATE_METAOBJECT,
           variables: {
-            metaobject: {type: 'corporate_inquiry', fields: metaobjectFields},
+            metaobject: {type, fields: fields.filter((f) => f.value !== '')},
           },
         }),
       },
     );
     if (!res.ok) {
-      console.error('Corporate inquiry not saved: Admin API HTTP', res.status);
-      return {ok: false, error: 'unavailable'};
+      console.error(`${type} not saved: Admin API HTTP`, res.status);
+      return false;
     }
     const json = (await res.json()) as {
       data?: {
@@ -156,14 +151,31 @@ export async function saveInquiry(
     const result = json.data?.metaobjectCreate;
     if (!result?.metaobject?.id) {
       console.error(
-        'Corporate inquiry not saved:',
+        `${type} not saved:`,
         JSON.stringify(result?.userErrors ?? json.errors),
       );
-      return {ok: false, error: 'unavailable'};
+      return false;
     }
-    return {ok: true};
+    return true;
   } catch (err) {
-    console.error('Corporate inquiry not saved:', err);
-    return {ok: false, error: 'unavailable'};
+    console.error(`${type} not saved:`, err);
+    return false;
   }
+}
+
+export async function saveInquiry(
+  env: Env,
+  fields: InquiryFields,
+): Promise<InquiryResult> {
+  const ok = await saveMetaobjectEntry(env, 'corporate_inquiry', [
+    {key: 'company', value: fields.company},
+    {key: 'contact_name', value: fields.name},
+    {key: 'email', value: fields.email},
+    {key: 'interests', value: JSON.stringify(fields.interests)},
+    {key: 'quantity', value: fields.quantity},
+    {key: 'project', value: fields.project},
+    {key: 'submitted_at', value: new Date().toISOString()},
+    {key: 'status', value: 'New'},
+  ]);
+  return ok ? {ok: true} : {ok: false, error: 'unavailable'};
 }
