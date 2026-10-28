@@ -289,8 +289,6 @@ const STANDARD_PERSONALIZATION: PersonalizationSchema = {
   ],
   fonts: FONTS,
   inkColors: INK_COLORS,
-  characterPreviewNote:
-    "Preview uses placeholder letters. Final print uses archival ink on cotton paper.",
 };
 
 const NOTEPAD_PERSONALIZATION: PersonalizationSchema = {
@@ -371,8 +369,6 @@ const ARTWORK_PERSONALIZATION: PersonalizationSchema = {
   ],
   fonts: FONTS,
   inkColors: INK_COLORS,
-  characterPreviewNote:
-    "Dedications are printed in ~10pt type; leave extra whitespace around content for framing.",
 };
 
 const CALENDAR_PERSONALIZATION: PersonalizationSchema = {

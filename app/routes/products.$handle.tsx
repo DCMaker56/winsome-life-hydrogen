@@ -784,22 +784,6 @@ export default function ProductRoute() {
               </div>
             )}
 
-            <div className="mt-8 pt-6 border-t border-[#C9A96E]/15">
-              <h3 className="font-sans font-medium text-xs tracking-[0.2em] uppercase text-[#2D2D2D] mb-3">
-                Details
-              </h3>
-              <ul className="space-y-1.5">
-                {appProduct.details.slice(0, 6).map((d, i) => (
-                  <li
-                    key={i}
-                    className="font-sans font-light text-sm text-[#2D2D2D]/70 flex gap-2"
-                  >
-                    <span className="text-[#C9A96E] mt-0.5">·</span>
-                    <span>{d}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
         </div>
 
