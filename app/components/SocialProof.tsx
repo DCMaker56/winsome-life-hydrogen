@@ -3,8 +3,8 @@
  *
  * Per Sydney: no headings. Each review is just the name (first letter in
  * Parisian script, the rest in print), the quote, then five stars below.
- * One large review shows at a time and advances on its own every 6 seconds
- * (long enough to read one). Visitors can swipe, use the arrows or tap a dot;
+ * One large review shows at a time and advances on its own every 4.5 seconds
+ * (Sydney's choice). Visitors can swipe, use the arrows or tap a dot;
  * auto-advance pauses while they hover, focus or touch the reviews, while the
  * section is off screen, and entirely for reduced-motion users.
  * Reviews are placeholders for now.
@@ -12,7 +12,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 
-const ADVANCE_MS = 6000;
+const ADVANCE_MS = 4500;
 
 const reviews = [
   {
@@ -90,14 +90,8 @@ function ReviewSlide({
       aria-roledescription="slide"
       aria-label={`Review ${index + 1} of ${total}`}
     >
-      <span
-        aria-hidden
-        className="font-serif text-[#C9A96E]/50 text-7xl md:text-8xl leading-none h-10 md:h-12 select-none"
-      >
-        &ldquo;
-      </span>
       <blockquote className="font-serif text-[#2D2D2D] text-2xl md:text-[2rem] lg:text-[2.4rem] leading-snug max-w-3xl text-balance">
-        {review.text}
+        &ldquo;{review.text}&rdquo;
       </blockquote>
       <figcaption className="mt-8 flex flex-col items-center gap-3">
         <span className="font-medium text-[#2D2D2D] leading-none">

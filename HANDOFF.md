@@ -108,7 +108,7 @@ Loader fetches multiple collections in **one aliased GraphQL query** (`c0:`, `t0
 1. **Hero** (`HeroSection.tsx`) — desk-scene slideshow; autumn slide FIRST with text on LEFT; "Uniquely You. On Paper." animates word-by-word; watercolor honeybee flies the path Sydney drew (bee-flight tool, Oct 2026) around "You." once, then settles.
 2. **Marquee** (`Marquee.tsx`) — blue `#CADEEA`.
 3. **Best Sellers / Holiday Essentials** (`TwoUpFeature.tsx`) — Holiday tile uses a real Christmas-collection product image via `holidayImage` prop.
-4. **Quotes** (`SocialProof.tsx`) — one large review at a time, auto-advances every 6s (pauses on hover/touch/off-screen), arrows + dots + swipe, script drop-cap first letter; bg `#CADEEA`. Moved up under Best Sellers per Sydney (Oct 2026).
+4. **Quotes** (`SocialProof.tsx`) — one large review at a time, auto-advances every 4.5s (pauses on hover/touch/off-screen), arrows + dots + swipe, script drop-cap first letter; bg `#CADEEA`. Moved up under Best Sellers per Sydney (Oct 2026).
 5. **Shop by Interest** (`DesignWall.tsx`) — 10 circular genre tiles; bg `#ECF2F5`.
 6. **Founder's Welcome** (`BrandStory.tsx`) — centered, script "FOUNDER'S WELCOME" title, bird-of-paradise floral (`birdofparadise.jpg`, `mix-blend-multiply`), Sydney signature script, Learn More; bg `#F6F0E7`.
 7. **Value bar** (`ValueProps.tsx`) — beige `#EAE1CE`; 4 props (Exceptional Customer Service · Fine Quality/Luxury Materials · Original Art/Stunning Watercolors · Personalized Gifts for All Interests).
