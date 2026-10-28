@@ -148,7 +148,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   // state cards ask only for colors. Held back with the draft too, so a
   // product never loses its standard questions before its own go live.
   const hidden = useOwnSetup
-    ? parseHiddenStandard(product.personalizationHide?.value)
+    ? parseHiddenStandard(
+        (showDrafts && product.personalizationHideDraft?.value) ||
+          product.personalizationHide?.value,
+      )
     : [];
 
   // Per-product Text box tweaks ("Text box length" / "Text box label").
@@ -157,7 +160,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       Math.max(Number(product.personalizationTextLength?.value) || 0, 150)
     : undefined;
   const textLabel = useOwnSetup
-    ? product.personalizationTextLabel?.value?.trim() || undefined
+    ? ((showDrafts && product.personalizationTextLabelDraft?.value) ||
+        product.personalizationTextLabel?.value)?.trim() || undefined
     : undefined;
   const textHelp = useOwnSetup
     ? product.personalizationTextHelp?.value?.trim() || undefined
@@ -1106,6 +1110,12 @@ const PRODUCT_QUERY = `#graphql
         value
       }
       personalizationTextHelp: metafield(namespace: "winsome", key: "personalization_text_help") {
+        value
+      }
+      personalizationHideDraft: metafield(namespace: "winsome", key: "personalization_hide_draft") {
+        value
+      }
+      personalizationTextLabelDraft: metafield(namespace: "winsome", key: "personalization_text_label_draft") {
         value
       }
       personalizationHide: metafield(namespace: "winsome", key: "personalization_hide") {

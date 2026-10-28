@@ -171,7 +171,26 @@ export function PersonalizationPanel({
         {field.type === "upload" && field.helpText && (
           <p className="font-sans text-xs text-[#2D2D2D]/70 leading-relaxed mb-2">{field.helpText}</p>
         )}
-        {field.type === "color" ? (
+        {field.type === "color" && field.multiple ? (
+          // Several colors, kept in the order picked ("Navy, Pink, Green");
+          // tapping a chosen color again removes it.
+          <SwatchGrid
+            compact
+            swatches={schema.inkColors}
+            selected={current
+              .split(", ")
+              .map((label) => schema.inkColors.find((c) => c.label === label)?.key)
+              .filter((k): k is string => !!k)}
+            onSelect={(key) => {
+              const label = schema.inkColors.find((c) => c.key === key)?.label ?? "";
+              const picked = current ? current.split(", ") : [];
+              setField(
+                field.key,
+                (picked.includes(label) ? picked.filter((l) => l !== label) : [...picked, label]).join(", "),
+              );
+            }}
+          />
+        ) : field.type === "color" ? (
           <SwatchGrid
             compact
             swatches={schema.inkColors}
@@ -681,37 +700,48 @@ function SwatchGrid({
   compact = false,
 }: {
   swatches: Array<{ key: string; label: string; hex: string }>;
-  selected: string;
+  /** One key, or several (in the order picked) for a multi-color question. */
+  selected: string | string[];
   onSelect: (key: string) => void;
   compact?: boolean;
 }) {
   if (compact) {
-    const chosen = swatches.find((c) => c.key === selected);
+    const selectedKeys = Array.isArray(selected) ? selected : [selected];
+    const chosen = selectedKeys
+      .map((k) => swatches.find((c) => c.key === k))
+      .filter((c): c is (typeof swatches)[number] => !!c);
     return (
       <div>
         <p className="font-sans text-[11px] tracking-wide uppercase -mt-1 mb-2 text-[#2D2D2D]/55">
-          {chosen ? (
+          {chosen.length ? (
             <>
               Selected:{" "}
-              {/* The name in its own color; light colors get a faint outline
+              {/* Each name in its own color; light colors get a faint outline
                   so they stay readable on the cream background. */}
-              <span
-                className="font-semibold text-xs"
-                style={{
-                  color: chosen.hex,
-                  textShadow: isLightColor(chosen.hex) ? "0 0 1px rgba(0,0,0,0.55)" : undefined,
-                }}
-              >
-                {chosen.label}
-              </span>
+              {chosen.map((c, i) => (
+                <span key={c.key}>
+                  {i > 0 && ", "}
+                  <span
+                    className="font-semibold text-xs"
+                    style={{
+                      color: c.hex,
+                      textShadow: isLightColor(c.hex) ? "0 0 1px rgba(0,0,0,0.55)" : undefined,
+                    }}
+                  >
+                    {c.label}
+                  </span>
+                </span>
+              ))}
             </>
+          ) : Array.isArray(selected) ? (
+            "Tap one or more colors"
           ) : (
             "Tap a color"
           )}
         </p>
         <div className="grid grid-cols-10 gap-1.5">
           {swatches.map((c) => {
-            const active = selected === c.key;
+            const active = selectedKeys.includes(c.key);
             return (
               <button
                 type="button"

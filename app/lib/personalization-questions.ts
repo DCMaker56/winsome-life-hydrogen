@@ -68,8 +68,9 @@ export function questionsToFields(
       : answerType === 'Pick one'
         ? images.filter(Boolean).map((_, i) => `${stem} ${i + 1}`)
         : [];
+    const multiColor = answerType === 'Colors (pick several)';
     const type: PersonalizationField['type'] =
-      answerType === 'Color'
+      answerType === 'Color' || multiColor
         ? 'color'
         : answerType === 'Pick one' && options.length
           ? 'choice'
@@ -100,6 +101,7 @@ export function questionsToFields(
         alternativeTo: get('alternative_to').trim() || undefined,
         photoFee: type === 'upload' && get('photo_fee') === 'true',
         revealsText: get('reveals_text') === 'true',
+        multiple: multiColor || undefined,
         showWhen: parseCondition(get('show_when')),
       },
     ];

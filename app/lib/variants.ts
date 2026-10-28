@@ -107,6 +107,8 @@ export interface PersonalizationField {
   /** Label of another question this one can replace: answering either
    *  satisfies both (e.g. "Upload Your Own Photo" instead of "Dog Breed"). */
   alternativeTo?: string;
+  /** "color" only — the customer can pick several colors. */
+  multiple?: boolean;
   /** "upload" only — an upload adds the custom photo charge to the cart. */
   photoFee?: boolean;
   /** Yes/no question that shows the Text, Font and Text Color questions only
