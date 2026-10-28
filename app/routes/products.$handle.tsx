@@ -298,6 +298,15 @@ export default function ProductRoute() {
       v.selectedOptions.every((o) => selOptions[o.name] === o.value),
     ) ?? firstVariant;
   const variantId = selectedVariant?.id;
+  // Items sold in sets ("Quantity: 10 + Return Address") get "Number of
+  // Sets" instead of a second "Quantity", so it's clear 2 means 2 × 10.
+  const setSize = (() => {
+    const option = (selectedVariant?.selectedOptions ?? []).find((o) =>
+      /quantity|qty|pack|set/i.test(o.name),
+    );
+    const n = Number(option?.value.match(/^\s*(\d+)/)?.[1]);
+    return n > 1 ? n : null;
+  })();
   const unitPrice = Number(selectedVariant?.price?.amount ?? appProduct.price);
   const rawCompareAt = Number(selectedVariant?.compareAtPrice?.amount ?? 0);
   const unitCompareAt = rawCompareAt > unitPrice ? rawCompareAt : undefined;
@@ -604,7 +613,7 @@ export default function ProductRoute() {
               ) : null}
               {quantity > 1 || (addPhotoFee && photoFee) ? (
                 <span className="ml-3 font-light text-sm text-[#2D2D2D]/50">
-                  · {quantity > 1 ? `${quantity} × ` : ''}= $
+                  · {quantity > 1 ? (setSize ? `${quantity} sets ` : `${quantity} × `) : ''}= $
                   {(
                     unitPrice * quantity +
                     (addPhotoFee && photoFee ? photoFee.price : 0)
@@ -701,7 +710,7 @@ export default function ProductRoute() {
             {/* Quantity — how many to add to cart */}
             <div className="mb-8">
               <div className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
-                Quantity
+                {setSize ? 'Number of Sets' : 'Quantity'}
               </div>
               <div className="inline-flex items-center border border-[#C9A96E]/40 bg-white">
                 <button
@@ -732,6 +741,13 @@ export default function ProductRoute() {
                   +
                 </button>
               </div>
+              {setSize && (
+                <p className="font-sans text-xs text-[#2D2D2D]/60 mt-2">
+                  Each set has {setSize}
+                  {quantity > 1 ? ` — ${quantity} sets = ${quantity * setSize} total` : ''}.
+                  All sets get the same personalization.
+                </p>
+              )}
             </div>
 
             {/* Personalize — classic form: name/text, font, color */}
