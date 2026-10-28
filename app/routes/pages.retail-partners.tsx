@@ -269,15 +269,15 @@ function Hero() {
               id="retail-hero-title"
               className="font-serif font-medium leading-[1.05] text-[2.6rem] sm:text-5xl lg:text-[3.6rem] xl:text-[4rem] text-[#1B294E]"
             >
-              Luxury personalized stationery.
+              Your Store.
               <span className="block mt-2">
                 <span
                   className="text-[#2D2D2D]"
                   style={{fontFamily: SCRIPT, fontSize: '1.1em', lineHeight: 1}}
                 >
-                  Zero
+                  Uniquely
                 </span>{' '}
-                inventory.
+                Personal.
               </span>
             </h1>
             <p className="font-sans font-light text-[16px] md:text-lg leading-relaxed text-[#2D2D2D]/80 mt-6">
