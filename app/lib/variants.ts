@@ -112,6 +112,9 @@ export interface PersonalizationField {
   /** Yes/no question that shows the Text, Font and Text Color questions only
    *  once answered "Yes" (e.g. "Do you want to add additional text?"). */
   revealsText?: boolean;
+  /** Shown only when another question has a given answer, e.g.
+   *  {key: "How would you like to show your dog?", value: "Choose a breed"}. */
+  showWhen?: {key: string; value: string};
 }
 
 export type FieldGroup = "monogram" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";

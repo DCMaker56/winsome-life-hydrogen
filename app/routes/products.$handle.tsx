@@ -326,13 +326,28 @@ export default function ProductRoute() {
               ...(textLength && f.key === 'text' ? {maxLength: textLength} : {}),
               ...(textHelp && f.key === 'text' ? {helpText: textHelp} : {}),
             })),
-          ...extraQuestions,
+          // Follow-up questions appear once their lead question is answered
+          // to match (e.g. the breed list after "Choose a breed").
+          ...extraQuestions.filter(
+            (f) =>
+              !f.showWhen ||
+              personalization.fields[f.showWhen.key] === f.showWhen.value,
+          ),
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
           // Only once the customer picks envelopes with a printed return address.
           ...(wantsReturnAddress ? [{...RETURN_ADDRESS_FIELD, required: true}] : []),
         ],
       },
-    [schema, extraQuestions, hideText, hideInstructions, textLength, textHelp, wantsReturnAddress],
+    [
+      schema,
+      extraQuestions,
+      hideText,
+      hideInstructions,
+      textLength,
+      textHelp,
+      wantsReturnAddress,
+      personalization.fields,
+    ],
   );
 
   // e.g. a card whose only question is the return address, with blank
