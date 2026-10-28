@@ -116,8 +116,6 @@ export default function Navbar() {
       {/* Announcement Bar */}
       <div className="font-sans bg-[#2D2D2D] text-white text-center py-2 text-sm tracking-wide">
         Free shipping on orders over <span className="text-[#C9A96E] font-semibold">$75</span>
-        <span className="mx-2 opacity-40">·</span>
-        <span className="opacity-80">Complimentary gift wrap on every order</span>
       </div>
 
       {/* Main Nav */}

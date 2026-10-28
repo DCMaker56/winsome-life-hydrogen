@@ -1,16 +1,15 @@
 /*
  * Design: The Stationery Atelier
  * GiftMessage: Reusable toggle component that lets customers add a personalized
- * gift message and optional gift wrapping to any order. Elegant collapsible panel
+ * gift message to any order. Elegant collapsible panel
  * with gold accents, character counter, and live preview.
  */
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Gift, MessageSquare, Ribbon, ChevronDown, X } from "lucide-react";
+import { Gift, MessageSquare, ChevronDown } from "lucide-react";
 
 interface GiftMessageProps {
   onGiftMessageChange?: (message: string | null) => void;
-  onGiftWrapChange?: (enabled: boolean) => void;
   className?: string;
 }
 
@@ -18,11 +17,9 @@ const MAX_CHARS = 200;
 
 export default function GiftMessage({
   onGiftMessageChange,
-  onGiftWrapChange,
   className = "",
 }: GiftMessageProps) {
   const [isGift, setIsGift] = useState(false);
-  const [giftWrap, setGiftWrap] = useState(true);
   const [message, setMessage] = useState("");
   const [showPreview, setShowPreview] = useState(false);
 
@@ -33,9 +30,6 @@ export default function GiftMessage({
       setMessage("");
       setShowPreview(false);
       onGiftMessageChange?.(null);
-      onGiftWrapChange?.(false);
-    } else {
-      onGiftWrapChange?.(true);
     }
   };
 
@@ -43,12 +37,6 @@ export default function GiftMessage({
     if (val.length > MAX_CHARS) return;
     setMessage(val);
     onGiftMessageChange?.(val || null);
-  };
-
-  const handleGiftWrapToggle = () => {
-    const newVal = !giftWrap;
-    setGiftWrap(newVal);
-    onGiftWrapChange?.(newVal);
   };
 
   return (
@@ -83,7 +71,7 @@ export default function GiftMessage({
               className="font-sans font-light text-[11px] text-[#2D2D2D]/40"
 
             >
-              Add a personal message &amp; gift wrapping
+              Add a personal gift message
             </p>
           </div>
         </div>
@@ -119,31 +107,6 @@ export default function GiftMessage({
             className="overflow-hidden"
           >
             <div className="px-4 py-5 border-x border-b border-[#C9A96E]/20 bg-white">
-              {/* Gift wrap toggle */}
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2.5">
-                  <Ribbon size={14} className="text-[#C9A96E]" strokeWidth={1.5} />
-                  <span
-                    className="font-sans text-sm text-[#2D2D2D]/70"
-
-                  >
-                    Gift wrapping
-                  </span>
-                </div>
-                <button
-                  onClick={handleGiftWrapToggle}
-                  className={`relative w-10 h-5 rounded-full transition-colors duration-300 ${
-                    giftWrap ? "bg-[#C9A96E]" : "bg-[#2D2D2D]/15"
-                  }`}
-                >
-                  <motion.div
-                    className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
-                    animate={{ left: giftWrap ? "calc(100% - 18px)" : "2px" }}
-                    transition={{ duration: 0.2 }}
-                  />
-                </button>
-              </div>
-
               {/* Message textarea */}
               <div className="relative">
                 <div className="flex items-center gap-2 mb-2.5">
@@ -255,17 +218,6 @@ export default function GiftMessage({
 
               {/* Summary */}
               <div className="mt-4 pt-4 border-t border-[#2D2D2D]/5 flex items-center gap-4">
-                {giftWrap && (
-                  <div className="flex items-center gap-1.5">
-                    <Ribbon size={11} className="text-[#C9A96E]" />
-                    <span
-                      className="font-sans text-[10px] text-[#2D2D2D]/40"
-
-                    >
-                      Gift wrapped
-                    </span>
-                  </div>
-                )}
                 {message.length > 0 && (
                   <div className="flex items-center gap-1.5">
                     <MessageSquare size={11} className="text-[#C9A96E]" />

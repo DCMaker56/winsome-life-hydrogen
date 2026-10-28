@@ -104,7 +104,6 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
   const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('one-time');
   const [cadence, setCadence] = useState<SubscriptionCadence>('monthly');
   const [giftMessage, setGiftMessage] = useState<string | null>(null);
-  const [giftWrap, setGiftWrap] = useState(false);
 
   // Personalization — gift sets always use the notecards preset as the
   // canonical schema (name/monogram fields all five pieces share).
@@ -129,7 +128,6 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
     ...(purchaseMode === 'subscribe'
       ? [{key: '_Subscription Cadence', value: cadence}]
       : []),
-    ...(giftWrap ? [{key: '_Gift Wrap', value: 'Yes'}] : []),
     ...(giftMessage ? [{key: 'Gift Message', value: giftMessage}] : []),
   ];
 
@@ -346,7 +344,6 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
             {/* Gift Message */}
             <GiftMessage
               onGiftMessageChange={setGiftMessage}
-              onGiftWrapChange={setGiftWrap}
               className="mb-6"
             />
 

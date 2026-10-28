@@ -40,7 +40,7 @@ export const CURRENT_CAMPAIGN: Campaign = {
   eyebrow: "Mother's Day Collection",
   headline: "Beautifully Personal",
   subhead:
-    "Our curated Mother's Day gift sets pair watercolor art with personalized stationery, a matching mug, and more — all wrapped and ready to give.",
+    "Our curated Mother's Day gift sets pair watercolor art with personalized stationery, a matching mug, and more — all ready to give.",
   ctaLabel: "Shop Gift Sets",
   ctaHref: "/gift-sets",
   secondaryCtaLabel: "Browse All",

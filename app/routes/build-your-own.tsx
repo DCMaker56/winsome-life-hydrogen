@@ -102,7 +102,6 @@ interface BYOState {
   purchaseMode: PurchaseMode;
   cadence: SubscriptionCadence;
   giftMessage: string | null;
-  giftWrap: boolean;
 }
 
 const BYO_STORAGE_KEY = 'winsome:byo-progress';
@@ -140,7 +139,6 @@ function buildLineAttributes(opts: {
   purchaseMode: PurchaseMode;
   cadence: SubscriptionCadence;
   giftMessage: string | null;
-  giftWrap: boolean;
 }) {
   const attrs: Array<{key: string; value: string}> = [];
   attrs.push({key: '_Bundle Slug', value: opts.theme.slug});
@@ -155,7 +153,6 @@ function buildLineAttributes(opts: {
     attrs.push({key: '_Subscription Cadence', value: opts.cadence});
   if (opts.giftMessage)
     attrs.push({key: '_Gift Message', value: opts.giftMessage});
-  if (opts.giftWrap) attrs.push({key: '_Gift Wrap', value: 'yes'});
   return attrs;
 }
 
@@ -175,7 +172,6 @@ export default function BuildYourOwnRoute() {
   const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('one-time');
   const [cadence, setCadence] = useState<SubscriptionCadence>('monthly');
   const [giftMessage, setGiftMessage] = useState<string | null>(null);
-  const [giftWrap, setGiftWrap] = useState(false);
   const [restoredFromSave, setRestoredFromSave] = useState(false);
 
   // Scroll to top on mount, restore saved progress if present
@@ -199,7 +195,6 @@ export default function BuildYourOwnRoute() {
       setPurchaseMode(saved.purchaseMode);
       setCadence(saved.cadence);
       setGiftMessage(saved.giftMessage);
-      setGiftWrap(saved.giftWrap);
       setRestoredFromSave(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -219,7 +214,6 @@ export default function BuildYourOwnRoute() {
       purchaseMode,
       cadence,
       giftMessage,
-      giftWrap,
     });
   }, [
     selectedCategory,
@@ -232,7 +226,6 @@ export default function BuildYourOwnRoute() {
     purchaseMode,
     cadence,
     giftMessage,
-    giftWrap,
   ]);
 
   // Get themes for selected category
@@ -385,9 +378,7 @@ export default function BuildYourOwnRoute() {
                 onCadenceChange={setCadence}
                 onBack={handleBackToBrowse}
                 giftMessage={giftMessage}
-                giftWrap={giftWrap}
                 onGiftMessageChange={setGiftMessage}
-                onGiftWrapChange={setGiftWrap}
               />
             </motion.div>
           )}
@@ -724,9 +715,7 @@ function PersonalizeStep({
   onCadenceChange,
   onBack,
   giftMessage,
-  giftWrap,
   onGiftMessageChange,
-  onGiftWrapChange,
 }: {
   theme: GiftSet;
   personalizationType: PersonalizationType;
@@ -747,9 +736,7 @@ function PersonalizeStep({
   onCadenceChange: (c: SubscriptionCadence) => void;
   onBack: () => void;
   giftMessage: string | null;
-  giftWrap: boolean;
   onGiftMessageChange: (msg: string | null) => void;
-  onGiftWrapChange: (enabled: boolean) => void;
 }) {
   const font =
     FONTS.find((f) => f.key === personalizationFontKey) ?? FONTS[0];
@@ -772,7 +759,6 @@ function PersonalizeStep({
     purchaseMode,
     cadence,
     giftMessage,
-    giftWrap,
   });
 
   // TODO: Replace with a real Shopify variant ID for the bundle.
@@ -1337,7 +1323,6 @@ function PersonalizeStep({
           {/* Gift Message */}
           <GiftMessage
             onGiftMessageChange={onGiftMessageChange}
-            onGiftWrapChange={onGiftWrapChange}
             className="mb-6"
           />
 
@@ -1420,9 +1405,7 @@ function PersonalizeStep({
                       });
                     } else {
                       toast.success('Added to cart!', {
-                        description: `${theme.name} — One-time purchase at $${theme.setPrice}${
-                          giftWrap ? ' · Gift wrapped' : ''
-                        }${giftMessage ? ' · Gift message included' : ''}`,
+                        description: `${theme.name} — One-time purchase at $${theme.setPrice}${giftMessage ? ' · Gift message included' : ''}`,
                       });
                     }
                   }}
