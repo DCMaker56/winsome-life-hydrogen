@@ -177,13 +177,11 @@ const ADDITIONAL_INSTRUCTIONS_FIELD: PersonalizationField = {
   group: 'notes',
 };
 
-/** The live site's envelope field, shown on every product sold with a
- *  return-address option (e.g. "10 + Return Address"). It's required only
- *  once the customer picks a return-address variant. */
+/** The live site's envelope field. It appears (required) only once the
+ *  customer picks a return-address variant (e.g. "10 + Return Address"). */
 const RETURN_ADDRESS_FIELD: PersonalizationField = {
   key: 'Name & Return Address',
-  label:
-    'Name & Return Address (only for orders with return address printing on envelopes)',
+  label: 'Name & Return Address',
   type: 'longtext',
   maxLength: 200,
   placeholder: '',
@@ -281,9 +279,6 @@ export default function ProductRoute() {
   const printsReturnAddress = (o: {name: string; value: string}) =>
     /return address/i.test(o.value) ||
     (/return address/i.test(o.name) && /^yes\b/i.test(o.value));
-  const offersReturnAddress = variants.some((v) =>
-    v.selectedOptions.some(printsReturnAddress),
-  );
   const wantsReturnAddress = (selectedVariant?.selectedOptions ?? []).some(
     printsReturnAddress,
   );
@@ -302,13 +297,21 @@ export default function ProductRoute() {
             })),
           ...extraQuestions,
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
-          ...(offersReturnAddress
-            ? [{...RETURN_ADDRESS_FIELD, required: wantsReturnAddress}]
-            : []),
+          // Only once the customer picks envelopes with a printed return address.
+          ...(wantsReturnAddress ? [{...RETURN_ADDRESS_FIELD, required: true}] : []),
         ],
       },
-    [schema, extraQuestions, hideText, hideInstructions, textLength, offersReturnAddress, wantsReturnAddress],
+    [schema, extraQuestions, hideText, hideInstructions, textLength, wantsReturnAddress],
   );
+
+  // e.g. a card whose only question is the return address, with blank
+  // envelopes picked: nothing to ask, so no empty panel.
+  const panelHasQuestions =
+    !hideFont ||
+    !hideInk ||
+    (activeSchema?.fields ?? []).some(
+      (f) => f.type !== 'monogram-letters' || !pdpOverride.hideMonogram,
+    );
 
   // Listed in page order: text, font, ink color, then the extra questions.
   const isMissing = (f: PersonalizationField) => {
@@ -637,7 +640,7 @@ export default function ProductRoute() {
             </div>
 
             {/* Personalize — classic form: name/text, font, color */}
-            {schema && (
+            {schema && panelHasQuestions && (
               <div className="mb-6">
                 <PersonalizationPanel
                   schema={activeSchema ?? schema}

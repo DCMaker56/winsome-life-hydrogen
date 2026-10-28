@@ -105,9 +105,9 @@ export interface PersonalizationField {
   onlyForMonogramStyles?: string[];
 }
 
-export type FieldGroup = "text" | "border" | "icon" | "placement" | "notes" | "return-address";
+export type FieldGroup = "monogram" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";
 
-const FIELD_GROUP_ORDER: FieldGroup[] = ["text", "border", "icon", "placement", "notes", "return-address"];
+const FIELD_GROUP_ORDER: FieldGroup[] = ["monogram", "text", "border", "icon", "placement", "notes", "return-address"];
 
 /** Sort extra personalization questions into Sydney's order (stable within a group). */
 export function sortByFieldGroup<T extends { group?: FieldGroup }>(fields: T[]): T[] {

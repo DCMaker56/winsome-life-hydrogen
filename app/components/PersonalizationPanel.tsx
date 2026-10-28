@@ -129,6 +129,114 @@ export function PersonalizationPanel({
   const extraFields = sortByFieldGroup(
     schema.fields.filter((f) => f.key !== "text" && f.type !== "monogram-letters"),
   );
+  const monogramFields = extraFields.filter((f) => f.group === "monogram");
+
+  // One extra question (color / picture tiles / buttons / text box).
+  const renderExtraField = (field: (typeof extraFields)[number]) => {
+    const current = value.fields[field.key] ?? "";
+    return (
+      <div key={field.key}>
+        <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
+          {field.label}
+          {field.required && <span className="text-[#C9A96E]"> *</span>}
+        </label>
+        {field.type === "color" ? (
+          <SwatchGrid
+            compact
+            swatches={schema.inkColors}
+            selected={schema.inkColors.find((c) => c.label === current)?.key ?? ""}
+            onSelect={(key) =>
+              setField(field.key, schema.inkColors.find((c) => c.key === key)?.label ?? "")
+            }
+          />
+        ) : field.type === "choice" && field.optionImages ? (
+          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+            {(field.options ?? []).map((opt, i) => {
+              const active = current === opt;
+              const img = field.optionImages?.[i];
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setField(field.key, opt)}
+                  aria-pressed={active}
+                  className={cn(
+                    "flex flex-col items-center gap-1.5 p-2 bg-white transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
+                    active
+                      ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5"
+                      : "border border-[#C9A96E]/25 hover:border-[#C9A96E]/60",
+                  )}
+                >
+                  {img ? (
+                    <img
+                      src={`${img}${img.includes("?") ? "&" : "?"}width=240`}
+                      alt=""
+                      loading="lazy"
+                      className="w-full aspect-square object-contain"
+                    />
+                  ) : (
+                    <span className="w-full aspect-square bg-[#FAF8F5]" />
+                  )}
+                  <span className="font-sans text-[11px] leading-tight text-center text-[#2D2D2D]">
+                    {opt}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : field.type === "choice" ? (
+          <div className="flex flex-wrap gap-2">
+            {(field.options ?? []).map((opt) => {
+              const active = current === opt;
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setField(field.key, opt)}
+                  aria-pressed={active}
+                  className={cn(
+                    "font-sans px-4 py-2.5 text-sm transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
+                    active
+                      ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5 text-[#2D2D2D]"
+                      : "border border-[#C9A96E]/25 text-[#2D2D2D]/70 hover:border-[#C9A96E]/60",
+                  )}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        ) : field.type === "longtext" ? (
+          <textarea
+            value={current}
+            onChange={(e) =>
+              setField(field.key, e.target.value.slice(0, field.maxLength))
+            }
+            placeholder={field.placeholder}
+            maxLength={field.maxLength}
+            rows={field.maxLength > 80 ? 4 : 2}
+            className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+          />
+        ) : (
+          <input
+            type="text"
+            value={current}
+            onChange={(e) =>
+              setField(field.key, e.target.value.slice(0, field.maxLength))
+            }
+            placeholder={field.placeholder}
+            maxLength={field.maxLength}
+            className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+          />
+        )}
+        {field.helpText && (
+          <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1">
+            {field.helpText}
+          </p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <section
@@ -221,6 +329,11 @@ export function PersonalizationPanel({
       )}
 
       <div className="px-5 md:px-6 py-5 space-y-5">
+        {/* ── Monogram questions (initials, style, color) come before the name ── */}
+        {monogramFields.length > 0 && (
+          <div className="space-y-4">{monogramFields.map(renderExtraField)}</div>
+        )}
+
         {/* ── Name mode input ── */}
         {(value.mode === "name" || !hasMonogram) && textField && (
           <div>
@@ -453,114 +566,10 @@ export function PersonalizationPanel({
         )}
 
         {/* ── Extra questions, after text/font/ink: border → icon → placement →
-             return address (sortByFieldGroup) ── */}
-        {extraFields.length > 0 && (
+             return address (sortByFieldGroup); monogram ones are at the top ── */}
+        {extraFields.length > monogramFields.length && (
           <div className="space-y-4">
-            {extraFields.map((field) => {
-              const current = value.fields[field.key] ?? "";
-              return (
-                <div key={field.key}>
-                  <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
-                    {field.label}
-                    {field.required && <span className="text-[#C9A96E]"> *</span>}
-                  </label>
-                  {field.type === "color" ? (
-                    <SwatchGrid
-                      compact
-                      swatches={schema.inkColors}
-                      selected={schema.inkColors.find((c) => c.label === current)?.key ?? ""}
-                      onSelect={(key) =>
-                        setField(field.key, schema.inkColors.find((c) => c.key === key)?.label ?? "")
-                      }
-                    />
-                  ) : field.type === "choice" && field.optionImages ? (
-                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                      {(field.options ?? []).map((opt, i) => {
-                        const active = current === opt;
-                        const img = field.optionImages?.[i];
-                        return (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setField(field.key, opt)}
-                            aria-pressed={active}
-                            className={cn(
-                              "flex flex-col items-center gap-1.5 p-2 bg-white transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
-                              active
-                                ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5"
-                                : "border border-[#C9A96E]/25 hover:border-[#C9A96E]/60",
-                            )}
-                          >
-                            {img ? (
-                              <img
-                                src={`${img}${img.includes("?") ? "&" : "?"}width=240`}
-                                alt=""
-                                loading="lazy"
-                                className="w-full aspect-square object-contain"
-                              />
-                            ) : (
-                              <span className="w-full aspect-square bg-[#FAF8F5]" />
-                            )}
-                            <span className="font-sans text-[11px] leading-tight text-center text-[#2D2D2D]">
-                              {opt}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : field.type === "choice" ? (
-                    <div className="flex flex-wrap gap-2">
-                      {(field.options ?? []).map((opt) => {
-                        const active = current === opt;
-                        return (
-                          <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setField(field.key, opt)}
-                            aria-pressed={active}
-                            className={cn(
-                              "font-sans px-4 py-2.5 text-sm transition-all focus-visible:outline-2 focus-visible:outline-[#C9A96E]",
-                              active
-                                ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5 text-[#2D2D2D]"
-                                : "border border-[#C9A96E]/25 text-[#2D2D2D]/70 hover:border-[#C9A96E]/60",
-                            )}
-                          >
-                            {opt}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : field.type === "longtext" ? (
-                    <textarea
-                      value={current}
-                      onChange={(e) =>
-                        setField(field.key, e.target.value.slice(0, field.maxLength))
-                      }
-                      placeholder={field.placeholder}
-                      maxLength={field.maxLength}
-                      rows={field.maxLength > 80 ? 4 : 2}
-                      className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={current}
-                      onChange={(e) =>
-                        setField(field.key, e.target.value.slice(0, field.maxLength))
-                      }
-                      placeholder={field.placeholder}
-                      maxLength={field.maxLength}
-                      className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-                    />
-                  )}
-                  {field.helpText && (
-                    <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1">
-                      {field.helpText}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
+            {extraFields.filter((f) => f.group !== "monogram").map(renderExtraField)}
           </div>
         )}
 

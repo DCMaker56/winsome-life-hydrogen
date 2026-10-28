@@ -17,6 +17,7 @@ type MetaobjectFields = {
 };
 
 const SECTION_TO_GROUP: Record<string, FieldGroup> = {
+  Monogram: 'monogram',
   Text: 'text',
   Border: 'border',
   Icon: 'icon',
