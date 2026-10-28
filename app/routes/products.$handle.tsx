@@ -174,6 +174,9 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     textLength,
     textLabel,
     textHelp,
+    // A link to a specific option (?Size=…) keeps it; otherwise sets start
+    // at 10 + Blank Envelopes.
+    optionsInUrl: getSelectedProductOptions(request).length > 0,
   };
 }
 
@@ -227,6 +230,7 @@ export default function ProductRoute() {
     textLength,
     textLabel,
     textHelp,
+    optionsInUrl,
   } = useLoaderData<typeof loader>();
   const hideInstructions = hidden.includes('Additional instructions');
 
@@ -285,8 +289,17 @@ export default function ProductRoute() {
   const optionGroups = (
     (product as {options?: {name: string; optionValues: {name: string}[]}[]})
       .options ?? []
-  ).filter((o) => o.optionValues.length > 1 && o.name.toLowerCase() !== 'title');
-  const firstVariant = product.selectedOrFirstAvailableVariant ?? variants[0];
+  )
+    .filter((o) => o.optionValues.length > 1 && o.name.toLowerCase() !== 'title')
+    .map((o) => ({...o, optionValues: sortSetValues(o.optionValues)}));
+  // Sydney: sets start at 10 + Blank Envelopes rather than the smallest.
+  const defaultVariant = optionsInUrl
+    ? undefined
+    : variants.find((v) =>
+        v.selectedOptions.some((o) => /^\s*10\s*\+\s*blank/i.test(o.value)),
+      );
+  const firstVariant =
+    defaultVariant ?? product.selectedOrFirstAvailableVariant ?? variants[0];
   const [selOptions, setSelOptions] = useState<Record<string, string>>(() =>
     Object.fromEntries(
       (firstVariant?.selectedOptions ?? []).map((o) => [o.name, o.value]),
@@ -997,6 +1010,22 @@ export default function ProductRoute() {
  */
 /** Variant options with more choices than this show as a dropdown. */
 const OPTION_DROPDOWN_THRESHOLD = 6;
+
+/**
+ * Set-count options ("5 + Blank Envelopes", "5 + Return Address", …) in
+ * order: smallest set first, blank envelopes before return address. Other
+ * options keep Shopify's order.
+ */
+function sortSetValues<T extends {name: string}>(values: T[]): T[] {
+  const count = (v: T) =>
+    Number(v.name.match(/^\s*(\d+)\s*\+/)?.[1]) || Infinity;
+  // Not a set-count option (e.g. sizes): leave it alone. Odd extras like a
+  // custom one-off go last.
+  if (!values.some((v) => count(v) < Infinity && /envelope|return/i.test(v.name)))
+    return values;
+  const rank = (v: T) => (/blank/i.test(v.name) ? 0 : 1);
+  return [...values].sort((a, b) => count(a) - count(b) || rank(a) - rank(b));
+}
 
 /** The text questions (name/text, monogram letters) that come before font and ink. */
 const isTextField = (f: PersonalizationField) =>
