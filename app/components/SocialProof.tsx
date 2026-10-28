@@ -7,7 +7,7 @@
  * (Sydney's choice). Visitors can swipe, use the arrows or tap a dot;
  * auto-advance pauses while they hover, focus or touch the reviews, while the
  * section is off screen, and entirely for reduced-motion users.
- * Reviews are placeholders for now.
+ * Only real customer reviews from thewinsomelife.com (Lissa, Kalli, Diane).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
@@ -16,48 +16,18 @@ const ADVANCE_MS = 4500;
 
 const reviews = [
   {
-    name: "Alyssa",
+    name: "Lissa",
     text: "This is my only source for personalized stationery cards. Love their product!",
     rating: 5,
   },
   {
-    name: "Cali",
+    name: "Kalli",
     text: "Absolutely obsessed with these — so, so impressed with the quality.",
     rating: 5,
   },
   {
     name: "Diane",
     text: "I'm a repeat buyer… for life! Heavy stock, crisp printing. The quality is obvious.",
-    rating: 5,
-  },
-  {
-    name: "Sarah",
-    text: "Absolutely beautiful stationery. The watercolor designs are stunning and the personalization is perfect. Everyone I gift them to loves them.",
-    rating: 5,
-  },
-  {
-    name: "Jennifer",
-    text: "Exceptional quality — the paper is thick and luxurious and the florals are gorgeous. Sydney was so helpful with my custom order!",
-    rating: 5,
-  },
-  {
-    name: "Rebecca",
-    text: "Ordered a personalized set for my daughter's teacher and she was thrilled. The packaging was beautiful too. Will absolutely order again.",
-    rating: 5,
-  },
-  {
-    name: "Meredith",
-    text: "The prettiest notecards I've ever sent. I get compliments every single time I mail one.",
-    rating: 5,
-  },
-  {
-    name: "Grace",
-    text: "Beautifully made and truly personal. This is my go-to gift for weddings and new babies now.",
-    rating: 5,
-  },
-  {
-    name: "Paige",
-    text: "Obsessed with my monogram notepads. The whole experience felt luxe from start to finish.",
     rating: 5,
   },
 ];
