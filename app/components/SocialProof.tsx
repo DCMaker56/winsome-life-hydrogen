@@ -7,7 +7,7 @@
  * (Sydney's choice). Visitors can swipe, use the arrows or tap a dot;
  * auto-advance pauses while they hover, focus or touch the reviews, while the
  * section is off screen, and entirely for reduced-motion users.
- * Only real customer reviews from thewinsomelife.com (Lissa, Kalli, Diane).
+ * Only real customer reviews from thewinsomelife.com (Lissa, Kalli, Spenser, Diane — same order as the live site).
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
@@ -23,6 +23,11 @@ const reviews = [
   {
     name: "Kalli",
     text: "Absolutely obsessed with these — so, so impressed with the quality.",
+    rating: 5,
+  },
+  {
+    name: "Spenser",
+    text: "The paper was heavy weight stock & printing was perfect. Will definitely reorder.",
     rating: 5,
   },
   {
