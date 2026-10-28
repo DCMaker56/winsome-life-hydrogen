@@ -563,9 +563,18 @@ export default function ProductRoute() {
                   ${unitCompareAt.toFixed(2)}
                 </span>
               ) : null}
-              {quantity > 1 ? (
+              {addPhotoFee && photoFee ? (
+                <span className="ml-2 font-light text-base text-[#2D2D2D]/70">
+                  + ${photoFee.price.toFixed(2)} custom photo
+                </span>
+              ) : null}
+              {quantity > 1 || (addPhotoFee && photoFee) ? (
                 <span className="ml-3 font-light text-sm text-[#2D2D2D]/50">
-                  · {quantity} × = ${(unitPrice * quantity).toFixed(2)}
+                  · {quantity > 1 ? `${quantity} × ` : ''}= $
+                  {(
+                    unitPrice * quantity +
+                    (addPhotoFee && photoFee ? photoFee.price : 0)
+                  ).toFixed(2)}
                 </span>
               ) : null}
             </p>
@@ -703,6 +712,7 @@ export default function ProductRoute() {
                   hideFont={hideFont}
                   hideInk={hideInk}
                   textLabel={pdpOverride.textLabel}
+                  photoFeePrice={photoFee?.price}
                 />
               </div>
             )}

@@ -38,6 +38,8 @@ interface PersonalizationPanelProps {
   /** Start with nothing chosen (font, ink, choice fields) and mark them
    *  required — the customer makes every choice. */
   requireChoices?: boolean;
+  /** The custom photo charge, noted under a "photo fee" upload once used. */
+  photoFeePrice?: number;
   /** Skip the Font / Ink Color pickers (product's "Hide standard questions"). */
   hideFont?: boolean;
   hideInk?: boolean;
@@ -54,6 +56,7 @@ export function PersonalizationPanel({
   requireChoices = false,
   hideFont = false,
   hideInk = false,
+  photoFeePrice,
 }: PersonalizationPanelProps) {
   const hasMonogram = !hideMonogram && !!schema.monogramStyles?.length;
   const monogramStyle: MonogramStyle | undefined = useMemo(() => {
@@ -226,7 +229,16 @@ export function PersonalizationPanel({
             })}
           </div>
         ) : field.type === "upload" ? (
-          <UploadField label={field.label} value={current} onChange={(url) => setField(field.key, url)} />
+          <UploadField
+            label={field.label}
+            value={current}
+            onChange={(url) => setField(field.key, url)}
+            feeNote={
+              field.photoFee && photoFeePrice
+                ? `Custom photo design: +$${photoFeePrice.toFixed(2)} will be added to your cart.`
+                : undefined
+            }
+          />
         ) : field.type === "longtext" ? (
           <textarea
             value={current}
@@ -738,10 +750,12 @@ function UploadField({
   label,
   value,
   onChange,
+  feeNote,
 }: {
   label: string;
   value: string;
   onChange: (url: string) => void;
+  feeNote?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -774,29 +788,32 @@ function UploadField({
 
   if (value) {
     return (
-      <div className="flex items-center gap-3 p-3 border border-[#C9A96E]/40 bg-[#FAF8F5] rounded-sm">
-        {preview ? (
-          <img src={preview} alt="" onError={() => setPreview("")} className="w-14 h-14 object-cover rounded-sm" />
-        ) : (
-          <span className="w-14 h-14 flex items-center justify-center bg-white text-[10px] font-sans text-[#2D2D2D]/60 rounded-sm">
-            FILE
-          </span>
-        )}
-        <div className="min-w-0 flex-1">
-          <p className="font-sans text-sm text-[#2D2D2D] truncate">{fileName || "Uploaded"}</p>
-          <p className="font-sans text-[11px] text-[#2D2D2D]/55">Uploaded ✓</p>
+      <div>
+        <div className="flex items-center gap-3 p-3 border border-[#C9A96E]/40 bg-[#FAF8F5] rounded-sm">
+          {preview ? (
+            <img src={preview} alt="" onError={() => setPreview("")} className="w-14 h-14 object-cover rounded-sm" />
+          ) : (
+            <span className="w-14 h-14 flex items-center justify-center bg-white text-[10px] font-sans text-[#2D2D2D]/60 rounded-sm">
+              FILE
+            </span>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="font-sans text-sm text-[#2D2D2D] truncate">{fileName || "Uploaded"}</p>
+            <p className="font-sans text-[11px] text-[#2D2D2D]/55">Uploaded ✓</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              onChange("");
+              setFileName("");
+              setPreview("");
+            }}
+            className="font-sans text-xs underline text-[#2D2D2D]/70 hover:text-[#2D2D2D]"
+          >
+            Remove
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            onChange("");
-            setFileName("");
-            setPreview("");
-          }}
-          className="font-sans text-xs underline text-[#2D2D2D]/70 hover:text-[#2D2D2D]"
-        >
-          Remove
-        </button>
+      {feeNote && <p className="font-sans text-xs font-medium text-[#8a6a3a] mt-1.5">{feeNote}</p>}
       </div>
     );
   }
