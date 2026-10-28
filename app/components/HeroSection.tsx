@@ -3,8 +3,8 @@
  * (matches thewinsomelife.com). Slides cross-fade; the tagline "Uniquely You.
  * On Paper." sits on whichever side reads best against each slide — LEFT for
  * the blue floral/seaside scenes, RIGHT for the warm autumn scene (per Sydney).
- * The tagline animates in word-by-word and the honeybee flies a figure-eight
- * around "You" then lands top-right. All motion respects reduced-motion.
+ * The tagline animates in word-by-word and the honeybee flies the path Sydney
+ * drew around "You." before settling. All motion respects reduced-motion.
  */
 import { useEffect, useState } from "react";
 import { HoneyBee } from "./HoneyBee";
@@ -99,8 +99,8 @@ export default function HeroSection() {
                 >
                   You.
                 </span>
-                {/* Honeybee — flies a figure-eight around "You" then lands at
-                    its top-right, slanted ~20° left. */}
+                {/* Honeybee — flies Sydney's drawn path around "You." (see
+                    HERO_CSS), slanted ~20° left. */}
                 <span className="wl-bee absolute -right-4 -top-9 md:-right-6 md:-top-12">
                   <HoneyBee size={58} slant={-20} />
                 </span>
@@ -151,33 +151,104 @@ const HERO_CSS = `
 .wl-w3 { animation-delay: 0.85s; }
 .wl-w4 { animation-delay: 1.15s; }
 
-/* Honeybee: rests at the top-right of "You", then traces a smooth horizontal
-   figure-eight (infinity) — the left lobe sweeps up around the "Y" — looping
-   twice before settling back at rest. The path starts and ends at (0,0), so two
-   iterations = two clean loops with no jump. The inner <img> holds the resting
-   slant. Kept a single continuous transform (no scale/opacity jitter) so the
-   motion reads as smooth. */
+/* Honeybee: flies the path Sydney drew with the bee-flight tool (Oct 2026),
+   played once at her own pace (4.8s), then stays where she let go.
+   Offsets are in em of the headline (drawn at 72px), so the flight scales with
+   the headline on smaller screens. The inner <img> holds the resting slant. */
 @keyframes wl-bee-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes wl-bee-fig8 {
-  0%    { transform: translate(0, 0) rotate(0deg); }
-  12.5% { transform: translate(19px, -14px) rotate(7deg); }
-  25%   { transform: translate(34px, 0) rotate(0deg); }
-  37.5% { transform: translate(19px, 14px) rotate(-7deg); }
-  50%   { transform: translate(0, 0) rotate(0deg); }
-  62.5% { transform: translate(-19px, -14px) rotate(7deg); }
-  75%   { transform: translate(-34px, 0) rotate(0deg); }
-  87.5% { transform: translate(-19px, 14px) rotate(-7deg); }
-  100%  { transform: translate(0, 0) rotate(0deg); }
+@keyframes wl-bee-flight {
+  0% { transform: translate(-0.125em, 0.486em); }
+  1.24% { transform: translate(-0.125em, 0.486em); }
+  2.5% { transform: translate(-0.125em, 0.486em); }
+  3.75% { transform: translate(-0.083em, 0.486em); }
+  5.01% { transform: translate(0.111em, 0.486em); }
+  6.25% { transform: translate(0.431em, 0.514em); }
+  7.49% { transform: translate(0.736em, 0.597em); }
+  8.76% { transform: translate(1em, 0.681em); }
+  10% { transform: translate(1.278em, 0.736em); }
+  11.26% { transform: translate(1.556em, 0.75em); }
+  12.5% { transform: translate(1.806em, 0.75em); }
+  13.74% { transform: translate(2em, 0.736em); }
+  15.01% { transform: translate(2.083em, 0.667em); }
+  16.25% { transform: translate(2.125em, 0.486em); }
+  17.49% { transform: translate(2.139em, 0.236em); }
+  18.75% { transform: translate(2.111em, 0.028em); }
+  20% { transform: translate(2.028em, -0.167em); }
+  21.26% { transform: translate(1.917em, -0.333em); }
+  22.5% { transform: translate(1.764em, -0.431em); }
+  23.74% { transform: translate(1.569em, -0.472em); }
+  25.01% { transform: translate(1.375em, -0.472em); }
+  26.25% { transform: translate(1.167em, -0.444em); }
+  27.51% { transform: translate(0.986em, -0.389em); }
+  28.75% { transform: translate(0.806em, -0.306em); }
+  29.99% { transform: translate(0.556em, -0.208em); }
+  31.26% { transform: translate(0.292em, -0.139em); }
+  32.5% { transform: translate(0.028em, -0.083em); }
+  33.76% { transform: translate(-0.264em, -0.014em); }
+  35% { transform: translate(-0.514em, 0.014em); }
+  36.25% { transform: translate(-0.694em, 0); }
+  37.51% { transform: translate(-0.847em, -0.111em); }
+  38.75% { transform: translate(-0.931em, -0.264em); }
+  40.01% { transform: translate(-0.958em, -0.431em); }
+  41.25% { transform: translate(-0.944em, -0.625em); }
+  42.5% { transform: translate(-0.889em, -0.792em); }
+  43.76% { transform: translate(-0.764em, -0.903em); }
+  45% { transform: translate(-0.597em, -0.972em); }
+  46.24% { transform: translate(-0.431em, -0.972em); }
+  47.51% { transform: translate(-0.236em, -0.944em); }
+  48.75% { transform: translate(-0.111em, -0.847em); }
+  50.01% { transform: translate(-0.014em, -0.736em); }
+  51.25% { transform: translate(0.069em, -0.597em); }
+  52.49% { transform: translate(0.125em, -0.486em); }
+  53.76% { transform: translate(0.167em, -0.361em); }
+  55% { transform: translate(0.208em, -0.264em); }
+  56.26% { transform: translate(0.25em, -0.167em); }
+  57.5% { transform: translate(0.278em, -0.056em); }
+  58.75% { transform: translate(0.319em, 0.028em); }
+  60.01% { transform: translate(0.375em, 0.111em); }
+  61.25% { transform: translate(0.444em, 0.194em); }
+  62.51% { transform: translate(0.542em, 0.292em); }
+  63.75% { transform: translate(0.625em, 0.361em); }
+  65% { transform: translate(0.75em, 0.472em); }
+  66.26% { transform: translate(0.875em, 0.556em); }
+  67.5% { transform: translate(0.986em, 0.597em); }
+  68.76% { transform: translate(1.111em, 0.639em); }
+  70.01% { transform: translate(1.222em, 0.639em); }
+  71.25% { transform: translate(1.319em, 0.639em); }
+  72.51% { transform: translate(1.389em, 0.583em); }
+  73.75% { transform: translate(1.431em, 0.556em); }
+  74.99% { transform: translate(1.444em, 0.528em); }
+  76.26% { transform: translate(1.472em, 0.458em); }
+  77.5% { transform: translate(1.486em, 0.389em); }
+  78.76% { transform: translate(1.486em, 0.292em); }
+  80% { transform: translate(1.458em, 0.194em); }
+  81.25% { transform: translate(1.403em, 0.125em); }
+  82.51% { transform: translate(1.278em, 0.097em); }
+  83.75% { transform: translate(1.153em, 0.097em); }
+  85.01% { transform: translate(1.028em, 0.111em); }
+  86.26% { transform: translate(0.847em, 0.167em); }
+  87.5% { transform: translate(0.708em, 0.236em); }
+  88.76% { transform: translate(0.569em, 0.333em); }
+  90% { transform: translate(0.403em, 0.417em); }
+  91.26% { transform: translate(0.264em, 0.472em); }
+  92.51% { transform: translate(0.167em, 0.5em); }
+  93.75% { transform: translate(0.097em, 0.514em); }
+  95.01% { transform: translate(0.042em, 0.514em); }
+  96.25% { transform: translate(0, 0.514em); }
+  97.52% { transform: translate(-0.014em, 0.514em); }
+  98.76% { transform: translate(-0.056em, 0.514em); }
+  100% { transform: translate(-0.097em, 0.486em); }
 }
 .wl-bee {
   opacity: 0;
   animation:
     wl-bee-in 0.5s ease-out 1.15s both,
-    wl-bee-fig8 3.6s cubic-bezier(0.45, 0, 0.55, 1) 1.6s 2 both;
+    wl-bee-flight 4831ms linear 1.15s 1 both;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wl-kenburns { animation: none; }
   .wl-word, .wl-bee { animation: none; opacity: 1; }
+  .wl-bee { transform: translate(-0.097em, 0.486em); }
 }
 `;
