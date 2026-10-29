@@ -163,6 +163,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     ? ((showDrafts && product.personalizationTextLabelDraft?.value) ||
         product.personalizationTextLabel?.value)?.trim() || undefined
     : undefined;
+  // This product's own note under the Name & Return Address box, if any.
+  const returnAddressHelp = useOwnSetup
+    ? product.personalizationReturnAddressHelp?.value?.trim() || undefined
+    : undefined;
   const textHelp = useOwnSetup
     ? product.personalizationTextHelp?.value?.trim() || undefined
     : undefined;
@@ -178,6 +182,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     textLength,
     textLabel,
     textHelp,
+    returnAddressHelp,
     // A link to a specific option (?Size=…) keeps it; otherwise sets start
     // at 10 + Blank Envelopes.
     optionsInUrl: getSelectedProductOptions(request).length > 0,
@@ -234,6 +239,7 @@ export default function ProductRoute() {
     textLength,
     textLabel,
     textHelp,
+    returnAddressHelp,
     optionsInUrl,
   } = useLoaderData<typeof loader>();
   const hideInstructions = hidden.includes('Additional instructions');
@@ -366,7 +372,15 @@ export default function ProductRoute() {
           ),
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
           // Only once the customer picks envelopes with a printed return address.
-          ...(wantsReturnAddress ? [{...RETURN_ADDRESS_FIELD, required: true}] : []),
+          ...(wantsReturnAddress
+            ? [
+                {
+                  ...RETURN_ADDRESS_FIELD,
+                  required: true,
+                  ...(returnAddressHelp ? {helpText: returnAddressHelp} : {}),
+                },
+              ]
+            : []),
         ],
       },
     [
@@ -376,6 +390,7 @@ export default function ProductRoute() {
       hideInstructions,
       textLength,
       textHelp,
+      returnAddressHelp,
       wantsReturnAddress,
       personalization.fields,
     ],
@@ -1107,6 +1122,9 @@ const PRODUCT_QUERY = `#graphql
         value
       }
       personalizationTextLabel: metafield(namespace: "winsome", key: "personalization_text_label") {
+        value
+      }
+      personalizationReturnAddressHelp: metafield(namespace: "winsome", key: "personalization_return_address_help") {
         value
       }
       personalizationTextHelp: metafield(namespace: "winsome", key: "personalization_text_help") {
