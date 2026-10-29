@@ -117,6 +117,14 @@ export interface PersonalizationField {
   /** Shown only when another question has a given answer, e.g.
    *  {key: "How would you like to show your dog?", value: "Choose a breed"}. */
   showWhen?: {key: string; value: string};
+  /** Label of a "How many?" question (e.g. "Number of Cats"): this question
+   *  is asked once per item, e.g. "Cat 1: Cat Breed", "Cat 2: Cat Breed". */
+  repeatWith?: string;
+  /** "How many?" questions only — what each item is called ("Cat"). */
+  eachLabel?: string;
+  /** "How many?" questions only — each item after the first adds the
+   *  additional item charge to the cart. */
+  extraFee?: boolean;
 }
 
 export type FieldGroup = "monogram" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";

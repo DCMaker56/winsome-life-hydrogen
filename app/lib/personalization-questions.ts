@@ -103,6 +103,9 @@ export function questionsToFields(
         revealsText: get('reveals_text') === 'true',
         multiple: multiColor || undefined,
         showWhen: parseCondition(get('show_when')),
+        repeatWith: get('repeat_with').trim() || undefined,
+        eachLabel: get('each_label').trim() || undefined,
+        extraFee: get('extra_fee') === 'true' || undefined,
       },
     ];
   });

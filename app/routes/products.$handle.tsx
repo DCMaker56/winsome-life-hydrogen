@@ -21,7 +21,11 @@ import {
   ShopPayButton,
 } from '@shopify/hydrogen';
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
-import {PHOTO_FEE_PRODUCT_HANDLE, PROOF_PRODUCT_HANDLE} from '~/lib/addons';
+import {
+  EXTRA_ITEM_FEE_PRODUCT_HANDLE,
+  PHOTO_FEE_PRODUCT_HANDLE,
+  PROOF_PRODUCT_HANDLE,
+} from '~/lib/addons';
 import {stampUploadedFiles} from '~/lib/uploads.server';
 import {
   parseHiddenStandard,
@@ -83,7 +87,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const {storefront} = context;
   // Background: put order numbers on files customers uploaded (see uploads.server).
   context.waitUntil?.(stampUploadedFiles(context.env));
-  const [{product}, proofData, photoFeeData] = await Promise.all([
+  const [{product}, proofData, photoFeeData, extraFeeData] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
@@ -95,6 +99,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // Same for the custom photo charge (own pet photo instead of a breed).
     storefront
       .query(PROOF_PRODUCT_QUERY, {variables: {handle: PHOTO_FEE_PRODUCT_HANDLE}})
+      .catch(() => null),
+    // And the charge for each extra pet (a second or third cat).
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: EXTRA_ITEM_FEE_PRODUCT_HANDLE}})
       .catch(() => null),
   ]);
   if (!product?.id) throw new Response(null, {status: 404});
@@ -122,6 +130,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const photoFeeVariant = photoFeeData?.product?.variants?.nodes?.[0];
   const photoFee = photoFeeVariant?.availableForSale
     ? {variantId: photoFeeVariant.id, price: Number(photoFeeVariant.price.amount)}
+    : null;
+  const extraFeeVariant = extraFeeData?.product?.variants?.nodes?.[0];
+  const extraFee = extraFeeVariant?.availableForSale
+    ? {variantId: extraFeeVariant.id, price: Number(extraFeeVariant.price.amount)}
     : null;
 
   // This product's own questions, managed in Shopify admin. While the
@@ -177,6 +189,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     related,
     proof,
     photoFee,
+    extraFee,
     extraQuestions,
     hidden,
     textLength,
@@ -234,6 +247,7 @@ export default function ProductRoute() {
     related,
     proof,
     photoFee,
+    extraFee,
     extraQuestions,
     hidden,
     textLength,
@@ -347,6 +361,12 @@ export default function ProductRoute() {
   const wantsReturnAddress = (selectedVariant?.selectedOptions ?? []).some(
     printsReturnAddress,
   );
+  // Questions asked once per pet ("Cat 1: Cat Breed", "Cat 2: Cat Breed")
+  // once the customer says how many.
+  const productQuestions = useMemo(
+    () => repeatPerItem(extraQuestions, personalization.fields),
+    [extraQuestions, personalization.fields],
+  );
   const activeSchema = useMemo(
     () =>
       schema && {
@@ -364,10 +384,10 @@ export default function ProductRoute() {
           // Follow-up questions appear once their lead question is answered
           // to match (e.g. the breed list after "Choose a breed"); without
           // the lead question on this product they always show.
-          ...extraQuestions.filter(
+          ...productQuestions.filter(
             (f) =>
               !f.showWhen ||
-              !extraQuestions.some((g) => g.key === f.showWhen?.key) ||
+              !productQuestions.some((g) => g.key === f.showWhen?.key) ||
               personalization.fields[f.showWhen.key] === f.showWhen.value,
           ),
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
@@ -385,7 +405,7 @@ export default function ProductRoute() {
       },
     [
       schema,
-      extraQuestions,
+      productQuestions,
       hideText,
       hideInstructions,
       textLength,
@@ -439,10 +459,25 @@ export default function ProductRoute() {
     const [a, b] = sortByFieldGroup([f, partner]);
     return `${plainLabel(a)} or ${plainLabel(b)}`;
   };
-  const addPhotoFee = Boolean(
-    photoFee &&
-      shownFields.some((f) => f.type === 'upload' && f.photoFee && answered(f)),
-  );
+  // Add-on charges: one custom photo charge per uploaded photo, and one
+  // additional pet charge per pet after the first.
+  const photoCount = photoFee
+    ? shownFields.filter((f) => f.type === 'upload' && f.photoFee && answered(f)).length
+    : 0;
+  const extraCount = extraFee
+    ? shownFields
+        .filter((f) => f.extraFee)
+        .reduce((n, f) => n + Math.max(0, itemCount(personalization.fields[f.key]) - 1), 0)
+    : 0;
+  const addOns = [
+    ...(photoFee && photoCount
+      ? [{...photoFee, quantity: photoCount, label: photoCount > 1 ? 'custom photos' : 'custom photo'}]
+      : []),
+    ...(extraFee && extraCount
+      ? [{...extraFee, quantity: extraCount, label: extraCount > 1 ? 'additional pets' : 'additional pet'}]
+      : []),
+  ];
+  const addOnTotal = addOns.reduce((sum, a) => sum + a.price * a.quantity, 0);
   const missingInfo = !personalizable
     ? []
     : [
@@ -638,17 +673,16 @@ export default function ProductRoute() {
                   ${unitCompareAt.toFixed(2)}
                 </span>
               ) : null}
-              {addPhotoFee && photoFee ? (
-                <span className="ml-2 font-light text-base text-[#2D2D2D]/70">
-                  + ${photoFee.price.toFixed(2)} custom photo
+              {addOns.map((a) => (
+                <span key={a.variantId} className="ml-2 font-light text-base text-[#2D2D2D]/70">
+                  + ${(a.price * a.quantity).toFixed(2)} {a.label}
                 </span>
-              ) : null}
-              {quantity > 1 || (addPhotoFee && photoFee) ? (
+              ))}
+              {quantity > 1 || addOns.length ? (
                 <span className="ml-3 font-light text-sm text-[#2D2D2D]/50">
                   · {quantity > 1 ? (setSize ? `${quantity} sets ` : `${quantity} × `) : ''}= $
                   {(
-                    unitPrice * quantity +
-                    (addPhotoFee && photoFee ? photoFee.price : 0)
+                    unitPrice * quantity + addOnTotal
                   ).toFixed(2)}
                 </span>
               ) : null}
@@ -875,15 +909,11 @@ export default function ProductRoute() {
                         },
                       ]
                     : []),
-                  ...(addPhotoFee && photoFee
-                    ? [
-                        {
-                          merchandiseId: photoFee.variantId,
-                          quantity: 1,
-                          attributes: [{key: 'For', value: appProduct.title}],
-                        },
-                      ]
-                    : []),
+                  ...addOns.map((a) => ({
+                    merchandiseId: a.variantId,
+                    quantity: a.quantity,
+                    attributes: [{key: 'For', value: appProduct.title}],
+                  })),
                 ],
               }}
               action={CartForm.ACTIONS.LinesAdd}
@@ -1047,6 +1077,47 @@ function sortSetValues<T extends {name: string}>(values: T[]): T[] {
 }
 
 /** The text questions (name/text, monogram letters) that come before font and ink. */
+/** "2 Cats" → 2; unanswered → 1. */
+const itemCount = (answer?: string) =>
+  Math.max(1, parseInt(answer ?? '', 10) || 1);
+
+/**
+ * Questions tied to a "How many?" question (e.g. "Number of Cats") are asked
+ * once per item, grouped by item: "Cat 1: Cat Image Options", "Cat 1: Cat
+ * Breed", then "Cat 2: …". The first item keeps its answers when the count
+ * changes; follow-up and either/or links point at the same item's questions.
+ */
+function repeatPerItem(
+  fields: PersonalizationField[],
+  values: Record<string, string>,
+): PersonalizationField[] {
+  const done = new Set<string>();
+  return fields.flatMap((f) => {
+    const counter = f.repeatWith
+      ? fields.find((g) => g.key === f.repeatWith)
+      : undefined;
+    if (!counter) return [f];
+    if (done.has(counter.key)) return [];
+    done.add(counter.key);
+    const group = fields.filter((g) => g.repeatWith === counter.key);
+    const n = itemCount(values[counter.key]);
+    if (n < 2) return group;
+    const keys = new Set(group.map((g) => g.key));
+    const each = counter.eachLabel || 'Item';
+    return Array.from({length: n}, (_, i) => {
+      const prefix = `${each} ${i + 1}: `;
+      const keyFor = (k: string) => (i > 0 && keys.has(k) ? prefix + k : k);
+      return group.map((g) => ({
+        ...g,
+        key: keyFor(g.key),
+        label: prefix + g.label,
+        alternativeTo: g.alternativeTo && keyFor(g.alternativeTo),
+        showWhen: g.showWhen && {...g.showWhen, key: keyFor(g.showWhen.key)},
+      }));
+    }).flat();
+  });
+}
+
 const isTextField = (f: PersonalizationField) =>
   f.key === 'text' || f.type === 'monogram-letters';
 
