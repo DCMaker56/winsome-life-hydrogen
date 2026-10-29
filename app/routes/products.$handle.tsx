@@ -459,11 +459,13 @@ export default function ProductRoute() {
     const [a, b] = sortByFieldGroup([f, partner]);
     return `${plainLabel(a)} or ${plainLabel(b)}`;
   };
-  // Add-on charges: one custom photo charge per uploaded photo, and one
-  // additional pet charge per pet after the first.
-  const photoCount = photoFee
-    ? shownFields.filter((f) => f.type === 'upload' && f.photoFee && answered(f)).length
-    : 0;
+  // Add-on charges: the custom photo charge once per order however many
+  // photos are uploaded (Sydney), and one additional pet charge per pet
+  // after the first.
+  const photoCount =
+    photoFee && shownFields.some((f) => f.type === 'upload' && f.photoFee && answered(f))
+      ? 1
+      : 0;
   const extraCount = extraFee
     ? shownFields
         .filter((f) => f.extraFee)
@@ -471,7 +473,7 @@ export default function ProductRoute() {
     : 0;
   const addOns = [
     ...(photoFee && photoCount
-      ? [{...photoFee, quantity: photoCount, label: photoCount > 1 ? 'custom photos' : 'custom photo'}]
+      ? [{...photoFee, quantity: photoCount, label: 'custom photo'}]
       : []),
     ...(extraFee && extraCount
       ? [{...extraFee, quantity: extraCount, label: extraCount > 1 ? 'additional pets' : 'additional pet'}]

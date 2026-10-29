@@ -272,7 +272,7 @@ export function PersonalizationPanel({
             onChange={(url) => setField(field.key, url)}
             feeNote={
               field.photoFee && photoFeePrice
-                ? `Custom photo design: +$${photoFeePrice.toFixed(2)} will be added to your cart.`
+                ? `Custom photo design: +$${photoFeePrice.toFixed(2)} will be added to your cart (once per order, however many photos).`
                 : undefined
             }
           />
