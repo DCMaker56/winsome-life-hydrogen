@@ -272,7 +272,13 @@ export function PersonalizationPanel({
             onChange={(url) => setField(field.key, url)}
             feeNote={
               field.photoFee && photoFeePrice
-                ? `Custom photo design: +$${photoFeePrice.toFixed(2)} will be added to your cart (once per order, however many photos).`
+                ? // The photo charge is once per order, so a second pet's
+                  // upload says it's already covered.
+                  schema.fields.some(
+                    (g) => g.key !== field.key && g.photoFee && value.fields[g.key],
+                  )
+                  ? "No extra charge: the one-time photo charge already covers this photo."
+                  : `One-time $${photoFeePrice.toFixed(2)} photo charge per order, no matter how many photos you upload.`
                 : undefined
             }
           />
