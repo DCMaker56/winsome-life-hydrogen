@@ -320,7 +320,8 @@ export default function ProductRoute() {
       .options ?? []
   )
     .filter((o) => o.optionValues.length > 1 && o.name.toLowerCase() !== 'title')
-    .map((o) => ({...o, optionValues: sortSizeValues(sortSetValues(o.optionValues))}));
+    .map((o) => ({...o, optionValues: sortSizeValues(sortSetValues(o.optionValues))}))
+    .map((o) => ({...o, pictures: optionPictures(o.name, o.optionValues, variants)}));
   // Sydney: sets start at 10 + Blank Envelopes rather than the smallest.
   const defaultVariant = optionsInUrl
     ? undefined
@@ -731,7 +732,43 @@ export default function ProductRoute() {
                 {optionGroups.map((opt) =>
                   // Long lists (e.g. 26 quantity & return-address choices)
                   // read better as a dropdown; short ones stay as buttons.
-                  opt.optionValues.length > OPTION_DROPDOWN_THRESHOLD ? (
+                  opt.pictures ? (
+                    <div key={opt.name}>
+                      <div className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
+                        {opt.name}
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {opt.optionValues.map((ov) => {
+                          const active = selOptions[opt.name] === ov.name;
+                          return (
+                            <button
+                              key={ov.name}
+                              type="button"
+                              onClick={() =>
+                                setSelOptions((s) => ({...s, [opt.name]: ov.name}))
+                              }
+                              aria-pressed={active}
+                              className={`flex flex-col items-center gap-1.5 p-1.5 bg-white border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
+                                active
+                                  ? 'border-[#2D2D2D] ring-1 ring-[#2D2D2D]'
+                                  : 'border-[#C9A96E]/40 hover:border-[#2D2D2D]'
+                              }`}
+                            >
+                              <img
+                                src={opt.pictures![ov.name]}
+                                alt=""
+                                loading="lazy"
+                                className="w-full aspect-square object-cover"
+                              />
+                              <span className="text-xs font-sans text-[#2D2D2D] text-center leading-tight">
+                                {ov.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : opt.optionValues.length > OPTION_DROPDOWN_THRESHOLD ? (
                     <div key={opt.name}>
                       <label
                         htmlFor={`option-${opt.name}`}
@@ -1079,6 +1116,36 @@ export default function ProductRoute() {
  */
 /** Variant options with more choices than this show as a dropdown. */
 const OPTION_DROPDOWN_THRESHOLD = 6;
+
+/**
+ * Picture buttons for an option whose every choice has its own variant photo
+ * in Shopify (e.g. the Teacher Notepad's six designs); undefined otherwise,
+ * so sizes and sheet counts that share one photo stay plain buttons.
+ */
+function optionPictures(
+  name: string,
+  values: {name: string}[],
+  variants: {selectedOptions: {name: string; value: string}[]; image?: {url: string} | null}[],
+): Record<string, string> | undefined {
+  // Sizes, sheet counts and set quantities stay as text buttons.
+  if (values.some((v) => /\d/.test(v.name))) return undefined;
+  const pictures: Record<string, string> = {};
+  for (const {name: value} of values) {
+    const url = variants.find((v) =>
+      v.selectedOptions.some((o) => o.name === name && o.value === value),
+    )?.image?.url;
+    if (!url) return undefined;
+    pictures[value] = url;
+  }
+  const distinct = new Set(Object.values(pictures)).size;
+  if (distinct !== values.length) return undefined;
+  for (const value of Object.keys(pictures)) {
+    const url = new URL(pictures[value]);
+    url.searchParams.set('width', '300');
+    pictures[value] = url.toString();
+  }
+  return pictures;
+}
 
 /**
  * Set-count options ("5 + Blank Envelopes", "5 + Return Address", …) in
