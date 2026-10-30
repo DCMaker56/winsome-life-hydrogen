@@ -465,7 +465,7 @@ export default function ProductRoute() {
     return `${plainLabel(a)} or ${plainLabel(b)}`;
   };
   // Add-on charges: the custom photo charge once per order however many
-  // photos are uploaded (Sydney), and one additional pet charge per pet
+  // photos are uploaded (Sydney), and one additional item charge per pet or icon
   // beyond those included (e.g. the 3rd and 4th).
   const photoCount =
     photoFee && shownFields.some((f) => f.type === 'upload' && f.photoFee && answered(f))
@@ -480,12 +480,17 @@ export default function ProductRoute() {
           0,
         )
     : 0;
+  // Named after what's being counted ("additional icons"); pets by default.
+  const extraNoun =
+    shownFields.find((f) => f.extraFee && f.eachLabel)?.eachLabel?.toLowerCase() ?? 'pet';
+  const extraLabel = (n: number) =>
+    `additional ${extraNoun}${n > 1 ? 's' : ''}`;
   const addOns = [
     ...(photoFee && photoCount
       ? [{...photoFee, quantity: photoCount, label: 'custom photo'}]
       : []),
     ...(extraFee && extraCount
-      ? [{...extraFee, quantity: extraCount, label: extraCount > 1 ? 'additional pets' : 'additional pet'}]
+      ? [{...extraFee, quantity: extraCount, label: extraLabel(extraCount)}]
       : []),
   ];
   const addOnTotal = addOns.reduce((sum, a) => sum + a.price * a.quantity, 0);
