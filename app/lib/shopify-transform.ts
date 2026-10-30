@@ -145,6 +145,10 @@ export function cleanProductTitle(raw: string): string {
  *  "partner", "heart", "tartan" or "party". */
 export function inferProductType(p: ShopifyProduct): ProductType {
   const match = (s: string): ProductType | null => {
+    // Stationery gift sets ("Notecards, Notepad, & Enclosure Cards") are
+    // notecards, not gift tags.
+    if (/\bgift\s*sets?\b/.test(s) && /\bstationery\b|\bnote\s*cards?\b/.test(s))
+      return "notecard";
     if (/\b(wine|prosecco|champagne)\s*tags?\b/.test(s)) return "wine-tag";
     if (/\b(gift|hang)\s*tags?\b|\bstickers?\b|\benclosure/.test(s)) return "gift-tag";
     if (/\b(note|memo)\s*pads?\b|\bnotepads?\b/.test(s)) return "notepad";
