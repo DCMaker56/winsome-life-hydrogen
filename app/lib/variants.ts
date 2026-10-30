@@ -115,8 +115,10 @@ export interface PersonalizationField {
    *  once answered "Yes" (e.g. "Do you want to add additional text?"). */
   revealsText?: boolean;
   /** Shown only when another question has a given answer, e.g.
-   *  {key: "How would you like to show your dog?", value: "Choose a breed"}. */
-  showWhen?: {key: string; value: string};
+   *  {key: "How would you like to show your dog?", value: "Choose a breed"}.
+   *  With `contains`, any answer including the value counts, e.g. every
+   *  sports icon marked "color options". */
+  showWhen?: {key: string; value: string; contains?: boolean};
   /** Label of a "How many?" question (e.g. "Number of Cats"): this question
    *  is asked once per item, e.g. "Cat 1: Cat Breed", "Cat 2: Cat Breed". */
   repeatWith?: string;

@@ -42,13 +42,18 @@ function parseList(value?: string | null): string[] {
   }
 }
 
-/** "Question label = Answer" → {key, value}; anything else → undefined. */
+/** "Question label = Answer" → {key, value}; "Question label *= text"
+ *  matches any answer containing the text; anything else → undefined. */
 function parseCondition(value: string) {
   const i = value.lastIndexOf('=');
   if (i < 0) return undefined;
-  const key = value.slice(0, i).trim();
+  let key = value.slice(0, i).trim();
+  const contains = key.endsWith('*');
+  if (contains) key = key.slice(0, -1).trim();
   const answer = value.slice(i + 1).trim();
-  return key && answer ? {key, value: answer} : undefined;
+  return key && answer
+    ? {key, value: answer, ...(contains ? {contains} : {})}
+    : undefined;
 }
 
 /** Map metaobject entries to panel fields; malformed entries are skipped. */
