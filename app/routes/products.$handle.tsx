@@ -177,6 +177,11 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     ? ((showDrafts && product.personalizationTextLabelDraft?.value) ||
         product.personalizationTextLabel?.value)?.trim() || undefined
     : undefined;
+  // "Font picker label", e.g. "Font for Name".
+  const fontLabel = useOwnSetup
+    ? ((showDrafts && product.personalizationFontLabelDraft?.value) ||
+        product.personalizationFontLabel?.value)?.trim() || undefined
+    : undefined;
   // This product's own note under the Name & Return Address box, if any.
   const returnAddressHelp = useOwnSetup
     ? product.personalizationReturnAddressHelp?.value?.trim() || undefined
@@ -196,6 +201,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     hidden,
     textLength,
     textLabel,
+    fontLabel,
     textHelp,
     returnAddressHelp,
     // A link to a specific option (?Size=…) keeps it; otherwise sets start
@@ -257,6 +263,7 @@ export default function ProductRoute() {
     hidden,
     textLength,
     textLabel,
+    fontLabel,
     textHelp,
     returnAddressHelp,
     optionsInUrl,
@@ -885,6 +892,7 @@ export default function ProductRoute() {
                   hideFont={hideFont}
                   hideInk={hideInk}
                   textLabel={pdpOverride.textLabel}
+                  fontLabel={fontLabel}
                   photoFeePrice={photoFee?.price}
                 />
               </div>
@@ -1304,6 +1312,12 @@ const PRODUCT_QUERY = `#graphql
         value
       }
       personalizationTextLabelDraft: metafield(namespace: "winsome", key: "personalization_text_label_draft") {
+        value
+      }
+      personalizationFontLabel: metafield(namespace: "winsome", key: "personalization_font_label") {
+        value
+      }
+      personalizationFontLabelDraft: metafield(namespace: "winsome", key: "personalization_font_label_draft") {
         value
       }
       personalizationHide: metafield(namespace: "winsome", key: "personalization_hide") {

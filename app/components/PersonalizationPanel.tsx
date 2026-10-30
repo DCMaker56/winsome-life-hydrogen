@@ -32,6 +32,8 @@ interface PersonalizationPanelProps {
   hideMonogram?: boolean;
   /** Override the text-field label (e.g. "Text" instead of "Name"). */
   textLabel?: string;
+  /** Override the Font picker heading (e.g. "Font for Name"). */
+  fontLabel?: string;
   /** Show the live text preview box. Off for now (Sydney): customers just
    *  pick their options; each font tile still shows their text. */
   showPreview?: boolean;
@@ -52,6 +54,7 @@ export function PersonalizationPanel({
   className,
   hideMonogram,
   textLabel,
+  fontLabel = "Font",
   showPreview = false,
   requireChoices = false,
   hideFont = false,
@@ -553,7 +556,7 @@ export function PersonalizationPanel({
         {!hideFont && (
         <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
-            Font
+            {fontLabel}
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}{" "}
             <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
               Choose from fonts below for your text
