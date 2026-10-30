@@ -10,7 +10,7 @@
  * serialized into Shopify cart line item properties so they survive into
  * checkout + the order detail.
  */
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {ChevronDown, ChevronLeft, ChevronRight} from 'lucide-react';
 import {redirect, useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/products.$handle';
@@ -348,6 +348,17 @@ export default function ProductRoute() {
       v.selectedOptions.every((o) => selOptions[o.name] === o.value),
     ) ?? firstVariant;
   const variantId = selectedVariant?.id;
+  // Picking a choice with its own photo (e.g. a Teacher Notepad design)
+  // brings that photo up in the gallery; the page still opens on photo 1.
+  const variantImage = selectedVariant?.image?.url;
+  const openedOn = useRef(variantImage);
+  useEffect(() => {
+    if (!variantImage || variantImage === openedOn.current) return;
+    openedOn.current = undefined;
+    const path = (url: string) => url.split('?')[0];
+    const i = appProduct.images.findIndex((img) => path(img) === path(variantImage));
+    if (i >= 0) setSelectedImage(i);
+  }, [variantImage, appProduct.images]);
   // Items sold in sets ("Quantity: 10 + Return Address") get "Number of
   // Sets" instead of a second "Quantity", so it's clear 2 means 2 × 10.
   const setSize = (() => {
