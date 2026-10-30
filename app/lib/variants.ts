@@ -282,6 +282,11 @@ export const MONOGRAM_STYLES: MonogramStyle[] = [
   },
 ];
 
+/** Background character limits for text boxes (Sydney: room for as much as a
+ *  customer wants to write; the boxes stay small and grow as they type). */
+export const TEXT_LIMIT = 500;
+export const TEXT_LIMIT_LONG = 1000;
+
 // ───── Default schemas per product type ──────────────────────────────
 
 const STANDARD_PERSONALIZATION: PersonalizationSchema = {
@@ -295,7 +300,7 @@ const STANDARD_PERSONALIZATION: PersonalizationSchema = {
       key: "text",
       label: "Text",
       type: "text",
-      maxLength: 150,
+      maxLength: TEXT_LIMIT,
       placeholder: "Amelia Whitmore",
       helpText: "Your name, a phrase, or any text to print on the design.",
       required: true,
@@ -330,7 +335,7 @@ const WINE_TAG_PERSONALIZATION: PersonalizationSchema = {
       key: "custom-message",
       label: "Custom Message",
       type: "longtext",
-      maxLength: 40,
+      maxLength: TEXT_LIMIT,
       placeholder: "For the Thompsons",
       helpText: "Only used when Tag Theme is set to Custom.",
     },
@@ -338,7 +343,7 @@ const WINE_TAG_PERSONALIZATION: PersonalizationSchema = {
       key: "text",
       label: "Text",
       type: "text",
-      maxLength: 150,
+      maxLength: TEXT_LIMIT,
       placeholder: "The Winsomes",
       helpText: "Host name — appears on the back of every tag.",
     },
@@ -358,7 +363,7 @@ const GIFT_TAG_PERSONALIZATION: PersonalizationSchema = {
       key: "text",
       label: "Text",
       type: "text",
-      maxLength: 150,
+      maxLength: TEXT_LIMIT,
       placeholder: "The Winsomes",
       helpText: "Appears under \"a gift from\" on the tag.",
     },
@@ -384,7 +389,7 @@ const ARTWORK_PERSONALIZATION: PersonalizationSchema = {
       key: "text",
       label: "Text",
       type: "text",
-      maxLength: 150,
+      maxLength: TEXT_LIMIT,
       placeholder: "For the Thompsons · June 2026",
       helpText: "Prints in small type at the bottom margin of the artwork.",
     },
@@ -404,7 +409,7 @@ const CALENDAR_PERSONALIZATION: PersonalizationSchema = {
       key: "text",
       label: "Text",
       type: "text",
-      maxLength: 150,
+      maxLength: TEXT_LIMIT,
       placeholder: "The Winsome Family",
       helpText: "Appears under the year on the cover page.",
     },

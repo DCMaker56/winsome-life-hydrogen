@@ -282,26 +282,14 @@ export function PersonalizationPanel({
                 : undefined
             }
           />
-        ) : field.type === "longtext" ? (
-          <textarea
-            value={current}
-            onChange={(e) =>
-              setField(field.key, e.target.value.slice(0, field.maxLength))
-            }
-            placeholder={field.placeholder}
-            maxLength={field.maxLength}
-            rows={field.maxLength > 80 ? 4 : 2}
-            className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-          />
         ) : (
-          <input
-            type="text"
+          // Starts small (one line, or two for longer answers) and grows as
+          // the customer types; the limit is generous and only noted near it.
+          <GrowingTextBox
             value={current}
-            onChange={(e) =>
-              setField(field.key, e.target.value.slice(0, field.maxLength))
-            }
-            placeholder={field.placeholder}
+            onChange={(v) => setField(field.key, v)}
             maxLength={field.maxLength}
+            rows={field.type === "longtext" ? 2 : 1}
             className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-sm text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
           />
         )}
@@ -417,36 +405,18 @@ export function PersonalizationPanel({
               {textLabel ?? textField.label}
               {textField.required && <span className="text-[#C9A96E]"> *</span>}
             </label>
-            {textField.maxLength > 60 ? (
-              // Long text allowance (product's "Text box length") gets a taller box.
-              <textarea
-                value={value.fields["text"] ?? ""}
-                onChange={(e) => setField("text", e.target.value.slice(0, textField.maxLength))}
-                placeholder={textField.placeholder}
-                maxLength={textField.maxLength}
-                rows={4}
-                className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-              />
-            ) : (
-              <input
-                type="text"
-                value={value.fields["text"] ?? ""}
-                onChange={(e) => setField("text", e.target.value.slice(0, textField.maxLength))}
-                placeholder={textField.placeholder}
-                maxLength={textField.maxLength}
-                className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
-              />
-            )}
-            <div className="flex items-baseline justify-between mt-1.5">
-              {textField.helpText && (
-                <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50">
-                  {textField.helpText}
-                </p>
-              )}
-              <p className="font-sans text-[11px] text-[#2D2D2D]/40 ml-auto">
-                {(value.fields["text"] ?? "").length}/{textField.maxLength}
+            <GrowingTextBox
+              value={value.fields["text"] ?? ""}
+              onChange={(v) => setField("text", v)}
+              maxLength={textField.maxLength}
+              rows={2}
+              className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+            />
+            {textField.helpText && (
+              <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1.5">
+                {textField.helpText}
               </p>
-            </div>
+            )}
           </div>
         )}
 
@@ -819,6 +789,51 @@ function isLightColor(hex: string) {
 
 /** Upload button for a customer photo/logo: sends it to /api/upload and keeps
  *  the returned link as the answer. */
+/**
+ * Sydney: every text box should take as much as a customer wants to write,
+ * without looking big. Starts at `rows` lines and grows with the text; the
+ * (generous) limit stays in the background and is only mentioned near it.
+ */
+function GrowingTextBox({
+  value,
+  onChange,
+  maxLength,
+  rows,
+  className,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  maxLength: number;
+  rows: number;
+  className?: string;
+}) {
+  const grow = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + 2}px`;
+  };
+  return (
+    <>
+      <textarea
+        ref={grow}
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value.slice(0, maxLength));
+          grow(e.target);
+        }}
+        maxLength={maxLength}
+        rows={rows}
+        className={cn(className, "resize-none overflow-hidden")}
+      />
+      {value.length > maxLength - 50 && (
+        <p className="font-sans text-[11px] text-[#2D2D2D]/50 mt-1 text-right">
+          {maxLength - value.length} characters left
+        </p>
+      )}
+    </>
+  );
+}
+
 function UploadField({
   label,
   value,

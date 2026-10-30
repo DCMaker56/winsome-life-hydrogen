@@ -36,6 +36,8 @@ import {
   type GraphqlProduct,
 } from '~/lib/shopify-transform';
 import {
+  TEXT_LIMIT,
+  TEXT_LIMIT_LONG,
   VARIANT_PRESETS,
   sortByFieldGroup,
   type PersonalizationField,
@@ -168,8 +170,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 
   // Per-product Text box tweaks ("Text box length" / "Text box label").
   const textLength = useOwnSetup
-    ? // Sydney: every Text box takes at least 150 characters.
-      Math.max(Number(product.personalizationTextLength?.value) || 0, 150)
+    ? // Sydney: every Text box has room for as much as customers want.
+      Math.max(Number(product.personalizationTextLength?.value) || 0, TEXT_LIMIT)
     : undefined;
   const textLabel = useOwnSetup
     ? ((showDrafts && product.personalizationTextLabelDraft?.value) ||
@@ -222,7 +224,7 @@ const ADDITIONAL_INSTRUCTIONS_FIELD: PersonalizationField = {
   label:
     'Any additional personalization instructions? (if nothing, leave blank or type n/a)',
   type: 'longtext',
-  maxLength: 300,
+  maxLength: TEXT_LIMIT_LONG,
   placeholder: '',
   group: 'notes',
 };
@@ -233,7 +235,7 @@ const RETURN_ADDRESS_FIELD: PersonalizationField = {
   key: 'Name & Return Address',
   label: 'Name & Return Address',
   type: 'longtext',
-  maxLength: 200,
+  maxLength: TEXT_LIMIT,
   placeholder: '',
   group: 'return-address',
   helpText:

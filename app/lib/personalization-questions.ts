@@ -6,7 +6,12 @@
  * whose "Personalization questions draft" switch (winsome.personalization_draft)
  * is on only shows them on links with ?drafts=1.
  */
-import type {FieldGroup, PersonalizationField} from '~/lib/variants';
+import {
+  TEXT_LIMIT,
+  TEXT_LIMIT_LONG,
+  type FieldGroup,
+  type PersonalizationField,
+} from '~/lib/variants';
 
 type MetaobjectFields = {
   fields: Array<{
@@ -93,7 +98,7 @@ export function questionsToFields(
                   null,
               )
             : undefined,
-        maxLength: type === 'longtext' ? 300 : 100,
+        maxLength: type === 'longtext' ? TEXT_LIMIT_LONG : TEXT_LIMIT,
         placeholder: '',
         helpText: get('help_text') || undefined,
         required: get('required') === 'true',
