@@ -122,9 +122,12 @@ export interface PersonalizationField {
   repeatWith?: string;
   /** "How many?" questions only — what each item is called ("Cat"). */
   eachLabel?: string;
-  /** "How many?" questions only — each item after the first adds the
+  /** "How many?" questions only — each item beyond those included adds the
    *  additional item charge to the cart. */
   extraFee?: boolean;
+  /** "How many?" questions with extraFee only — items included before the
+   *  charge starts (default 1). */
+  freeItems?: number;
 }
 
 export type FieldGroup = "monogram" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";

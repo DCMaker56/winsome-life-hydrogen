@@ -466,7 +466,7 @@ export default function ProductRoute() {
   };
   // Add-on charges: the custom photo charge once per order however many
   // photos are uploaded (Sydney), and one additional pet charge per pet
-  // after the first.
+  // beyond those included (e.g. the 3rd and 4th).
   const photoCount =
     photoFee && shownFields.some((f) => f.type === 'upload' && f.photoFee && answered(f))
       ? 1
@@ -474,7 +474,11 @@ export default function ProductRoute() {
   const extraCount = extraFee
     ? shownFields
         .filter((f) => f.extraFee)
-        .reduce((n, f) => n + Math.max(0, itemCount(personalization.fields[f.key]) - 1), 0)
+        .reduce(
+          (n, f) =>
+            n + Math.max(0, itemCount(personalization.fields[f.key]) - (f.freeItems ?? 1)),
+          0,
+        )
     : 0;
   const addOns = [
     ...(photoFee && photoCount

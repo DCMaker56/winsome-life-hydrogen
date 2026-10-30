@@ -111,6 +111,7 @@ export function questionsToFields(
         repeatWith: get('repeat_with').trim() || undefined,
         eachLabel: get('each_label').trim() || undefined,
         extraFee: get('extra_fee') === 'true' || undefined,
+        freeItems: Number(get('free_items')) || undefined,
       },
     ];
   });
