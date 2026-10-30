@@ -200,7 +200,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     returnAddressHelp,
     // A link to a specific option (?Size=…) keeps it; otherwise sets start
     // at 10 + Blank Envelopes.
-    optionsInUrl: getSelectedProductOptions(request).length > 0,
+    // (Review links add ?drafts=1, which isn't a product option.)
+    optionsInUrl: getSelectedProductOptions(request).some(
+      (o) => o.name !== 'drafts',
+    ),
   };
 }
 
@@ -317,7 +320,7 @@ export default function ProductRoute() {
       .options ?? []
   )
     .filter((o) => o.optionValues.length > 1 && o.name.toLowerCase() !== 'title')
-    .map((o) => ({...o, optionValues: sortSetValues(o.optionValues)}));
+    .map((o) => ({...o, optionValues: sortSizeValues(sortSetValues(o.optionValues))}));
   // Sydney: sets start at 10 + Blank Envelopes rather than the smallest.
   const defaultVariant = optionsInUrl
     ? undefined
@@ -1078,6 +1081,18 @@ function sortSetValues<T extends {name: string}>(values: T[]): T[] {
     return values;
   const rank = (v: T) => (/blank/i.test(v.name) ? 0 : 1);
   return [...values].sort((a, b) => count(a) - count(b) || rank(a) - rank(b));
+}
+
+/** Sizes smallest first ("A2 - 4.25 x 5.5 Inch" before "A7 - 5 x 7 Inch"):
+ *  Shopify's storefront doesn't always return them in admin order. Options
+ *  whose values aren't all sizes are left alone. */
+function sortSizeValues<T extends {name: string}>(values: T[]): T[] {
+  const area = (v: T) => {
+    const m = v.name.match(/(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)/i);
+    return m ? Number(m[1]) * Number(m[2]) : NaN;
+  };
+  if (values.some((v) => Number.isNaN(area(v)))) return values;
+  return [...values].sort((a, b) => area(a) - area(b));
 }
 
 /** The text questions (name/text, monogram letters) that come before font and ink. */
