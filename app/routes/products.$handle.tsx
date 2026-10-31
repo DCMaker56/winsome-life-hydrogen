@@ -327,14 +327,28 @@ export default function ProductRoute() {
     (product as {options?: {name: string; optionValues: {name: string}[]}[]})
       .options ?? []
   )
+    // Choices nobody can buy (e.g. set sizes switched off by setting their
+    // stock to 0 in Shopify) are left out, unless that would leave none.
+    .map((o) => {
+      const buyable = o.optionValues.filter((ov) =>
+        variants.some(
+          (v) =>
+            v.availableForSale &&
+            v.selectedOptions.some((so) => so.name === o.name && so.value === ov.name),
+        ),
+      );
+      return buyable.length ? {...o, optionValues: buyable} : o;
+    })
     .filter((o) => o.optionValues.length > 1 && o.name.toLowerCase() !== 'title')
     .map((o) => ({...o, optionValues: sortSizeValues(sortSetValues(o.optionValues))}))
     .map((o) => ({...o, pictures: optionPictures(o.name, o.optionValues, variants)}));
   // Sydney: sets start at 10 + Blank Envelopes rather than the smallest.
   const defaultVariant = optionsInUrl
     ? undefined
-    : variants.find((v) =>
-        v.selectedOptions.some((o) => /^\s*10\s*\+\s*blank/i.test(o.value)),
+    : variants.find(
+        (v) =>
+          v.availableForSale &&
+          v.selectedOptions.some((o) => /^\s*10\s*\+\s*blank/i.test(o.value)),
       );
   const firstVariant =
     defaultVariant ?? product.selectedOrFirstAvailableVariant ?? variants[0];
