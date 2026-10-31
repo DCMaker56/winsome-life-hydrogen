@@ -392,6 +392,25 @@ export default function ProductRoute() {
     () => repeatPerItem(extraQuestions, personalization.fields),
     [extraQuestions, personalization.fields],
   );
+  // Same for a picture choice that's one of the product photos (e.g. the
+  // Après Ski notepad's pink or green combo): the newest pick comes up.
+  const pickedPhotos = productQuestions
+    .flatMap((f) => {
+      const i = f.options?.indexOf(personalization.fields[f.key] ?? '') ?? -1;
+      const url = i >= 0 ? f.optionImages?.[i] : null;
+      return url ? [url] : [];
+    })
+    .join('\n');
+  const lastPicked = useRef(pickedPhotos);
+  useEffect(() => {
+    const before = new Set(lastPicked.current.split('\n'));
+    lastPicked.current = pickedPhotos;
+    const fresh = pickedPhotos.split('\n').filter((u) => u && !before.has(u)).pop();
+    if (!fresh) return;
+    const path = (url: string) => url.split('?')[0];
+    const i = appProduct.images.findIndex((img) => path(img) === path(fresh));
+    if (i >= 0) setSelectedImage(i);
+  }, [pickedPhotos, appProduct.images]);
   const activeSchema = useMemo(
     () =>
       schema && {
