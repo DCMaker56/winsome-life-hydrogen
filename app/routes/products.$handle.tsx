@@ -28,6 +28,7 @@ import {
 } from '~/lib/addons';
 import {stampUploadedFiles} from '~/lib/uploads.server';
 import {
+  conditionMet,
   parseHiddenStandard,
   questionsToFields,
 } from '~/lib/personalization-questions';
@@ -412,11 +413,7 @@ export default function ProductRoute() {
             (f) =>
               !f.showWhen ||
               !productQuestions.some((g) => g.key === f.showWhen?.key) ||
-              (f.showWhen.contains
-                ? (personalization.fields[f.showWhen.key] ?? '').includes(
-                    f.showWhen.value,
-                  )
-                : personalization.fields[f.showWhen.key] === f.showWhen.value),
+              conditionMet(f.showWhen, personalization.fields[f.showWhen.key]),
           ),
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
           // Only once the customer picks envelopes with a printed return address.

@@ -117,8 +117,16 @@ export interface PersonalizationField {
   /** Shown only when another question has a given answer, e.g.
    *  {key: "How would you like to show your dog?", value: "Choose a breed"}.
    *  With `contains`, any answer including the value counts, e.g. every
-   *  sports icon marked "color options". */
-  showWhen?: {key: string; value: string; contains?: boolean};
+   *  sports icon marked "color options". `values` lists several answers
+   *  that count ("Option 11 | Option 12"); `negate` shows it for any other
+   *  answer instead. */
+  showWhen?: {
+    key: string;
+    value: string;
+    values?: string[];
+    contains?: boolean;
+    negate?: boolean;
+  };
   /** Label of a "How many?" question (e.g. "Number of Cats"): this question
    *  is asked once per item, e.g. "Cat 1: Cat Breed", "Cat 2: Cat Breed". */
   repeatWith?: string;

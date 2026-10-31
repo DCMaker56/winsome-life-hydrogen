@@ -43,17 +43,43 @@ function parseList(value?: string | null): string[] {
 }
 
 /** "Question label = Answer" → {key, value}; "Question label *= text"
- *  matches any answer containing the text; anything else → undefined. */
+ *  matches any answer containing the text; "A | B" matches either answer;
+ *  "Question label != A | B" matches any other answer; anything else →
+ *  undefined. */
 function parseCondition(value: string) {
-  const i = value.lastIndexOf('=');
+  const i = value.indexOf('=');
   if (i < 0) return undefined;
   let key = value.slice(0, i).trim();
   const contains = key.endsWith('*');
-  if (contains) key = key.slice(0, -1).trim();
-  const answer = value.slice(i + 1).trim();
-  return key && answer
-    ? {key, value: answer, ...(contains ? {contains} : {})}
+  const negate = key.endsWith('!');
+  if (contains || negate) key = key.slice(0, -1).trim();
+  const values = value
+    .slice(i + 1)
+    .split('|')
+    .map((v) => v.trim())
+    .filter(Boolean);
+  return key && values.length
+    ? {
+        key,
+        value: values[0],
+        ...(values.length > 1 ? {values} : {}),
+        ...(contains ? {contains} : {}),
+        ...(negate ? {negate} : {}),
+      }
     : undefined;
+}
+
+/** Whether a follow-up question's condition holds for the lead answer. */
+export function conditionMet(
+  cond: NonNullable<PersonalizationField['showWhen']>,
+  answer: string | undefined,
+) {
+  const a = answer ?? '';
+  const hit = (cond.values ?? [cond.value]).some((v) =>
+    cond.contains ? a.includes(v) : a === v,
+  );
+  // "Not one of these" waits for an answer, so nothing extra shows up front.
+  return cond.negate ? !!a && !hit : hit;
 }
 
 /** Map metaobject entries to panel fields; malformed entries are skipped. */
