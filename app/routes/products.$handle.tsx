@@ -363,6 +363,24 @@ export default function ProductRoute() {
       v.selectedOptions.every((o) => selOptions[o.name] === o.value),
     ) ?? firstVariant;
   const variantId = selectedVariant?.id;
+  // A choice like "Add Your Photo or Logo" always needs a paid proof
+  // (Sydney): we print only after the customer approves it by email.
+  const proofRequired =
+    !!proof &&
+    (selectedVariant?.selectedOptions ?? []).some((o) =>
+      /your photo or logo/i.test(o.value),
+    );
+  const proofAutoPicked = useRef(false);
+  useEffect(() => {
+    if (proofRequired && approvalChoice !== 'proof') {
+      setApprovalChoice('proof');
+      proofAutoPicked.current = true;
+    } else if (!proofRequired && proofAutoPicked.current) {
+      // Switched back to a standard design: let them choose again.
+      proofAutoPicked.current = false;
+      setApprovalChoice('');
+    }
+  }, [proofRequired, approvalChoice]);
   // Picking a choice with its own photo (e.g. a Teacher Notepad design)
   // brings that photo up in the gallery; the page still opens on photo 1.
   const variantImage = selectedVariant?.image?.url;
@@ -1012,16 +1030,22 @@ export default function ProductRoute() {
                   </span>
                 </legend>
                 {[
-                  {
-                    value: 'approve' as const,
-                    title: 'I approve my design with the personalization details above.',
-                    text: 'Personalized pieces are made to order with these details and cannot be changed or returned after checkout.',
-                  },
+                  ...(proofRequired
+                    ? []
+                    : [
+                        {
+                          value: 'approve' as const,
+                          title: 'I approve my design with the personalization details above.',
+                          text: 'Personalized pieces are made to order with these details and cannot be changed or returned after checkout.',
+                        },
+                      ]),
                   ...(proof
                     ? [
                         {
                           value: 'proof' as const,
-                          title: `Send me a full proof first (+$${proof.price.toFixed(2)}).`,
+                          title: proofRequired
+                            ? `A proof is required for photo and logo tags (+$${proof.price.toFixed(2)}).`
+                            : `Send me a full proof first (+$${proof.price.toFixed(2)}).`,
                           text: 'Emailed within 2 business days of your order; we print once you approve it.',
                         },
                       ]
