@@ -346,14 +346,8 @@ const WINE_TAG_PERSONALIZATION: PersonalizationSchema = {
   intro:
     "Add a custom host name, date, or short message — or choose one of our pre-written sentiments.",
   fields: [
-    {
-      key: "custom-message",
-      label: "Custom Message",
-      type: "longtext",
-      maxLength: TEXT_LIMIT,
-      placeholder: "For the Thompsons",
-      helpText: "Only used when Tag Theme is set to Custom.",
-    },
+    // The old "Custom Message" box was removed (Sydney): custom sayings are
+    // now a "Saying = Custom" question in each product's personalization.
     {
       key: "text",
       label: "Text",
