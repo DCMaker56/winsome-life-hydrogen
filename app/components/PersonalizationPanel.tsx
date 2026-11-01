@@ -8,7 +8,7 @@
  *   4. Ink color swatches show visible labels (not hover-only)
  *   5. Reset link at the bottom
  */
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Type, Pen, RotateCcw } from "lucide-react";
 import { sortByFieldGroup, type PersonalizationSchema, type MonogramStyle } from "@/lib/variants";
@@ -42,6 +42,9 @@ interface PersonalizationPanelProps {
   requireChoices?: boolean;
   /** The custom photo charge, noted under a "photo fee" upload once used. */
   photoFeePrice?: number;
+  /** Extra content shown right under one question, e.g. the gift tags'
+   *  Hole Punch & Twine choice under "Gift Tags or Stickers". */
+  afterField?: { key: string; content: ReactNode };
   /** Skip the Font / Ink Color pickers (product's "Hide standard questions"). */
   hideFont?: boolean;
   hideInk?: boolean;
@@ -60,6 +63,7 @@ export function PersonalizationPanel({
   hideFont = false,
   hideInk = false,
   photoFeePrice,
+  afterField,
 }: PersonalizationPanelProps) {
   const hasMonogram = !hideMonogram && !!schema.monogramStyles?.length;
   const monogramStyle: MonogramStyle | undefined = useMemo(() => {
@@ -148,7 +152,16 @@ export function PersonalizationPanel({
   const monogramFields = extraFields.filter((f) => f.group === "monogram");
 
   // One extra question (color / picture tiles / buttons / text box).
-  const renderExtraField = (field: (typeof extraFields)[number]) => {
+  const renderExtraField = (field: (typeof extraFields)[number]) =>
+    afterField && afterField.key === field.key ? (
+      <div key={field.key} className="space-y-4">
+        {renderExtraFieldOnly(field)}
+        {afterField.content}
+      </div>
+    ) : (
+      renderExtraFieldOnly(field)
+    );
+  const renderExtraFieldOnly = (field: (typeof extraFields)[number]) => {
     const current = value.fields[field.key] ?? "";
     // Second of an either/or pair (e.g. a photo upload instead of a breed):
     // an "OR" divider, and no asterisk, so it doesn't read as a second

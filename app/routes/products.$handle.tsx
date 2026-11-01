@@ -952,39 +952,46 @@ export default function ProductRoute() {
                   textLabel={pdpOverride.textLabel}
                   fontLabel={fontLabel}
                   photoFeePrice={photoFee?.price}
+                  afterField={
+                    holePunch && wantsTags && tagsOrStickers
+                      ? {
+                          key: tagsOrStickers.key,
+                          content: (
+                            <div>
+                              <div className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
+                                {holePunch.name.replace(/\s*\(.*\)\s*$/, '')}
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {holePunch.optionValues.map((ov) => {
+                                  const active = selOptions[holePunch.name] === ov.name;
+                                  return (
+                                    <button
+                                      key={ov.name}
+                                      type="button"
+                                      onClick={() =>
+                                        setSelOptions((s) => ({...s, [holePunch.name]: ov.name}))
+                                      }
+                                      aria-pressed={active}
+                                      className={`px-4 py-2 text-sm font-sans border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
+                                        active
+                                          ? 'border-[#2D2D2D] bg-[#2D2D2D] text-white'
+                                          : 'border-[#C9A96E]/40 text-[#2D2D2D] hover:border-[#2D2D2D]'
+                                      }`}
+                                    >
+                                      {ov.name}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ),
+                        }
+                      : undefined
+                  }
                 />
               </div>
             )}
 
-            {holePunch && wantsTags && (
-              <div className="mb-6">
-                <div className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
-                  {holePunch.name.replace(/\s*\(.*\)\s*$/, '')}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {holePunch.optionValues.map((ov) => {
-                    const active = selOptions[holePunch.name] === ov.name;
-                    return (
-                      <button
-                        key={ov.name}
-                        type="button"
-                        onClick={() =>
-                          setSelOptions((s) => ({...s, [holePunch.name]: ov.name}))
-                        }
-                        aria-pressed={active}
-                        className={`px-4 py-2 text-sm font-sans border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
-                          active
-                            ? 'border-[#2D2D2D] bg-[#2D2D2D] text-white'
-                            : 'border-[#C9A96E]/40 text-[#2D2D2D] hover:border-[#2D2D2D]'
-                        }`}
-                      >
-                        {ov.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* Before we print — approve the details, or request a paid proof.
                 The approval is what lets production print without a designer
