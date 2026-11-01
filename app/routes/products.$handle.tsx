@@ -380,7 +380,8 @@ export default function ProductRoute() {
     const option = (selectedVariant?.selectedOptions ?? []).find((o) =>
       /quantity|qty|pack|set/i.test(o.name),
     );
-    const n = Number(option?.value.match(/^\s*(\d+)/)?.[1]);
+    // "10 + Blank Envelopes", "Set of 24", "Set of10".
+    const n = Number(option?.value.match(/^\s*(?:set\s*of\s*)?(\d+)/i)?.[1]);
     return n > 1 ? n : null;
   })();
   const unitPrice = Number(selectedVariant?.price?.amount ?? appProduct.price);
