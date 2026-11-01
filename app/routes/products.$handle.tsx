@@ -425,6 +425,23 @@ export default function ProductRoute() {
     const i = appProduct.images.findIndex((img) => path(img) === path(fresh));
     if (i >= 0) setSelectedImage(i);
   }, [pickedPhotos, appProduct.images]);
+  // Gift tags or stickers (Sydney): the Hole Punch & Twine choice follows the
+  // personalization and only applies to gift tags; stickers get "No".
+  const tagsOrStickers = productQuestions.find(
+    (f) => f.label === 'Gift Tags or Stickers',
+  );
+  const holePunch = tagsOrStickers
+    ? optionGroups.find((o) => /^hole punch/i.test(o.name))
+    : undefined;
+  const wantsTags = !!tagsOrStickers && personalization.fields[tagsOrStickers.key] === 'Gift Tags';
+  const topOptionGroups = optionGroups.filter((o) => o !== holePunch);
+  useEffect(() => {
+    if (!holePunch || wantsTags) return;
+    const no = holePunch.optionValues.find((v) => /^no\b/i.test(v.name));
+    if (no && selOptions[holePunch.name] !== no.name) {
+      setSelOptions((s) => ({...s, [holePunch.name]: no.name}));
+    }
+  }, [holePunch, wantsTags, selOptions]);
   const activeSchema = useMemo(
     () =>
       schema && {
@@ -775,9 +792,9 @@ export default function ProductRoute() {
             )}
 
             {/* Real Shopify variant options — size, sheets, set quantity, etc. */}
-            {optionGroups.length > 0 && (
+            {topOptionGroups.length > 0 && (
               <div className="mb-6 space-y-5">
-                {optionGroups.map((opt) =>
+                {topOptionGroups.map((opt) =>
                   // Long lists (e.g. 26 quantity & return-address choices)
                   // read better as a dropdown; short ones stay as buttons.
                   opt.pictures ? (
@@ -936,6 +953,36 @@ export default function ProductRoute() {
                   fontLabel={fontLabel}
                   photoFeePrice={photoFee?.price}
                 />
+              </div>
+            )}
+
+            {holePunch && wantsTags && (
+              <div className="mb-6">
+                <div className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
+                  {holePunch.name.replace(/\s*\(.*\)\s*$/, '')}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {holePunch.optionValues.map((ov) => {
+                    const active = selOptions[holePunch.name] === ov.name;
+                    return (
+                      <button
+                        key={ov.name}
+                        type="button"
+                        onClick={() =>
+                          setSelOptions((s) => ({...s, [holePunch.name]: ov.name}))
+                        }
+                        aria-pressed={active}
+                        className={`px-4 py-2 text-sm font-sans border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
+                          active
+                            ? 'border-[#2D2D2D] bg-[#2D2D2D] text-white'
+                            : 'border-[#C9A96E]/40 text-[#2D2D2D] hover:border-[#2D2D2D]'
+                        }`}
+                      >
+                        {ov.name}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
