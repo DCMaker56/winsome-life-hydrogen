@@ -380,7 +380,6 @@ const GIFT_TAG_PERSONALIZATION: PersonalizationSchema = {
       type: "text",
       maxLength: TEXT_LIMIT,
       placeholder: "The Winsomes",
-      helpText: "Appears under \"a gift from\" on the tag.",
     },
     {
       key: "monogram-letters",
