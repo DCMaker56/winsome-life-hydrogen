@@ -380,6 +380,8 @@ const GIFT_TAG_PERSONALIZATION: PersonalizationSchema = {
       type: "text",
       maxLength: TEXT_LIMIT,
       placeholder: "The Winsomes",
+      // Every tag needs a name (Sydney).
+      required: true,
     },
     {
       key: "monogram-letters",
