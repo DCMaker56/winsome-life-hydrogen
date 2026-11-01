@@ -26,6 +26,8 @@ const SECTION_TO_GROUP: Record<string, FieldGroup> = {
   // Shown above the main text box too, e.g. "Text for Top of Card".
   'Before text': 'monogram',
   Text: 'text',
+  // Right under the main text box, before the font and color pickers.
+  'Under text': 'under-text',
   Border: 'border',
   Icon: 'icon',
   'Icon placement': 'placement',

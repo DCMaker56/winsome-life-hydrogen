@@ -140,9 +140,11 @@ export interface PersonalizationField {
   freeItems?: number;
 }
 
-export type FieldGroup = "monogram" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";
+// "under-text": right under the main text box, before font and ink (e.g. a
+// bag tag's phone numbers under the name).
+export type FieldGroup = "monogram" | "under-text" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";
 
-const FIELD_GROUP_ORDER: FieldGroup[] = ["monogram", "text", "border", "icon", "placement", "notes", "return-address"];
+const FIELD_GROUP_ORDER: FieldGroup[] = ["monogram", "under-text", "text", "border", "icon", "placement", "notes", "return-address"];
 
 /** Sort extra personalization questions into Sydney's order (stable within a group). */
 export function sortByFieldGroup<T extends { group?: FieldGroup }>(fields: T[]): T[] {

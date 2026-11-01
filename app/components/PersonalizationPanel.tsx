@@ -150,6 +150,7 @@ export function PersonalizationPanel({
     schema.fields.filter((f) => f.key !== "text" && f.type !== "monogram-letters"),
   );
   const monogramFields = extraFields.filter((f) => f.group === "monogram");
+  const underTextFields = extraFields.filter((f) => f.group === "under-text");
 
   // One extra question (color / picture tiles / buttons / text box).
   const renderExtraField = (field: (typeof extraFields)[number]) =>
@@ -565,6 +566,10 @@ export function PersonalizationPanel({
           </>
         )}
 
+        {underTextFields.length > 0 && (
+          <div className="space-y-4">{underTextFields.map(renderExtraField)}</div>
+        )}
+
         {/* ── Font picker — shows customer's own text ── */}
         {!hideFont && (
         <fieldset className="space-y-3">
@@ -629,9 +634,11 @@ export function PersonalizationPanel({
 
         {/* ── Extra questions, after text/font/ink: border → icon → placement →
              return address (sortByFieldGroup); monogram ones are at the top ── */}
-        {extraFields.length > monogramFields.length && (
+        {extraFields.length > monogramFields.length + underTextFields.length && (
           <div className="space-y-4">
-            {extraFields.filter((f) => f.group !== "monogram").map(renderExtraField)}
+            {extraFields
+              .filter((f) => f.group !== "monogram" && f.group !== "under-text")
+              .map(renderExtraField)}
           </div>
         )}
 
