@@ -459,13 +459,18 @@ export default function ProductRoute() {
             })),
           // Follow-up questions appear once their lead question is answered
           // to match (e.g. the breed list after "Choose a breed"); without
-          // the lead question on this product they always show.
-          ...productQuestions.filter(
-            (f) =>
-              !f.showWhen ||
-              !productQuestions.some((g) => g.key === f.showWhen?.key) ||
-              conditionMet(f.showWhen, personalization.fields[f.showWhen.key]),
-          ),
+          // the lead question on this product they always show. The lead can
+          // also be a product option above (e.g. "Tag Theme = Custom Tag"),
+          // so a priced choice can still open its own follow-up boxes.
+          ...productQuestions.filter((f) => {
+            if (!f.showWhen) return true;
+            const key = f.showWhen.key;
+            if (productQuestions.some((g) => g.key === key)) {
+              return conditionMet(f.showWhen, personalization.fields[key]);
+            }
+            if (key in selOptions) return conditionMet(f.showWhen, selOptions[key]);
+            return true;
+          }),
           ...(hideInstructions ? [] : [ADDITIONAL_INSTRUCTIONS_FIELD]),
           // Only once the customer picks envelopes with a printed return address.
           ...(wantsReturnAddress
@@ -489,6 +494,7 @@ export default function ProductRoute() {
       returnAddressHelp,
       wantsReturnAddress,
       personalization.fields,
+      selOptions,
     ],
   );
 
