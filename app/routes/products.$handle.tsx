@@ -363,24 +363,6 @@ export default function ProductRoute() {
       v.selectedOptions.every((o) => selOptions[o.name] === o.value),
     ) ?? firstVariant;
   const variantId = selectedVariant?.id;
-  // A choice like "Add Your Photo or Logo" always needs a paid proof
-  // (Sydney): we print only after the customer approves it by email.
-  const proofRequired =
-    !!proof &&
-    (selectedVariant?.selectedOptions ?? []).some((o) =>
-      /your photo or logo/i.test(o.value),
-    );
-  const proofAutoPicked = useRef(false);
-  useEffect(() => {
-    if (proofRequired && approvalChoice !== 'proof') {
-      setApprovalChoice('proof');
-      proofAutoPicked.current = true;
-    } else if (!proofRequired && proofAutoPicked.current) {
-      // Switched back to a standard design: let them choose again.
-      proofAutoPicked.current = false;
-      setApprovalChoice('');
-    }
-  }, [proofRequired, approvalChoice]);
   // Picking a choice with its own photo (e.g. a Teacher Notepad design)
   // brings that photo up in the gallery; the page still opens on photo 1.
   const variantImage = selectedVariant?.image?.url;
@@ -530,6 +512,28 @@ export default function ProductRoute() {
   const addProof = needsApproval && wantsProof;
 
   const shownFields = activeSchema?.fields ?? [];
+  // Uploading a photo or logo for us to place on the design (e.g. a custom
+  // wine tag) always needs the paid proof (Sydney): we print only after the
+  // customer approves it by email.
+  const proofRequired =
+    !!proof &&
+    shownFields.some(
+      (f) =>
+        f.type === 'upload' &&
+        /photo or logo/i.test(f.label) &&
+        !!personalization.fields[f.key],
+    );
+  const proofAutoPicked = useRef(false);
+  useEffect(() => {
+    if (proofRequired && approvalChoice !== 'proof') {
+      setApprovalChoice('proof');
+      proofAutoPicked.current = true;
+    } else if (!proofRequired && proofAutoPicked.current) {
+      // Upload removed: let them choose again.
+      proofAutoPicked.current = false;
+      setApprovalChoice('');
+    }
+  }, [proofRequired, approvalChoice]);
   const answered = (f: PersonalizationField) =>
     Boolean((personalization.fields[f.key] ?? '').trim());
   // Either/or questions (e.g. Dog Breed / Upload Your Own Photo): answering
