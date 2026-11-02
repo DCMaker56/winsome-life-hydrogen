@@ -50,11 +50,15 @@ function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
   if (!checkoutUrl) return null;
 
   return (
-    <div>
-      <a href={checkoutUrl} target="_self">
-        <p>Continue to Checkout &rarr;</p>
+    <div className="mt-6">
+      <a
+        href={checkoutUrl}
+        target="_self"
+        className="flex items-center justify-center gap-2 w-full rounded-sm bg-[#2D2D2D] px-6 py-4 font-sans text-sm font-medium uppercase tracking-[0.12em] text-[#FAF8F5] shadow-sm transition-colors duration-200 hover:bg-[#C9A96E] hover:text-[#2D2D2D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A96E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FAF8F5]"
+      >
+        Continue to Checkout
+        <span aria-hidden="true">&rarr;</span>
       </a>
-      <br />
     </div>
   );
 }
