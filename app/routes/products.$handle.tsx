@@ -330,7 +330,10 @@ export default function ProductRoute() {
   // proof (emailed within 2 business days) and approves from that email.
   const [approvalChoice, setApprovalChoice] = useState<'' | 'approve' | 'proof'>('');
   const proofApproved = approvalChoice === 'approve';
-  const wantsProof = !!proof && approvalChoice === 'proof';
+  // Photo cards (hide list "Proof fee"): every order gets a free proof, so
+  // there's nothing to choose and no paid proof goes in the cart (Sydney).
+  const freeProof = hidden.includes('Proof fee');
+  const wantsProof = (freeProof || !!proof) && approvalChoice === 'proof';
 
   // Real Shopify variants (sizes, sheets, set quantities, …) + purchase qty.
   const variants = product.variants?.nodes ?? [];
@@ -586,17 +589,18 @@ export default function ProductRoute() {
   // Nothing personalized (e.g. blank envelopes on a return-address-only
   // card) → nothing to approve or proof.
   const needsApproval = personalizable && panelHasQuestions;
-  const addProof = needsApproval && wantsProof;
+  const addProof = needsApproval && wantsProof && !freeProof && !!proof;
 
   const shownFields = activeSchema?.fields ?? [];
   // A custom design that offers a "photo or logo" upload (e.g. the custom
   // wine tag, shown once Saying = Custom) always needs the paid proof
   // (Sydney): we print only after the customer approves it by email.
   const proofRequired =
-    !!proof &&
-    shownFields.some(
-      (f) => f.type === 'upload' && /photo or logo/i.test(f.label),
-    );
+    freeProof ||
+    (!!proof &&
+      shownFields.some(
+        (f) => f.type === 'upload' && /photo or logo/i.test(f.label),
+      ));
   const proofAutoPicked = useRef(false);
   useEffect(() => {
     if (proofRequired && approvalChoice !== 'proof') {
@@ -725,7 +729,11 @@ export default function ProductRoute() {
       ? [
           {
             key: 'Before We Print',
-            value: wantsProof ? 'Proof requested' : 'Design approved with personalization details',
+            value: wantsProof
+              ? freeProof
+                ? 'Free proof (email before printing)'
+                : 'Proof requested'
+              : 'Design approved with personalization details',
           },
         ]
       : []),
@@ -1137,7 +1145,17 @@ export default function ProductRoute() {
             {/* Before we print — approve the details, or request a paid proof.
                 The approval is what lets production print without a designer
                 pass; with a proof, the customer approves from the email. */}
-            {needsApproval && (
+            {needsApproval && freeProof && (
+              <div className="mb-4 p-4 bg-white border border-[#C9A96E] rounded-sm font-sans font-light text-[13px] text-[#2D2D2D]/75 leading-relaxed">
+                <span className="font-medium text-[#2D2D2D]">
+                  Free proof included.
+                </span>{' '}
+                We&rsquo;ll email you a proof within 2 business days of your
+                order (or of receiving your photos). We print once you approve
+                it.
+              </div>
+            )}
+            {needsApproval && !freeProof && (
               <fieldset className="mb-4 space-y-2">
                 <legend className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
                   Before We Print{' '}
