@@ -186,7 +186,7 @@ export function PersonalizationPanel({
         </label>
         {/* Upload instructions read best before the button. */}
         {field.type === "upload" && field.helpText && (
-          <p className="font-sans text-xs text-[#2D2D2D]/70 leading-relaxed mb-2">{field.helpText}</p>
+          <p className="font-sans text-xs text-[#2D2D2D]/70 leading-relaxed mb-2">{withLinks(field.helpText)}</p>
         )}
         {field.type === "color" && field.multiple ? (
           // Several colors, kept in the order picked ("Navy, Pink, Green");
@@ -312,7 +312,7 @@ export function PersonalizationPanel({
         )}
         {field.helpText && field.type !== "upload" && (
           <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1">
-            {field.helpText}
+            {withLinks(field.helpText)}
           </p>
         )}
       </div>
@@ -857,6 +857,34 @@ function GrowingTextBox({
   );
 }
 
+/**
+ * Help text set in Shopify can carry a link as [label](https://…), e.g.
+ * "[Download the template](https://cdn.shopify.com/…/guest-list.xlsx)".
+ */
+function withLinks(text: string): ReactNode {
+  const parts: ReactNode[] = [];
+  const re = /\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g;
+  let last = 0;
+  for (const m of text.matchAll(re)) {
+    parts.push(text.slice(last, m.index));
+    parts.push(
+      <a
+        key={m.index}
+        href={m[2]}
+        download
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline font-medium text-[#8a6a3a] hover:text-[#2D2D2D]"
+      >
+        {m[1]}
+      </a>,
+    );
+    last = (m.index ?? 0) + m[0].length;
+  }
+  parts.push(text.slice(last));
+  return parts.length === 1 ? text : parts;
+}
+
 function UploadField({
   label,
   value,
@@ -939,7 +967,7 @@ function UploadField({
       >
         <input
           type="file"
-          accept="image/*,application/pdf"
+          accept="image/*,application/pdf,.csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           className="sr-only"
           disabled={busy}
           onChange={(e) => {

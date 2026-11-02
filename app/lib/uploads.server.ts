@@ -21,7 +21,20 @@ const ADMIN_SHOP_DOMAIN = 'caatee-kr.myshopify.com';
 const ADMIN_FILES_URL = 'https://admin.shopify.com/store/caatee-kr/content/files';
 
 export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
-const ALLOWED_TYPES = /^(image\/(jpeg|png|gif|webp|heic|heif)|application\/pdf)$/;
+const ALLOWED_TYPES =
+  /^(image\/(jpeg|png|gif|webp|heic|heif)|application\/pdf|text\/csv|application\/vnd\.ms-excel|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet)$/;
+
+// Browsers don't always label spreadsheets (a .csv can arrive with no type,
+// or as Excel on Windows), so go by the file name for those.
+const SPREADSHEET_TYPES: Record<string, string> = {
+  csv: 'text/csv',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+};
+function fileType(file: File): string {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+  return SPREADSHEET_TYPES[ext] ?? file.type;
+}
 
 export type UploadResult =
   | {ok: true; url: string; name: string}
@@ -120,8 +133,12 @@ const FILE_RENAME = `
 `;
 
 export async function saveUpload(env: Env, file: File, label: string): Promise<UploadResult> {
-  if (!ALLOWED_TYPES.test(file.type))
-    return {ok: false, error: 'Please upload a photo (JPG, PNG, HEIC) or a PDF.'};
+  const type = fileType(file);
+  if (!ALLOWED_TYPES.test(type))
+    return {
+      ok: false,
+      error: 'Please upload a photo (JPG, PNG, HEIC), a PDF, or a spreadsheet (Excel or CSV).',
+    };
   if (file.size > MAX_UPLOAD_BYTES)
     return {ok: false, error: 'That file is over 15 MB. Please choose a smaller one.'};
 
@@ -129,19 +146,19 @@ export async function saveUpload(env: Env, file: File, label: string): Promise<U
     const token = await getAdminToken(env);
     if (!token) return {ok: false, error: 'unavailable'};
 
-    const isImage = file.type.startsWith('image/');
+    const isImage = type.startsWith('image/');
     const name = file.name.replace(/[^\w.\- ]+/g, '').slice(-80) || 'upload';
     const staged = await admin<{
       stagedUploadsCreate: {stagedTargets: {url: string; resourceUrl: string}[]};
     }>(token, STAGED_UPLOAD, {
-      input: [{filename: name, mimeType: file.type, resource: isImage ? 'IMAGE' : 'FILE', httpMethod: 'PUT'}],
+      input: [{filename: name, mimeType: type, resource: isImage ? 'IMAGE' : 'FILE', httpMethod: 'PUT'}],
     });
     const target = staged.stagedUploadsCreate.stagedTargets[0];
     if (!target) throw new Error('No staged upload target');
 
     const put = await fetch(target.url, {
       method: 'PUT',
-      headers: {'Content-Type': file.type},
+      headers: {'Content-Type': type},
       body: await file.arrayBuffer(),
     });
     if (!put.ok) throw new Error(`Staged upload HTTP ${put.status}`);
