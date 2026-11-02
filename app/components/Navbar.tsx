@@ -91,7 +91,7 @@ const navLinks = [
   { label: "Gift Tags & Stickers", href: "/collections/gift-tags-stickers" },
   { label: "Artwork", href: "/collections/artwork" },
   { label: "Wine Tags", href: "/collections/wine-tags-1" },
-  { label: "Weddings & Events", href: "/collections/weddings" },
+  { label: "Weddings & Events", href: "/collections/place-cards" },
   { label: "About Us", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
