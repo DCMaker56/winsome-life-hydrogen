@@ -196,6 +196,23 @@ export default function ContactRoute() {
             Questions about an order, a custom personalization, or wholesale?
             Send a note and a real person will get back to you.
           </p>
+          <p className="font-sans font-light text-sm text-[#2D2D2D]/65 leading-relaxed mt-4">
+            Ordering for your company or your store? Learn about{' '}
+            <Link
+              to="/pages/corporate-gifting"
+              className="text-[#2D2D2D] underline decoration-[#C9A96E] underline-offset-2 hover:text-[#C9A96E]"
+            >
+              Corporate Gifting
+            </Link>{' '}
+            or our{' '}
+            <Link
+              to="/pages/retail-partners"
+              className="text-[#2D2D2D] underline decoration-[#C9A96E] underline-offset-2 hover:text-[#C9A96E]"
+            >
+              Retail Partner Program
+            </Link>
+            .
+          </p>
         </div>
       </section>
 

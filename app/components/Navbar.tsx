@@ -9,9 +9,9 @@
  * Search icon triggers a command-palette style search overlay.
  * Wishlist heart with badge count (localStorage-backed).
  */
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { Link, useLocation, Await } from "react-router";
-import { Menu, X, Search, ShoppingBag, Heart, Sparkles } from "lucide-react";
+import { Menu, X, Search, ShoppingBag, Heart, Sparkles, ChevronDown } from "lucide-react";
 import { STUDIO_OPEN } from "~/lib/features";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAnalytics, useOptimisticCart} from "@shopify/hydrogen";
@@ -95,6 +95,90 @@ const navLinks = [
   { label: "About Us", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
+
+// "Corporate & Retail" menu: the two business pages, shown as a small
+// dropdown on desktop and a short section in the mobile menu.
+const businessLinks = [
+  {
+    label: "Corporate Gifting",
+    href: "/pages/corporate-gifting",
+    blurb: "Stationery & client gifts for companies",
+  },
+  {
+    label: "Retail Partners",
+    href: "/pages/retail-partners",
+    blurb: "Offer our stationery in your store",
+  },
+];
+
+function BusinessMenu({ isActive }: { isActive: (href: string) => boolean }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const active = businessLinks.some((l) => isActive(l.href));
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="true"
+        onClick={() => setOpen((o) => !o)}
+        className={`font-sans font-medium text-[11.5px] xl:text-[13px] tracking-[0.02em] whitespace-nowrap inline-flex items-center gap-1 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
+          active || open ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
+        }`}
+      >
+        Corporate &amp; Retail
+        <ChevronDown
+          size={13}
+          strokeWidth={1.75}
+          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full pt-3 z-50">
+          <ul className="w-72 bg-white ring-1 ring-[#C9A96E]/25 shadow-[0_18px_40px_-20px_rgba(45,45,45,0.35)] py-2">
+            {businessLinks.map((l) => (
+              <li key={l.href}>
+                <Link
+                  to={l.href}
+                  onClick={() => setOpen(false)}
+                  aria-current={isActive(l.href) ? "page" : undefined}
+                  className="block px-5 py-3 hover:bg-[#FAF8F5] focus-visible:bg-[#FAF8F5] focus-visible:outline-none group"
+                >
+                  <span className="block font-serif text-[17px] text-[#2D2D2D] group-hover:text-[#C9A96E] transition-colors">
+                    {l.label}
+                  </span>
+                  <span className="block font-sans text-[12px] text-[#2D2D2D]/55 mt-0.5">
+                    {l.blurb}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -221,13 +305,13 @@ export default function Navbar() {
 
         {/* Desktop Nav Links */}
         <nav className="hidden lg:block border-t border-[#C9A96E]/20" aria-label="Primary">
-          <div className="container flex items-center justify-center gap-x-4 xl:gap-x-6 py-2.5">
+          <div className="container flex items-center justify-center gap-x-2 xl:gap-x-4 py-2.5">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
                 aria-current={isActive(link.href) ? "page" : undefined}
-                className={`font-sans font-medium text-[13px] tracking-[0.02em] whitespace-nowrap transition-colors duration-300 relative group focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
+                className={`font-sans font-medium text-[11.5px] xl:text-[13px] tracking-[0.02em] whitespace-nowrap transition-colors duration-300 relative group focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
                   isActive(link.href) ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
                 }`}
               >
@@ -240,6 +324,8 @@ export default function Navbar() {
               </Link>
             ))}
 
+            <BusinessMenu isActive={isActive} />
+
             {/* Separator */}
             <div className="h-3.5 w-px bg-[#C9A96E]/25" />
 
@@ -247,7 +333,7 @@ export default function Navbar() {
             <Link
               to="/collections/all"
               aria-current={isActive("/collections/all") ? "page" : undefined}
-              className={`font-sans font-medium text-[13px] tracking-[0.02em] whitespace-nowrap transition-colors duration-300 relative group focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
+              className={`font-sans font-medium text-[11.5px] xl:text-[13px] tracking-[0.02em] whitespace-nowrap transition-colors duration-300 relative group focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
                 isActive("/collections/all") ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
               }`}
             >
@@ -314,6 +400,22 @@ export default function Navbar() {
                     }`}
                   >
                     {link.label}
+                  </Link>
+                ))}
+                <p className="font-sans font-semibold text-[11px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-4 pb-1">
+                  Corporate &amp; Retail
+                </p>
+                {businessLinks.map((l) => (
+                  <Link
+                    key={l.href}
+                    to={l.href}
+                    onClick={() => setMobileOpen(false)}
+                    aria-current={isActive(l.href) ? "page" : undefined}
+                    className={`font-sans font-medium text-sm tracking-[0.02em] transition-colors py-2 pl-3 border-b border-[#C9A96E]/10 ${
+                      isActive(l.href) ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
+                    }`}
+                  >
+                    {l.label}
                   </Link>
                 ))}
                 <Link

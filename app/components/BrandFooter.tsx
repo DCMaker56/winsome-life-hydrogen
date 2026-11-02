@@ -26,7 +26,7 @@ const supportLinks = [
   { label: "Privacy Policy", href: "https://www.thewinsomelife.com/policies/privacy-policy", external: true },
 ];
 
-// Business pages (no top-menu link yet).
+// Business pages (also in the top menu's Corporate & Retail dropdown).
 const businessLinks = [
   { label: "Corporate Gifting", href: "/pages/corporate-gifting" },
   { label: "Retail Partners", href: "/pages/retail-partners" },
@@ -141,10 +141,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Work With Us Column */}
+          {/* Corporate & Retail Column */}
           <div>
             <h4 className="font-sans font-semibold text-xs tracking-[0.2em] uppercase text-[#2D2D2D] mb-5">
-              Work With Us
+              Corporate &amp; Retail
             </h4>
             <ul className="space-y-3">
               {businessLinks.map((link) => (

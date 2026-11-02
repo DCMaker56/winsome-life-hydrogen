@@ -1052,6 +1052,16 @@ function Inquiry() {
               </a>
               .
             </p>
+            <p className="mt-4 font-sans font-light text-[13px] text-[#2D2D2D]/60">
+              Own a shop? See our{' '}
+              <Link
+                to="/pages/retail-partners"
+                className="text-[#1B294E] underline decoration-[#C9A96E] underline-offset-2 hover:text-[#C9A96E]"
+              >
+                Retail Partner Program
+              </Link>
+              .
+            </p>
           </div>
 
           <div className="bg-white ring-1 ring-[#1B294E]/10 shadow-[0_24px_50px_-30px_rgba(27,41,78,0.3)] p-6 sm:p-9">
