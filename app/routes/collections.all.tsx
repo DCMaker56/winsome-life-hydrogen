@@ -5,7 +5,6 @@ import type {Route} from './+types/collections.all';
 import {useLoaderData, Link} from 'react-router';
 import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
 import {InfiniteProductGrid} from '~/components/InfiniteProductGrid';
-import CollectionHowTo from '~/components/CollectionHowTo';
 import {JsonLd} from '~/components/JsonLd';
 import {absoluteUrl, breadcrumbJsonLd, itemListJsonLd} from '~/lib/seo';
 
@@ -75,7 +74,6 @@ export default function AllProducts() {
       </section>
 
       <section className="container max-w-7xl mx-auto px-4 lg:px-8">
-        <CollectionHowTo />
         <InfiniteProductGrid connection={products} />
       </section>
 

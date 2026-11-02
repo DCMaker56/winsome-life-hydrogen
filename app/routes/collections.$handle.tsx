@@ -7,7 +7,6 @@ import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import {Analytics, getPaginationVariables} from '@shopify/hydrogen';
 import {InfiniteProductGrid} from '~/components/InfiniteProductGrid';
-import CollectionHowTo from '~/components/CollectionHowTo';
 import {JsonLd} from '~/components/JsonLd';
 import {
   absoluteUrl,
@@ -112,7 +111,6 @@ export default function CollectionRoute() {
 
       {/* Product grid — infinite scroll */}
       <section className="container max-w-7xl mx-auto px-4 lg:px-8">
-        <CollectionHowTo />
         <InfiniteProductGrid connection={collection.products} />
       </section>
 

@@ -12,6 +12,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { Link, useLocation, Await } from "react-router";
 import { Menu, X, Search, ShoppingBag, Heart, Sparkles } from "lucide-react";
+import { STUDIO_OPEN } from "~/lib/features";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAnalytics, useOptimisticCart} from "@shopify/hydrogen";
 import { useRouteLoaderData } from "react-router";
@@ -173,13 +174,25 @@ export default function Navbar() {
           <div className="col-start-3 justify-self-end flex items-center gap-3.5 sm:gap-4">
             {/* Product Builder — prominent "design your own" entry (the second
                 shopping track: browse existing products OR design your own). */}
-            <Link
-              to="/studio"
-              className="hidden md:inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8964f] text-white font-sans font-medium text-[12px] tracking-[0.12em] uppercase px-4 py-2.5 transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
-            >
-              <Sparkles size={15} strokeWidth={2} />
-              Design Your Own
-            </Link>
+            {STUDIO_OPEN ? (
+              <Link
+                to="/studio"
+                className="hidden md:inline-flex items-center gap-2 bg-[#C9A96E] hover:bg-[#b8964f] text-white font-sans font-medium text-[12px] tracking-[0.12em] uppercase px-4 py-2.5 transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
+              >
+                <Sparkles size={15} strokeWidth={2} />
+                Design Your Own
+              </Link>
+            ) : (
+              <span className="hidden md:inline-flex flex-col items-center leading-tight ring-1 ring-inset ring-[#C9A96E]/50 px-4 py-1.5 font-sans text-[#2D2D2D]/80 select-none">
+                <span className="flex items-center gap-1.5 font-medium text-[11px] tracking-[0.12em] uppercase">
+                  <Sparkles size={13} strokeWidth={1.75} className="text-[#C9A96E]" />
+                  Design Your Own
+                </span>
+                <span className="text-[9px] tracking-[0.24em] uppercase text-[#C9A96E]">
+                  Coming Soon
+                </span>
+              </span>
+            )}
             {/* Search icon — triggers overlay */}
             <button
               onClick={() => setSearchOpen(true)}
@@ -272,14 +285,24 @@ export default function Navbar() {
                 </button>
 
                 {/* Design Your Own — prominent at top of mobile menu */}
-                <Link
-                  to="/studio"
-                  onClick={() => setMobileOpen(false)}
-                  className="font-sans font-semibold flex items-center gap-2.5 text-sm tracking-[0.08em] uppercase py-3 px-4 bg-[#C9A96E] text-white mb-1"
-                >
-                  <Sparkles size={16} strokeWidth={2} />
-                  Design Your Own
-                </Link>
+                {STUDIO_OPEN ? (
+                  <Link
+                    to="/studio"
+                    onClick={() => setMobileOpen(false)}
+                    className="font-sans font-semibold flex items-center gap-2.5 text-sm tracking-[0.08em] uppercase py-3 px-4 bg-[#C9A96E] text-white mb-1"
+                  >
+                    <Sparkles size={16} strokeWidth={2} />
+                    Design Your Own
+                  </Link>
+                ) : (
+                  <p className="font-sans flex items-center gap-2.5 text-sm tracking-[0.08em] uppercase py-3 px-4 ring-1 ring-inset ring-[#C9A96E]/40 text-[#2D2D2D]/75 mb-1">
+                    <Sparkles size={16} strokeWidth={1.75} className="text-[#C9A96E]" />
+                    Design Your Own
+                    <span className="ml-auto text-[10px] tracking-[0.2em] text-[#C9A96E]">
+                      Coming Soon
+                    </span>
+                  </p>
+                )}
                 {navLinks.map((link) => (
                   <Link
                     key={link.label}

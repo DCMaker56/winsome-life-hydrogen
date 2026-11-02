@@ -17,7 +17,8 @@
  * content scrolls if it must (e.g. 11 monogram styles on a short screen).
  */
 import { useMemo, useState } from "react";
-import { Link, useLoaderData } from "react-router";
+import { Link, redirect, useLoaderData } from "react-router";
+import { STUDIO_OPEN } from "~/lib/features";
 import type { Route } from "./+types/studio.$format";
 import { CartForm } from "@shopify/hydrogen";
 import { ArrowLeft, Check, Search, Sparkles, X } from "lucide-react";
@@ -89,6 +90,7 @@ const STUDIO_FALLBACK_QUERY = `#graphql
 ` as const;
 
 export async function loader({ context, params, request }: Route.LoaderArgs) {
+  if (!STUDIO_OPEN) throw redirect("/studio");
   // The Product Builder — the separate "design your own" experience (distinct
   // from the classic existing-product PDPs). Pick a product → icon → text.
   const formatKey = params.format as StudioFormatKey;
