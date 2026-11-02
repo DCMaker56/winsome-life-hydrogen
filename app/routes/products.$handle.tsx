@@ -389,7 +389,10 @@ export default function ProductRoute() {
     );
     // "10 + Blank Envelopes", "Set of 24", "Set of10".
     const n = Number(option?.value.match(/^\s*(?:set\s*of\s*)?(\d+)/i)?.[1]);
-    return n > 1 ? n : null;
+    if (n > 1) return n;
+    // No size choice, but the name says so: "… Place Cards - Set of 6".
+    const fromTitle = Number(appProduct.title.match(/\bset of (\d+)\b/i)?.[1]);
+    return option || !(fromTitle > 1) ? null : fromTitle;
   })();
   const unitPrice = Number(selectedVariant?.price?.amount ?? appProduct.price);
   const rawCompareAt = Number(selectedVariant?.compareAtPrice?.amount ?? 0);
@@ -967,8 +970,11 @@ export default function ProductRoute() {
                   Each set has {setSize}
                   {quantity > 1 ? ` — ${quantity} sets = ${quantity * setSize} total` : ''}.
                   {/* Place cards print from the guest list, so each card differs. */}
-                  {!(selectedVariant?.selectedOptions ?? []).some((o) =>
-                    /place card/i.test(o.name),
+                  {!(
+                    /place.?card/i.test(appProduct.title) ||
+                    (selectedVariant?.selectedOptions ?? []).some((o) =>
+                      /place card/i.test(o.name),
+                    )
                   ) && ' All sets get the same personalization.'}
                 </p>
               )}
