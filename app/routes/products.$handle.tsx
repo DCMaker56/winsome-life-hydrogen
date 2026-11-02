@@ -512,16 +512,13 @@ export default function ProductRoute() {
   const addProof = needsApproval && wantsProof;
 
   const shownFields = activeSchema?.fields ?? [];
-  // Uploading a photo or logo for us to place on the design (e.g. a custom
-  // wine tag) always needs the paid proof (Sydney): we print only after the
-  // customer approves it by email.
+  // A custom design that offers a "photo or logo" upload (e.g. the custom
+  // wine tag, shown once Saying = Custom) always needs the paid proof
+  // (Sydney): we print only after the customer approves it by email.
   const proofRequired =
     !!proof &&
     shownFields.some(
-      (f) =>
-        f.type === 'upload' &&
-        /photo or logo/i.test(f.label) &&
-        !!personalization.fields[f.key],
+      (f) => f.type === 'upload' && /photo or logo/i.test(f.label),
     );
   const proofAutoPicked = useRef(false);
   useEffect(() => {
@@ -529,7 +526,7 @@ export default function ProductRoute() {
       setApprovalChoice('proof');
       proofAutoPicked.current = true;
     } else if (!proofRequired && proofAutoPicked.current) {
-      // Upload removed: let them choose again.
+      // Back to a standard choice: let them choose again.
       proofAutoPicked.current = false;
       setApprovalChoice('');
     }
@@ -1048,7 +1045,7 @@ export default function ProductRoute() {
                         {
                           value: 'proof' as const,
                           title: proofRequired
-                            ? `A proof is required for photo and logo tags (+$${proof.price.toFixed(2)}).`
+                            ? `A proof is required for custom designs (+$${proof.price.toFixed(2)}).`
                             : `Send me a full proof first (+$${proof.price.toFixed(2)}).`,
                           text: 'Emailed within 2 business days of your order; we print once you approve it.',
                         },
