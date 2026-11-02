@@ -7,3 +7,10 @@
  * Flip to true to reopen everything; no other code changes needed.
  */
 export const STUDIO_OPEN = false;
+
+/*
+ * BUILD_YOUR_OWN_OPEN — the Build Your Own gift set builder (/build-your-own).
+ * Closed per Sydney: hidden from search, and the page shows a coming-soon
+ * message. Flip to true to reopen.
+ */
+export const BUILD_YOUR_OWN_OPEN = false;

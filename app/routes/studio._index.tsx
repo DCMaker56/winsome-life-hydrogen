@@ -10,6 +10,7 @@
 import type {Route} from './+types/studio._index';
 import {Link} from 'react-router';
 import {STUDIO_OPEN} from '~/lib/features';
+import ComingSoon from '~/components/ComingSoon';
 import {ArrowRight, Sparkles, Palette, Type, Package} from 'lucide-react';
 import {
   STUDIO_FORMATS,
@@ -54,53 +55,17 @@ const STEPS = [
 ];
 
 export default function StudioIndexRoute() {
-  return STUDIO_OPEN ? <ProductBuilderIndex /> : <StudioComingSoon />;
-}
-
-/** Shown at /studio while the Product Builder is closed (see ~/lib/features). */
-function StudioComingSoon() {
-  return (
-    <main id="main" className="bg-[#FAF8F5] text-[#2D2D2D]">
-      <section className="container max-w-3xl mx-auto px-5 lg:px-8 py-20 lg:py-28 text-center">
-        <p className="font-sans font-medium text-[11px] md:text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-4">
-          Coming Soon
-        </p>
-        <h1 className="font-serif font-medium text-[2.6rem] md:text-6xl leading-[1.05] text-[#2D2D2D]">
-          Design Your{' '}
-          <span
-            style={{
-              fontFamily: "'Parisian Script', 'Great Vibes', cursive",
-              fontSize: '1.2em',
-              lineHeight: 1,
-            }}
-          >
-            Own
-          </span>
-        </h1>
-        <div aria-hidden className="flex items-center justify-center gap-3 mt-8">
-          <span className="h-px w-12 bg-[#C9A96E]/60" />
-          <span className="w-1.5 h-1.5 rotate-45 bg-[#C9A96E]/70" />
-          <span className="h-px w-12 bg-[#C9A96E]/60" />
-        </div>
-        <p className="font-sans font-light text-base md:text-lg leading-relaxed text-[#2D2D2D]/75 mt-8 max-w-xl mx-auto">
-          We&rsquo;re putting the finishing touches on something special: a
-          way to design your own personalized stationery from scratch. Soon
-          you&rsquo;ll be able to choose a piece, pick an illustration and make
-          it entirely yours.
-        </p>
-        <p className="font-sans font-light text-base leading-relaxed text-[#2D2D2D]/75 mt-4 max-w-xl mx-auto">
-          In the meantime, every piece in our collection can be personalized
-          with your name, monogram, font and ink color.
-        </p>
-        <Link
-          to="/collections/all"
-          className="mt-10 inline-flex items-center gap-2 bg-[#2D2D2D] text-white font-sans font-medium text-sm tracking-[0.15em] uppercase px-9 py-4 hover:bg-[#C9A96E] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
-        >
-          Shop Personalized Stationery
-          <ArrowRight size={15} strokeWidth={1.75} />
-        </Link>
-      </section>
-    </main>
+  return STUDIO_OPEN ? (
+    <ProductBuilderIndex />
+  ) : (
+    <ComingSoon
+      title="Design Your"
+      scriptWord="Own"
+      paragraphs={[
+        'We\u2019re putting the finishing touches on something special: a way to design your own personalized stationery from scratch. Soon you\u2019ll be able to choose a piece, pick an illustration and make it entirely yours.',
+        'In the meantime, every piece in our collection can be personalized with your name, monogram, font and ink color.',
+      ]}
+    />
   );
 }
 

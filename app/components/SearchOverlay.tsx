@@ -30,6 +30,7 @@ import {
   TrendingUp,
   Clock,
 } from "lucide-react";
+import { BUILD_YOUR_OWN_OPEN } from "~/lib/features";
 
 interface SearchOverlayProps {
   open: boolean;
@@ -42,14 +43,16 @@ const popularSearches = [
   { label: "Monogram Sets", slug: "/collections/monogram" },
   { label: "Gift Sets", slug: "/gift-sets" },
   { label: "Wedding Stationery", slug: "/collections/weddings" },
-  { label: "Build Your Own", slug: "/build-your-own" },
+  ...(BUILD_YOUR_OWN_OPEN ? [{ label: "Build Your Own", slug: "/build-your-own" }] : []),
 ];
 
 const quickLinks = [
   { label: "All Collections", href: "/collections/all", icon: Package },
   { label: "Gift Sets", href: "/gift-sets", icon: Gift },
   { label: "Bestsellers", href: "/collections/bestsellers", icon: TrendingUp },
-  { label: "Build Your Own", href: "/build-your-own", icon: Sparkles },
+  ...(BUILD_YOUR_OWN_OPEN
+    ? [{ label: "Build Your Own", href: "/build-your-own", icon: Sparkles }]
+    : []),
 ];
 
 export default function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {

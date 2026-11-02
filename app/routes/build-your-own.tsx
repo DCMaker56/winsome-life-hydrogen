@@ -35,15 +35,28 @@ import Newsletter from '~/components/Newsletter';
 import {giftSets, type GiftSet} from '~/lib/bundles';
 import {toast} from 'sonner';
 import GiftMessage from '~/components/GiftMessage';
+import ComingSoon from '~/components/ComingSoon';
+import {BUILD_YOUR_OWN_OPEN} from '~/lib/features';
 
-export const meta: Route.MetaFunction = () => [
-  {title: 'Build Your Own | The Winsome Life'},
-  {
-    name: 'description',
-    content:
-      "Design your own custom gift set. Choose a theme, personalize with initials or a name, and we'll wrap and ship — beautifully.",
-  },
-];
+export const meta: Route.MetaFunction = () =>
+  BUILD_YOUR_OWN_OPEN
+    ? [
+        {title: 'Build Your Own | The Winsome Life'},
+        {
+          name: 'description',
+          content:
+            "Design your own custom gift set. Choose a theme, personalize with initials or a name, and we'll make and ship it beautifully.",
+        },
+      ]
+    : [
+        {title: 'Build Your Own Gift Set: Coming Soon | The Winsome Life'},
+        {
+          name: 'description',
+          content:
+            'Coming soon: build your own personalized stationery gift set with The Winsome Life.',
+        },
+        {name: 'robots', content: 'noindex'},
+      ];
 
 /* ─── Category metadata ─── */
 const CATEGORIES = [
@@ -156,7 +169,22 @@ function buildLineAttributes(opts: {
 }
 
 /* ─── Main Page ─── */
-export default function BuildYourOwnRoute() {
+export default function BuildYourOwnPage() {
+  return BUILD_YOUR_OWN_OPEN ? (
+    <BuildYourOwnRoute />
+  ) : (
+    <ComingSoon
+      title="Build Your Own"
+      scriptWord="Gift Set"
+      paragraphs={[
+        'Soon you\u2019ll be able to build your own personalized stationery gift set, with coordinating pieces chosen and personalized just for the person you\u2019re celebrating.',
+        'In the meantime, every piece in our collection can be personalized with a name, monogram, font and ink color.',
+      ]}
+    />
+  );
+}
+
+function BuildYourOwnRoute() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<GiftSet | null>(null);
   const [step, setStep] = useState<'browse' | 'personalize'>('browse');
