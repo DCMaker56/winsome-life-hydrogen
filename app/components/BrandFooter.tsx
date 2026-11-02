@@ -26,6 +26,12 @@ const supportLinks = [
   { label: "Privacy Policy", href: "https://www.thewinsomelife.com/policies/privacy-policy", external: true },
 ];
 
+// Business pages (no top-menu link yet).
+const businessLinks = [
+  { label: "Corporate Gifting", href: "/pages/corporate-gifting" },
+  { label: "Retail Partners", href: "/pages/retail-partners" },
+];
+
 const socialLinks = [
   {
     label: "Instagram",
@@ -71,7 +77,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#FAF8F5] border-t border-[#C9A96E]/15">
       <div className="container py-16 lg:py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link to="/">
@@ -127,6 +133,25 @@ export default function Footer() {
                     to={link.href}
                     className="font-sans text-sm text-[#2D2D2D]/60 hover:text-[#C9A96E] transition-colors duration-300"
 
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Work With Us Column */}
+          <div>
+            <h4 className="font-sans font-semibold text-xs tracking-[0.2em] uppercase text-[#2D2D2D] mb-5">
+              Work With Us
+            </h4>
+            <ul className="space-y-3">
+              {businessLinks.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    to={link.href}
+                    className="font-sans text-sm text-[#2D2D2D]/60 hover:text-[#C9A96E] transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
