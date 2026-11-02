@@ -76,7 +76,7 @@ export function CartLineItem({
           )
         )}
 
-        <div>
+        <div className="min-w-0 flex-1">
           <Link
             prefetch="intent"
             to={lineItemUrl}
@@ -86,13 +86,15 @@ export function CartLineItem({
               }
             }}
           >
-            <p>
-              <strong>{product.title}</strong>
+            <p className="font-serif text-sm leading-snug text-[#2D2D2D] hover:text-[#C9A96E] transition-colors">
+              <strong className="font-medium">{product.title}</strong>
             </p>
           </Link>
-          <ProductPrice price={line?.cost?.totalAmount} />
+          <div className="font-serif text-base font-medium text-[#2D2D2D] mt-1">
+            <ProductPrice price={line?.cost?.totalAmount} />
+          </div>
           {studio ? (
-            <ul>
+            <ul className="mt-1.5 space-y-0.5 font-sans text-xs text-[#2D2D2D]/55">
               <li>
                 <small>
                   {getIllustration(studio.config.illustrationId)?.subject ??
@@ -110,12 +112,10 @@ export function CartLineItem({
               ))}
             </ul>
           ) : (
-            <ul>
+            <ul className="mt-1.5 space-y-0.5 font-sans text-xs text-[#2D2D2D]/55">
               {selectedOptions.map((option) => (
                 <li key={option.name}>
-                  <small>
-                    {option.name}: {option.value}
-                  </small>
+                  {option.name}: {option.value}
                 </li>
               ))}
             </ul>
@@ -157,30 +157,34 @@ function CartLineQuantity({line}: {line: CartLine}) {
   const nextQuantity = Number((quantity + 1).toFixed(0));
 
   return (
-    <div className="cart-line-quantity">
-      <small>Quantity: {quantity} &nbsp;&nbsp;</small>
-      <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
-        <button
-          aria-label="Decrease quantity"
-          disabled={quantity <= 1 || !!isOptimistic}
-          name="decrease-quantity"
-          value={prevQuantity}
-        >
-          <span>&#8722; </span>
-        </button>
-      </CartLineUpdateButton>
-      &nbsp;
-      <CartLineUpdateButton lines={[{id: lineId, quantity: nextQuantity}]}>
-        <button
-          aria-label="Increase quantity"
-          name="increase-quantity"
-          value={nextQuantity}
-          disabled={!!isOptimistic}
-        >
-          <span>&#43;</span>
-        </button>
-      </CartLineUpdateButton>
-      &nbsp;
+    <div className="cart-line-quantity flex items-center gap-4 mt-2.5">
+      <div className="inline-flex items-center rounded-sm border border-[#C9A96E]/35 bg-white">
+        <CartLineUpdateButton lines={[{id: lineId, quantity: prevQuantity}]}>
+          <button
+            aria-label="Decrease quantity"
+            disabled={quantity <= 1 || !!isOptimistic}
+            name="decrease-quantity"
+            value={prevQuantity}
+            className="flex h-8 w-8 items-center justify-center text-base text-[#2D2D2D] transition-colors hover:bg-[#F3EFE8] disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <span>&#8722;</span>
+          </button>
+        </CartLineUpdateButton>
+        <span className="w-9 border-x border-[#C9A96E]/25 text-center font-sans text-sm leading-8 text-[#2D2D2D]">
+          {quantity}
+        </span>
+        <CartLineUpdateButton lines={[{id: lineId, quantity: nextQuantity}]}>
+          <button
+            aria-label="Increase quantity"
+            name="increase-quantity"
+            value={nextQuantity}
+            disabled={!!isOptimistic}
+            className="flex h-8 w-8 items-center justify-center text-base text-[#2D2D2D] transition-colors hover:bg-[#F3EFE8] disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <span>&#43;</span>
+          </button>
+        </CartLineUpdateButton>
+      </div>
       <CartLineRemoveButton lineIds={[lineId]} disabled={!!isOptimistic} />
     </div>
   );
@@ -205,7 +209,11 @@ function CartLineRemoveButton({
       action={CartForm.ACTIONS.LinesRemove}
       inputs={{lineIds}}
     >
-      <button disabled={disabled} type="submit">
+      <button
+        disabled={disabled}
+        type="submit"
+        className="font-sans text-xs uppercase tracking-wider text-[#2D2D2D]/50 underline underline-offset-2 transition-colors hover:text-[#2D2D2D] disabled:opacity-40"
+      >
         Remove
       </button>
     </CartForm>

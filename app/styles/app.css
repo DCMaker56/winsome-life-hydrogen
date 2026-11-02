@@ -660,6 +660,13 @@ button.reset:hover:not(:has(> *)) {
   display: flex;
 }
 
+/* The quantity +/- and Remove controls are each wrapped in a CartForm
+   (<form>); collapse those form boxes so the buttons sit directly in
+   the flex row and the stepper reads as one grouped control. */
+.cart-line-quantity form {
+  display: contents;
+}
+
 /* Child line components (warranties, gift wrapping, etc.) */
 .cart-line-children {
   padding-left: 2rem;
