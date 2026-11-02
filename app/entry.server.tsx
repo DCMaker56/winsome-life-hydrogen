@@ -36,6 +36,7 @@ export default async function handleRequest(
       'https://www.google.com',
       'https://*.google.com',
       'https://*.g.doubleclick.net',
+      'https://*.doubleclick.net',
     ],
     // gtag.js loads from googletagmanager (host-allowlisted alongside our nonce)
     scriptSrc: [
@@ -66,6 +67,7 @@ export default async function handleRequest(
       'https://*.google-analytics.com',
       'https://*.analytics.google.com',
       'https://*.g.doubleclick.net',
+      'https://*.doubleclick.net',
       'https://www.google.com',
       'https://*.google.com',
     ],
