@@ -928,6 +928,15 @@ export default function ProductRoute() {
                     </div>
                   ),
                 )}
+                {/* Sydney: a digital printable is emailed, not shipped. */}
+                {Object.values(selOptions).some((v) =>
+                  /digital|printable|\bpdf\b/i.test(v),
+                ) && (
+                  <p className="font-sans text-xs text-[#2D2D2D]/75 bg-[#FAF8F5] border border-[#C9A96E]/30 px-3 py-2 rounded-sm">
+                    Your printable file will be emailed to you within 2 business
+                    days of purchase.
+                  </p>
+                )}
               </div>
             )}
 
