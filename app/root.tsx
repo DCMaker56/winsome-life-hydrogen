@@ -11,7 +11,9 @@ import {
   useRouteLoaderData,
 } from 'react-router';
 import type {Route} from './+types/root';
-import favicon from '~/assets/favicon.svg';
+import favicon32 from '~/assets/favicon-32.png';
+import favicon192 from '~/assets/favicon-192.png';
+import appleTouchIcon from '~/assets/apple-touch-icon.png';
 import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
@@ -73,7 +75,11 @@ export function links() {
       rel: 'stylesheet',
       href: 'https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=Bodoni+Moda:wght@400;500;600;700&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:wght@400;500;600;700&family=Cormorant+SC:wght@400;500;600;700&family=Dancing+Script:wght@400;600;700&family=EB+Garamond:wght@400;500;600;700&family=Great+Vibes&family=Josefin+Sans:wght@400;500;600&family=Libre+Baskerville:wght@400;700&family=Lora:wght@400;500;600;700&family=Marcellus&family=Montserrat:wght@400;500;600;700&family=Pinyon+Script&family=Poppins:wght@400;500;600&family=Sacramento&family=Tangerine:wght@400;700&display=swap',
     },
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    // Favicon: the brand honeybee on a warm beige tile (matches the shop's
+    // previous favicon); /favicon.ico in public/ covers direct requests.
+    {rel: 'icon', type: 'image/png', sizes: '32x32', href: favicon32},
+    {rel: 'icon', type: 'image/png', sizes: '192x192', href: favicon192},
+    {rel: 'apple-touch-icon', sizes: '180x180', href: appleTouchIcon},
   ];
 }
 

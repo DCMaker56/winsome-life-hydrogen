@@ -301,7 +301,7 @@ export function organizationJsonLd() {
     '@type': 'Organization',
     name: BRAND_NAME,
     url: SITE_URL,
-    logo: absoluteUrl('/favicon.svg'),
+    logo: absoluteUrl('/honeybee.png'),
     description:
       'Luxury personalized stationery — notecards, notepads, gift tags, and gift sets for every interest.',
   };
