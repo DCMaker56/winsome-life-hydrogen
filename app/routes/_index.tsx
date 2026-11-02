@@ -27,15 +27,28 @@ import ShopByProductType from '~/components/ShopByProductType';
 import BrandStory from '~/components/BrandStory';
 import ValueProps from '~/components/ValueProps';
 import SocialProof from '~/components/SocialProof';
+import {absoluteUrl, SITE_URL} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = () => {
+  const title = 'The Winsome Life | Luxury Personalized Stationery';
+  const description =
+    'Luxury personalized stationery designed to be treasured. Watercolor notecards, monogram gifts, custom notepads, and bespoke gift sets — crafted with care.';
+  const ogImage =
+    'https://caatee-kr.myshopify.com/cdn/shop/files/Winsome_Banner_01_13972622-0426-4773-b922-928098ab2bda.png?width=1200';
   return [
-    {title: 'The Winsome Life | Luxury Personalized Stationery'},
-    {
-      name: 'description',
-      content:
-        "Luxury personalized stationery designed to be treasured. Watercolor notecards, monogram gifts, custom notepads, and bespoke gift sets — crafted with care.",
-    },
+    {title},
+    {name: 'description', content: description},
+    {tagName: 'link', rel: 'canonical', href: absoluteUrl('/')},
+    {property: 'og:type', content: 'website'},
+    {property: 'og:site_name', content: 'The Winsome Life'},
+    {property: 'og:title', content: title},
+    {property: 'og:description', content: description},
+    {property: 'og:url', content: SITE_URL},
+    {property: 'og:image', content: ogImage},
+    {name: 'twitter:card', content: 'summary_large_image'},
+    {name: 'twitter:title', content: title},
+    {name: 'twitter:description', content: description},
+    {name: 'twitter:image', content: ogImage},
   ];
 };
 
