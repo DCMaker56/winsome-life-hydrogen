@@ -360,6 +360,17 @@ export default function ProductRoute() {
         (v) =>
           v.availableForSale &&
           v.selectedOptions.some((o) => /^\s*10\s*\+\s*blank/i.test(o.value)),
+      ) ??
+      // Photo cards ("Quantity: 5, 10 … Digital PDF File") open on 10 cards.
+      variants.find(
+        (v) =>
+          v.availableForSale &&
+          variants.some((w) =>
+            w.selectedOptions.some((o) => /digital|\bpdf\b/i.test(o.value)),
+          ) &&
+          v.selectedOptions.some(
+            (o) => /^quantity$/i.test(o.name) && /^\s*10\s*$/.test(o.value),
+          ),
       );
   const firstVariant =
     defaultVariant ?? product.selectedOrFirstAvailableVariant ?? variants[0];
