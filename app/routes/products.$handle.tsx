@@ -23,6 +23,7 @@ import {
 import {redirectIfHandleIsLocalized} from '~/lib/redirect';
 import {
   EXTRA_ITEM_FEE_PRODUCT_HANDLE,
+  EXTRA_PHOTO_FEE_PRODUCT_HANDLE,
   PHOTO_FEE_PRODUCT_HANDLE,
   PROOF_PRODUCT_HANDLE,
 } from '~/lib/addons';
@@ -90,7 +91,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const {storefront} = context;
   // Background: put order numbers on files customers uploaded (see uploads.server).
   context.waitUntil?.(stampUploadedFiles(context.env));
-  const [{product}, proofData, photoFeeData, extraFeeData] = await Promise.all([
+  const [{product}, proofData, photoFeeData, extraFeeData, extraPhotoFeeData] = await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
@@ -106,6 +107,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // And the charge for each extra pet (a second or third cat).
     storefront
       .query(PROOF_PRODUCT_QUERY, {variables: {handle: EXTRA_ITEM_FEE_PRODUCT_HANDLE}})
+      .catch(() => null),
+    // And each photo beyond those included on a photo card ($12 each).
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: EXTRA_PHOTO_FEE_PRODUCT_HANDLE}})
       .catch(() => null),
   ]);
   if (!product?.id) throw new Response(null, {status: 404});
@@ -137,6 +142,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const extraFeeVariant = extraFeeData?.product?.variants?.nodes?.[0];
   const extraFee = extraFeeVariant?.availableForSale
     ? {variantId: extraFeeVariant.id, price: Number(extraFeeVariant.price.amount)}
+    : null;
+  const extraPhotoFeeVariant = extraPhotoFeeData?.product?.variants?.nodes?.[0];
+  const extraPhotoFee = extraPhotoFeeVariant?.availableForSale
+    ? {variantId: extraPhotoFeeVariant.id, price: Number(extraPhotoFeeVariant.price.amount)}
     : null;
 
   // This product's own questions, managed in Shopify admin. While the
@@ -198,6 +207,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     proof,
     photoFee,
     extraFee,
+    extraPhotoFee,
     extraQuestions,
     hidden,
     textLength,
@@ -260,6 +270,7 @@ export default function ProductRoute() {
     proof,
     photoFee,
     extraFee,
+    extraPhotoFee,
     extraQuestions,
     hidden,
     textLength,
@@ -577,9 +588,21 @@ export default function ProductRoute() {
     photoFee && shownFields.some((f) => f.type === 'upload' && f.photoFee && answered(f))
       ? 1
       : 0;
+  // Counters of photos ("Number of Back Photos") charge the $12 photo add-on;
+  // every other counter (pets, icons) charges the design-element add-on.
+  const isPhotoCounter = (f: PersonalizationField) => /photo/i.test(f.eachLabel ?? '');
+  const extraPhotoCount = extraPhotoFee
+    ? shownFields
+        .filter((f) => f.extraFee && isPhotoCounter(f))
+        .reduce(
+          (n, f) =>
+            n + Math.max(0, itemCount(personalization.fields[f.key]) - (f.freeItems ?? 1)),
+          0,
+        )
+    : 0;
   const extraCount = extraFee
     ? shownFields
-        .filter((f) => f.extraFee)
+        .filter((f) => f.extraFee && !isPhotoCounter(f))
         .reduce(
           (n, f) =>
             n + Math.max(0, itemCount(personalization.fields[f.key]) - (f.freeItems ?? 1)),
@@ -588,7 +611,9 @@ export default function ProductRoute() {
     : 0;
   // Named after what's being counted ("additional icons"); pets by default.
   const extraNoun =
-    shownFields.find((f) => f.extraFee && f.eachLabel)?.eachLabel?.toLowerCase() ?? 'pet';
+    shownFields
+      .find((f) => f.extraFee && f.eachLabel && !isPhotoCounter(f))
+      ?.eachLabel?.toLowerCase() ?? 'pet';
   const extraLabel = (n: number) =>
     `additional ${extraNoun}${n > 1 ? 's' : ''}`;
   const addOns = [
@@ -597,6 +622,15 @@ export default function ProductRoute() {
       : []),
     ...(extraFee && extraCount
       ? [{...extraFee, quantity: extraCount, label: extraLabel(extraCount)}]
+      : []),
+    ...(extraPhotoFee && extraPhotoCount
+      ? [
+          {
+            ...extraPhotoFee,
+            quantity: extraPhotoCount,
+            label: `additional photo${extraPhotoCount > 1 ? 's' : ''}`,
+          },
+        ]
       : []),
   ];
   const addOnTotal = addOns.reduce((sum, a) => sum + a.price * a.quantity, 0);

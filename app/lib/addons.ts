@@ -8,10 +8,13 @@ export const PROOF_PRODUCT_HANDLE = 'product-proof';
 export const PHOTO_FEE_PRODUCT_HANDLE = 'custom-photo-fee';
 /** Charged for each extra pet on a design (e.g. a second or third cat). */
 export const EXTRA_ITEM_FEE_PRODUCT_HANDLE = 'additional-pet-fee';
+/** Charged for each photo beyond those included on a photo card ($12). */
+export const EXTRA_PHOTO_FEE_PRODUCT_HANDLE = 'additional-photo-fee';
 // Listing queries filter them with `query: "tag_not:add-on"` (written inline
 // so GraphQL codegen can read the queries).
 
 export const isAddOnHandle = (handle?: string | null) =>
   handle === PROOF_PRODUCT_HANDLE ||
   handle === PHOTO_FEE_PRODUCT_HANDLE ||
-  handle === EXTRA_ITEM_FEE_PRODUCT_HANDLE;
+  handle === EXTRA_ITEM_FEE_PRODUCT_HANDLE ||
+  handle === EXTRA_PHOTO_FEE_PRODUCT_HANDLE;
