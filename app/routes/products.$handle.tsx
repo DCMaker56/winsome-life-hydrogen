@@ -966,7 +966,10 @@ export default function ProductRoute() {
                 <p className="font-sans text-xs text-[#2D2D2D]/60 mt-2">
                   Each set has {setSize}
                   {quantity > 1 ? ` — ${quantity} sets = ${quantity * setSize} total` : ''}.
-                  All sets get the same personalization.
+                  {/* Place cards print from the guest list, so each card differs. */}
+                  {!(selectedVariant?.selectedOptions ?? []).some((o) =>
+                    /place card/i.test(o.name),
+                  ) && ' All sets get the same personalization.'}
                 </p>
               )}
             </div>
