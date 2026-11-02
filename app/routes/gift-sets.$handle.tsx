@@ -27,11 +27,6 @@ import {
 } from 'lucide-react';
 import type {Route} from './+types/gift-sets.$handle';
 import GiftMessage from '~/components/GiftMessage';
-import SubscribeAndSave, {
-  type PurchaseMode,
-  type SubscriptionCadence,
-  calculateSubscriptionPrice,
-} from '~/components/SubscribeAndSave';
 import {
   getGiftSetBySlug,
   getRelatedGiftSets,
@@ -101,8 +96,6 @@ function buildLineAttributes(p: PersonalizationValue) {
 
 function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
   const [quantity, setQuantity] = useState(1);
-  const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('one-time');
-  const [cadence, setCadence] = useState<SubscriptionCadence>('monthly');
   const [giftMessage, setGiftMessage] = useState<string | null>(null);
 
   // Personalization — gift sets always use the notecards preset as the
@@ -116,18 +109,10 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
     (sum, item) => sum + item.individualPrice,
     0,
   );
-  const activePrice =
-    purchaseMode === 'subscribe'
-      ? calculateSubscriptionPrice(giftSet.setPrice)
-      : giftSet.setPrice;
-
   const lineAttributes = [
     ...buildLineAttributes(personalization),
     {key: '_Gift Set', value: giftSet.name},
-    {key: '_Purchase Mode', value: purchaseMode},
-    ...(purchaseMode === 'subscribe'
-      ? [{key: '_Subscription Cadence', value: cadence}]
-      : []),
+    {key: '_Purchase Mode', value: 'one-time'},
     ...(giftMessage ? [{key: 'Gift Message', value: giftMessage}] : []),
   ];
 
@@ -242,21 +227,13 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
             {/* Price */}
             <div className="flex items-baseline gap-4 mb-6">
               <span className="font-serif font-semibold text-3xl text-[#2D2D2D]">
-                $
-                {purchaseMode === 'subscribe'
-                  ? activePrice.toFixed(0)
-                  : giftSet.setPrice}
+                ${giftSet.setPrice}
               </span>
               <span className="font-sans font-light text-lg text-[#2D2D2D]/30 line-through">
-                $
-                {purchaseMode === 'subscribe'
-                  ? giftSet.setPrice
-                  : totalIndividual}
+                ${totalIndividual}
               </span>
               <span className="font-sans font-semibold text-xs px-2.5 py-1 bg-[#C9A96E]/10 text-[#C9A96E] tracking-[0.1em] uppercase">
-                {purchaseMode === 'subscribe'
-                  ? `Save ${Math.round(giftSet.setPrice - activePrice + giftSet.savings)} total`
-                  : `Save ${Math.round((giftSet.savings / totalIndividual) * 100)}%`}
+                {`Save ${Math.round((giftSet.savings / totalIndividual) * 100)}%`}
               </span>
             </div>
 
@@ -334,13 +311,6 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
               </div>
             )}
 
-            {/* Subscribe & Save */}
-            <SubscribeAndSave
-              price={giftSet.setPrice}
-              onModeChange={setPurchaseMode}
-              onCadenceChange={setCadence}
-            />
-
             {/* Gift Message */}
             <GiftMessage
               onGiftMessageChange={setGiftMessage}
@@ -391,9 +361,7 @@ function GiftSetHero({giftSet}: {giftSet: GiftSet}) {
                     <ShoppingBag size={15} strokeWidth={1.5} />
                     {fetcher.state !== 'idle'
                       ? 'Adding…'
-                      : purchaseMode === 'subscribe'
-                        ? 'Subscribe & Save'
-                        : 'Add Gift Set to Cart'}
+                      : 'Add Gift Set to Cart'}
                   </button>
                 )}
               </CartForm>
