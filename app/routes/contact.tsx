@@ -1,14 +1,17 @@
 /*
  * Contact — a real, branded contact page (replaces the bare Hydrogen
- * /pages/contact skeleton). No email backend is wired, so the form composes a
- * pre-filled message and opens the customer's email app addressed to
- * info@thewinsomelife.com — genuinely functional, nothing faked. The direct
+ * /pages/contact skeleton). The form posts to this route's action, which
+ * saves each message as a `contact_message` metaobject in Shopify admin
+ * (Content → Metaobjects → Contact Message) — no email app opens for the
+ * customer. The thank-you only shows once Shopify confirms the save; if it
+ * can't be saved, the visitor is asked to email us instead. The direct
  * channels (email, socials, help links) are always one tap away.
  */
-import {useState} from 'react';
+import {useEffect, useRef} from 'react';
 import type {Route} from './+types/contact';
-import {Link} from 'react-router';
+import {Form, Link, useActionData, useNavigation} from 'react-router';
 import {Mail, Clock, MessageCircle, ArrowRight} from 'lucide-react';
+import {saveMetaobjectEntry} from '~/lib/corporate-inquiry.server';
 
 const SUPPORT_EMAIL = 'info@thewinsomelife.com';
 
@@ -41,40 +44,119 @@ const SUBJECTS = [
   'Something else',
 ];
 
+type ContactResult =
+  | {ok: true}
+  | {ok: false; error: 'invalid' | 'unavailable'; fieldErrors?: Record<string, string>};
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export async function action({request, context}: Route.ActionArgs) {
+  const form = await request.formData();
+  // Honeypot: real visitors never see or fill this field.
+  if (String(form.get('website') ?? '').trim()) {
+    return {ok: true} satisfies ContactResult;
+  }
+  const str = (k: string, max: number) =>
+    String(form.get(k) ?? '').trim().slice(0, max);
+  const name = str('name', 200);
+  const email = str('email', 254);
+  const subject = SUBJECTS.includes(str('subject', 100)) ? str('subject', 100) : '';
+  const message = str('message', 5000);
+
+  const fieldErrors: Record<string, string> = {};
+  if (!name) fieldErrors.name = 'Please share your name.';
+  if (!EMAIL_RE.test(email)) fieldErrors.email = 'Please enter a valid email.';
+  if (!message) fieldErrors.message = 'Please write a short message.';
+  if (Object.keys(fieldErrors).length) {
+    return {ok: false, error: 'invalid', fieldErrors} satisfies ContactResult;
+  }
+
+  const ok = await saveMetaobjectEntry(context.env, 'contact_message', [
+    {key: 'contact_name', value: name},
+    {key: 'email', value: email},
+    {key: 'subject', value: subject},
+    {key: 'message', value: message},
+    {key: 'submitted_at', value: new Date().toISOString()},
+    {key: 'status', value: 'New'},
+  ]);
+  return (ok ? {ok: true} : {ok: false, error: 'unavailable'}) satisfies ContactResult;
+}
+
 function ContactForm() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    subject: SUBJECTS[0],
-    message: '',
-  });
-  const [opened, setOpened] = useState(false);
+  const result = useActionData<typeof action>() as ContactResult | undefined;
+  const navigation = useNavigation();
+  const submitting = navigation.state === 'submitting';
+  const doneRef = useRef<HTMLDivElement>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  const fieldErrors = result && !result.ok ? result.fieldErrors ?? {} : {};
 
-  const set = (k: keyof typeof form, v: string) =>
-    setForm((f) => ({...f, [k]: v}));
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const subject = `[Winsome Life] ${form.subject}${
-      form.name ? ` — ${form.name}` : ''
-    }`;
-    const body = `${form.message}\n\n— ${form.name}${
-      form.email ? `\n${form.email}` : ''
-    }`;
-    const href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
-    window.location.href = href;
-    setOpened(true);
-  };
+  useEffect(() => {
+    if (result?.ok) doneRef.current?.focus();
+    else if (result && !result.ok) errorRef.current?.focus();
+  }, [result]);
 
   const inputCls =
-    'font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-[15px] text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-1 rounded-sm';
+    'font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-[15px] text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-1 rounded-sm aria-[invalid=true]:border-[#9E1B32]';
   const labelCls =
     'block font-sans font-medium text-[11px] tracking-[0.14em] uppercase text-[#2D2D2D]/70 mb-1.5';
+  const err = (k: string) =>
+    fieldErrors[k] ? (
+      <p id={`c-${k}-error`} className="mt-1.5 font-sans text-[13px] text-[#9E1B32]">
+        {fieldErrors[k]}
+      </p>
+    ) : null;
+
+  if (result?.ok) {
+    return (
+      <div ref={doneRef} tabIndex={-1} role="status" className="py-8 text-center focus:outline-none">
+        <p
+          className="text-[2.4rem] text-[#2D2D2D] leading-none"
+          style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive"}}
+        >
+          Thank you
+        </p>
+        <h3 className="font-serif text-2xl text-[#2D2D2D] mt-3">
+          Your message is on its way to us.
+        </h3>
+        <p className="font-sans font-light text-[15px] text-[#2D2D2D]/65 leading-relaxed mt-3 max-w-md mx-auto">
+          A real person will read it and reply to the email address you gave us.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <Form method="post" preventScrollReset className="space-y-5">
+      {result && !result.ok ? (
+        <div
+          ref={errorRef}
+          tabIndex={-1}
+          role="alert"
+          className="p-4 bg-[#9E1B32]/5 ring-1 ring-[#9E1B32]/25 font-sans text-[14px] leading-relaxed text-[#7A1527] focus:outline-none"
+        >
+          {result.error === 'invalid' ? (
+            'Please check the highlighted fields below.'
+          ) : (
+            <>
+              We couldn&rsquo;t send your message just now. Please try again in
+              a moment, or email us at{' '}
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="underline underline-offset-2">
+                {SUPPORT_EMAIL}
+              </a>
+              .
+            </>
+          )}
+        </div>
+      ) : null}
+
+      {/* Honeypot (hidden from people and screen readers) */}
+      <div aria-hidden className="absolute -left-[9999px] w-px h-px overflow-hidden">
+        <label>
+          Website
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
+
       <div className="grid sm:grid-cols-2 gap-5">
         <div>
           <label htmlFor="c-name" className={labelCls}>
@@ -82,12 +164,15 @@ function ContactForm() {
           </label>
           <input
             id="c-name"
+            name="name"
             type="text"
             required
-            value={form.name}
-            onChange={(e) => set('name', e.target.value)}
+            autoComplete="name"
+            aria-invalid={fieldErrors.name ? true : undefined}
+            aria-describedby={fieldErrors.name ? 'c-name-error' : undefined}
             className={inputCls}
           />
+          {err('name')}
         </div>
         <div>
           <label htmlFor="c-email" className={labelCls}>
@@ -95,12 +180,15 @@ function ContactForm() {
           </label>
           <input
             id="c-email"
+            name="email"
             type="email"
             required
-            value={form.email}
-            onChange={(e) => set('email', e.target.value)}
+            autoComplete="email"
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={fieldErrors.email ? 'c-email-error' : undefined}
             className={inputCls}
           />
+          {err('email')}
         </div>
       </div>
 
@@ -108,12 +196,7 @@ function ContactForm() {
         <label htmlFor="c-subject" className={labelCls}>
           How can we help?
         </label>
-        <select
-          id="c-subject"
-          value={form.subject}
-          onChange={(e) => set('subject', e.target.value)}
-          className={inputCls}
-        >
+        <select id="c-subject" name="subject" defaultValue={SUBJECTS[0]} className={inputCls}>
           {SUBJECTS.map((s) => (
             <option key={s} value={s}>
               {s}
@@ -128,49 +211,33 @@ function ContactForm() {
         </label>
         <textarea
           id="c-message"
+          name="message"
           required
           rows={6}
-          value={form.message}
-          onChange={(e) => set('message', e.target.value)}
+          maxLength={5000}
+          aria-invalid={fieldErrors.message ? true : undefined}
+          aria-describedby={fieldErrors.message ? 'c-message-error' : undefined}
           placeholder="Tell us a little about what you need — include your order number if it's about an existing order."
           className={`${inputCls} resize-y`}
         />
+        {err('message')}
       </div>
 
       <button
         type="submit"
-        className="w-full sm:w-auto bg-[#2D2D2D] text-white font-sans font-medium text-sm tracking-[0.15em] uppercase px-10 py-4 hover:bg-[#C9A96E] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
+        disabled={submitting}
+        className="w-full sm:w-auto bg-[#2D2D2D] text-white font-sans font-medium text-sm tracking-[0.15em] uppercase px-10 py-4 hover:bg-[#C9A96E] transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 disabled:opacity-60 disabled:cursor-wait"
       >
-        Send Message
+        {submitting ? 'Sending\u2026' : 'Send Message'}
       </button>
 
       <p className="font-sans font-light text-[12px] text-[#2D2D2D]/50 leading-relaxed">
-        {opened ? (
-          <>
-            Your email app should have opened with your message ready to send. If
-            it didn&rsquo;t, email us directly at{' '}
-            <a
-              href={`mailto:${SUPPORT_EMAIL}`}
-              className="text-[#C9A96E] underline underline-offset-2"
-            >
-              {SUPPORT_EMAIL}
-            </a>
-            .
-          </>
-        ) : (
-          <>
-            This opens a pre-filled message in your email app. Prefer to write us
-            directly?{' '}
-            <a
-              href={`mailto:${SUPPORT_EMAIL}`}
-              className="text-[#C9A96E] underline underline-offset-2"
-            >
-              {SUPPORT_EMAIL}
-            </a>
-          </>
-        )}
+        Prefer to write us directly?{' '}
+        <a href={`mailto:${SUPPORT_EMAIL}`} className="text-[#C9A96E] underline underline-offset-2">
+          {SUPPORT_EMAIL}
+        </a>
       </p>
-    </form>
+    </Form>
   );
 }
 
