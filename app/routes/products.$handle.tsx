@@ -515,11 +515,24 @@ export default function ProductRoute() {
           // the lead question on this product they always show. The lead can
           // also be a product option above (e.g. "Tag Theme = Custom Tag"),
           // so a priced choice can still open its own follow-up boxes.
-          ...productQuestions.filter((f) => {
+          // A follow-up of a follow-up (e.g. the photo uploads after "Back
+          // Photos: Upload now", itself shown for "Back of Card: Add photos")
+          // hides whenever its lead question is hidden.
+          ...productQuestions.filter(function shown(
+            f: PersonalizationField,
+            _i?: number,
+            _all?: unknown,
+            seen = new Set<string>(),
+          ): boolean {
             if (!f.showWhen) return true;
             const key = f.showWhen.key;
-            if (productQuestions.some((g) => g.key === key)) {
-              return conditionMet(f.showWhen, personalization.fields[key]);
+            const lead = productQuestions.find((g) => g.key === key);
+            if (lead) {
+              seen.add(f.key);
+              return (
+                conditionMet(f.showWhen, personalization.fields[key]) &&
+                (seen.has(lead.key) || shown(lead, 0, null, seen))
+              );
             }
             if (key in selOptions) return conditionMet(f.showWhen, selOptions[key]);
             return true;
