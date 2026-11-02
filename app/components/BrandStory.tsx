@@ -7,7 +7,7 @@
 import { Link } from "react-router";
 
 const FLORAL =
-  "https://www.thewinsomelife.com/cdn/shop/files/birdofparadise.jpg?v=1772037256&width=600";
+  "https://caatee-kr.myshopify.com/cdn/shop/files/birdofparadise.jpg?v=1772037256&width=600";
 
 const script = {
   fontFamily: "'Parisian Script', 'Great Vibes', cursive",

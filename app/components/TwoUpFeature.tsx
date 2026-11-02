@@ -10,7 +10,7 @@
 import { Link } from "react-router";
 
 const HOLIDAY_FALLBACK =
-  "https://www.thewinsomelife.com/cdn/shop/files/Red_Christmas_More_Stripes_421ce7fa-ba02-4a17-8d6d-bc69cd220c5b.png?v=1763493159&width=2400";
+  "https://caatee-kr.myshopify.com/cdn/shop/files/Red_Christmas_More_Stripes_421ce7fa-ba02-4a17-8d6d-bc69cd220c5b.png?v=1763493159&width=2400";
 
 export default function TwoUpFeature({
   holidayImage,
@@ -23,7 +23,7 @@ export default function TwoUpFeature({
       subtitle: "Our most-loved notecards",
       href: "/collections/bestsellers",
       image:
-        "https://www.thewinsomelife.com/cdn/shop/files/Best_Sellers_0773c555-e720-4eaa-b52b-9a31ddbcae9b.png?v=1757693053&width=1300",
+        "https://caatee-kr.myshopify.com/cdn/shop/files/Best_Sellers_0773c555-e720-4eaa-b52b-9a31ddbcae9b.png?v=1757693053&width=1300",
       contain: false,
     },
     {

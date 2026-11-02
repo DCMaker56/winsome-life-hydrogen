@@ -27,6 +27,10 @@ export default async function handleRequest(
       'blob:',
       'https://cdn.shopify.com',
       'https://*.cloudfront.net',
+      // Brand images uploaded to Shopify Files are served via the store's
+      // myshopify CDN path. (www.thewinsomelife.com now serves Hydrogen, so its
+      // /cdn/shop/files/* path 404s — we point at the myshopify domain instead.)
+      'https://caatee-kr.myshopify.com',
       'https://www.thewinsomelife.com',
       'https://images.unsplash.com',
       'https://fonts.gstatic.com',

@@ -28,7 +28,7 @@ const DESCRIPTION =
   'Offer luxury personalized stationery in your store with zero inventory and no risk. We provide samples, a catalog, signage and an acrylic display at no cost, and handle all production and shipping.';
 // Brand desk-scene photography from the live site: floral notecards on a writing desk.
 const HERO_IMAGE =
-  'https://www.thewinsomelife.com/cdn/shop/files/03.png?v=1758893929&width=1800';
+  'https://caatee-kr.myshopify.com/cdn/shop/files/03.png?v=1758893929&width=1800';
 
 export const meta: Route.MetaFunction = () => [
   {title: TITLE},

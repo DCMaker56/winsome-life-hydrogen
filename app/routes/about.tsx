@@ -26,13 +26,13 @@ export const meta: Route.MetaFunction = () => [
 // The original cloudfront placeholders 404'd (broken images). Swapped for the
 // brand's real desk-scene photography + a warm writing-desk lifestyle shot.
 const STUDIO_IMG =
-  'https://www.thewinsomelife.com/cdn/shop/files/03.png?v=1758893929&width=1800';
+  'https://caatee-kr.myshopify.com/cdn/shop/files/03.png?v=1758893929&width=1800';
 const FOUNDER_IMG =
   'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1100&q=80';
 const PROCESS_IMG =
-  'https://www.thewinsomelife.com/cdn/shop/files/04.png?v=1758894113&width=1600';
+  'https://caatee-kr.myshopify.com/cdn/shop/files/04.png?v=1758894113&width=1600';
 const VALUES_IMG =
-  'https://www.thewinsomelife.com/cdn/shop/files/03.png?v=1758893929&width=1600';
+  'https://caatee-kr.myshopify.com/cdn/shop/files/03.png?v=1758893929&width=1600';
 
 const values = [
   {
@@ -339,7 +339,7 @@ function MeetTheTeam() {
           >
             <div className="w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden border-2 border-[#C9A96E]/20 bg-[#FAF8F5]">
               <img
-                src="https://www.thewinsomelife.com/cdn/shop/files/Screen_Shot_2025-09-08_at_00.10.png?width=600"
+                src="https://caatee-kr.myshopify.com/cdn/shop/files/Screen_Shot_2025-09-08_at_00.10.png?width=600"
                 alt="Sydney Wilson, founder of The Winsome Life"
                 loading="lazy"
                 className="w-full h-full object-cover"
@@ -368,7 +368,7 @@ function MeetTheTeam() {
           >
             <div className="w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden border-2 border-[#C9A96E]/20 bg-[#FAF8F5]">
               <img
-                src="https://www.thewinsomelife.com/cdn/shop/files/Dar_with_Painting.heic?width=600"
+                src="https://caatee-kr.myshopify.com/cdn/shop/files/Dar_with_Painting.heic?width=600"
                 alt="Darlene Redfoot, artist-in-residence, with one of her paintings"
                 loading="lazy"
                 className="w-full h-full object-cover"

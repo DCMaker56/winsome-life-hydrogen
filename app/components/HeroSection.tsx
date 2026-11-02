@@ -9,7 +9,7 @@
 import { useEffect, useState } from "react";
 import { HoneyBee } from "./HoneyBee";
 
-const CDN = "https://www.thewinsomelife.com/cdn/shop/files";
+const CDN = "https://caatee-kr.myshopify.com/cdn/shop/files";
 
 // Slide order + which side the tagline sits on for each.
 const SLIDES = [

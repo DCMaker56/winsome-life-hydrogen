@@ -31,7 +31,7 @@ const DESCRIPTION =
   'Elevate business relationships with personalized stationery, thoughtful corporate gifts, and curated company collections from The Winsome Life.';
 // Brand desk-scene photography from the live site: notecards and a gold pen.
 const HERO_IMAGE =
-  'https://www.thewinsomelife.com/cdn/shop/files/04.png?v=1758894113&width=1800';
+  'https://caatee-kr.myshopify.com/cdn/shop/files/04.png?v=1758894113&width=1800';
 
 export const meta: Route.MetaFunction = () => [
   {title: TITLE},
