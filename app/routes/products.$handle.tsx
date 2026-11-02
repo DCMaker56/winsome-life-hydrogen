@@ -306,8 +306,8 @@ export default function ProductRoute() {
   const textGate = extraQuestions.find((f) => f.revealsText);
   const textOff = !!textGate && personalization.fields[textGate.key] !== 'Yes';
   const hideText = hidden.includes('Text') || textOff;
-  const hideFont = hidden.includes('Font') || textOff;
-  const hideInk =
+  const hideFontBase = hidden.includes('Font') || textOff;
+  const hideInkBase =
     hidden.includes('Text Color') || hidden.includes('Ink Color') || textOff;
   const [selectedImage, setSelectedImage] = useState(0);
   // Add to Cart stays clickable; a click with required info missing shows
@@ -358,6 +358,13 @@ export default function ProductRoute() {
     ),
   );
   const [quantity, setQuantity] = useState(1);
+  // Place cards ordered Blank (option "Pre-Printed or Blank") get nothing
+  // printed, so there's no font or text color to choose (Sydney).
+  const blankChosen = Object.entries(selOptions).some(
+    ([name, value]) => /pre-?printed or blank/i.test(name) && /^blank$/i.test(value),
+  );
+  const hideFont = hideFontBase || blankChosen;
+  const hideInk = hideInkBase || blankChosen;
   const selectedVariant =
     variants.find((v) =>
       v.selectedOptions.every((o) => selOptions[o.name] === o.value),
