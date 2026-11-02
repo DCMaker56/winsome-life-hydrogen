@@ -14,3 +14,11 @@ export const STUDIO_OPEN = false;
  * message. Flip to true to reopen.
  */
 export const BUILD_YOUR_OWN_OPEN = false;
+
+/*
+ * GIFT_SETS_OPEN — the gift set pages (/gift-sets and /gift-sets/<set>).
+ * Closed per Sydney until gift sets are rebuilt as real Shopify products
+ * (the current ones aren't purchasable). Hidden from the footer and search;
+ * /gift-sets shows a coming-soon page and each set redirects there.
+ */
+export const GIFT_SETS_OPEN = false;

@@ -8,7 +8,8 @@
  * + gift options serialized as line item attributes (matching the PDP pattern).
  */
 import {useEffect, useState} from 'react';
-import {Link, useNavigate} from 'react-router';
+import {Link, redirect, useNavigate} from 'react-router';
+import {GIFT_SETS_OPEN} from '~/lib/features';
 import {CartForm} from '@shopify/hydrogen';
 import {motion} from 'framer-motion';
 import {
@@ -54,6 +55,7 @@ export const meta: Route.MetaFunction = ({data}) => {
 };
 
 export async function loader({params}: Route.LoaderArgs) {
+  if (!GIFT_SETS_OPEN) throw redirect('/gift-sets');
   const {handle} = params;
   if (!handle) throw new Response(null, {status: 404});
   const giftSet = getGiftSetBySlug(handle) ?? null;

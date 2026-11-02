@@ -8,12 +8,24 @@
  */
 import type {Route} from './+types/gift-sets._index';
 import {Link} from 'react-router';
+import ComingSoon from '~/components/ComingSoon';
+import {GIFT_SETS_OPEN} from '~/lib/features';
 import {useEffect} from 'react';
 import {Check, Gift, ArrowRight, Star} from 'lucide-react';
 import Newsletter from '~/components/Newsletter';
 import {giftSets, type GiftSet} from '~/lib/bundles';
 
 export const meta: Route.MetaFunction = () => {
+  if (!GIFT_SETS_OPEN) {
+    return [
+      {title: 'Gift Sets: Coming Soon | The Winsome Life'},
+      {
+        name: 'description',
+        content: 'Coming soon: personalized stationery gift sets from The Winsome Life.',
+      },
+      {name: 'robots', content: 'noindex'},
+    ];
+  }
   return [
     {title: 'Gift Sets | The Winsome Life'},
     {
@@ -250,7 +262,22 @@ function HowItWorks() {
   );
 }
 
-export default function GiftSetsRoute() {
+export default function GiftSetsPage() {
+  return GIFT_SETS_OPEN ? (
+    <GiftSetsRoute />
+  ) : (
+    <ComingSoon
+      title="Gift"
+      scriptWord="Sets"
+      paragraphs={[
+        'We\u2019re reimagining our gift sets: coordinated, personalized pieces chosen to make gift-giving effortless. They\u2019ll be back soon.',
+        'In the meantime, every piece in our collection can be personalized with a name, monogram, font and ink color.',
+      ]}
+    />
+  );
+}
+
+function GiftSetsRoute() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);

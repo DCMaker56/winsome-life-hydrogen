@@ -5,6 +5,7 @@
  * Internal shop links use wouter Link for SPA navigation.
  */
 import { Link } from "react-router";
+import { GIFT_SETS_OPEN } from "~/lib/features";
 
 const shopLinks = [
   { label: "Shop All", href: "/collections/all" },
@@ -14,7 +15,7 @@ const shopLinks = [
   { label: "Gift Tags & Stickers", href: "/collections/gift-tags-stickers" },
   { label: "Wine Tags", href: "/collections/wine-tags-1" },
   { label: "Gift Ideas", href: "/collections/gift-ideas" },
-  { label: "Gift Sets", href: "/gift-sets" },
+  ...(GIFT_SETS_OPEN ? [{ label: "Gift Sets", href: "/gift-sets" }] : []),
 ];
 
 const supportLinks = [

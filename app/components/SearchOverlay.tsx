@@ -30,7 +30,7 @@ import {
   TrendingUp,
   Clock,
 } from "lucide-react";
-import { BUILD_YOUR_OWN_OPEN } from "~/lib/features";
+import { BUILD_YOUR_OWN_OPEN, GIFT_SETS_OPEN } from "~/lib/features";
 
 interface SearchOverlayProps {
   open: boolean;
@@ -41,14 +41,14 @@ interface SearchOverlayProps {
 const popularSearches = [
   { label: "Monogram Notecards", slug: "/collections/monogram-styles" },
   { label: "Monogram Sets", slug: "/collections/monogram" },
-  { label: "Gift Sets", slug: "/gift-sets" },
+  ...(GIFT_SETS_OPEN ? [{ label: "Gift Sets", slug: "/gift-sets" }] : []),
   { label: "Wedding Stationery", slug: "/collections/place-cards" },
   ...(BUILD_YOUR_OWN_OPEN ? [{ label: "Build Your Own", slug: "/build-your-own" }] : []),
 ];
 
 const quickLinks = [
   { label: "All Collections", href: "/collections/all", icon: Package },
-  { label: "Gift Sets", href: "/gift-sets", icon: Gift },
+  ...(GIFT_SETS_OPEN ? [{ label: "Gift Sets", href: "/gift-sets", icon: Gift }] : []),
   { label: "Bestsellers", href: "/collections/bestsellers", icon: TrendingUp },
   ...(BUILD_YOUR_OWN_OPEN
     ? [{ label: "Build Your Own", href: "/build-your-own", icon: Sparkles }]
@@ -96,7 +96,7 @@ export default function SearchOverlay({ open, onOpenChange }: SearchOverlayProps
 
   // Filter gift sets
   const filteredGiftSets = useMemo(() => {
-    if (!query.trim()) return [];
+    if (!GIFT_SETS_OPEN || !query.trim()) return [];
     const q = query.toLowerCase();
     return giftSets.filter(
       (gs) =>
@@ -391,7 +391,7 @@ export default function SearchOverlay({ open, onOpenChange }: SearchOverlayProps
               className="font-sans text-[10px] tracking-wider text-[#C9A96E]/50"
 
             >
-              {products.length + giftSets.length} items
+              {products.length + (GIFT_SETS_OPEN ? giftSets.length : 0)} items
             </span>
           </div>
         </Command>
