@@ -456,7 +456,39 @@ export default function ProductRoute() {
     ? optionGroups.find((o) => /^hole punch/i.test(o.name))
     : undefined;
   const wantsTags = !!tagsOrStickers && personalization.fields[tagsOrStickers.key] === 'Gift Tags';
-  const topOptionGroups = optionGroups.filter((o) => o !== holePunch);
+  // A digital printable has no envelopes: once it's picked, a choice left with
+  // a single buyable answer (e.g. Return Address → only "No") is answered for
+  // the customer and not shown.
+  const digitalChosen = Object.values(selOptions).some((v) =>
+    /digital|printable|\bpdf\b/i.test(v),
+  );
+  const onlyChoice = (o: (typeof optionGroups)[number]) => {
+    const ok = o.optionValues.filter((ov) =>
+      variants.some(
+        (v) =>
+          v.availableForSale &&
+          v.selectedOptions.every((so) =>
+            so.name === o.name ? so.value === ov.name : selOptions[so.name] === so.value,
+          ),
+      ),
+    );
+    return ok.length === 1 ? ok[0].name : null;
+  };
+  const autoAnswered = digitalChosen
+    ? optionGroups
+        .filter((o) => !/digital|printable|\bpdf\b/i.test(selOptions[o.name] ?? ''))
+        .flatMap((o) => {
+          const only = onlyChoice(o);
+          return only ? [[o.name, only] as const] : [];
+        })
+    : [];
+  useEffect(() => {
+    const change = autoAnswered.filter(([name, value]) => selOptions[name] !== value);
+    if (change.length) setSelOptions((s) => ({...s, ...Object.fromEntries(change)}));
+  }, [autoAnswered, selOptions]);
+  const topOptionGroups = optionGroups.filter(
+    (o) => o !== holePunch && !autoAnswered.some(([name]) => name === o.name),
+  );
   useEffect(() => {
     if (!holePunch || wantsTags) return;
     const no = holePunch.optionValues.find((v) => /^no\b/i.test(v.name));
