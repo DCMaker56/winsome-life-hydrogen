@@ -4,6 +4,7 @@ import type {CartApiQueryFragment} from 'storefrontapi.generated';
 import {useAside} from '~/components/Aside';
 import {CartLineItem, type CartLine} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
+import {CartCompleteTheSet} from '~/components/CompleteTheSet';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -80,6 +81,7 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
             })}
           </ul>
         </div>
+        {cartHasItems && <CartCompleteTheSet lines={cart?.lines?.nodes ?? []} />}
         {cartHasItems && <CartSummary cart={cart} layout={layout} />}
       </div>
     </section>
