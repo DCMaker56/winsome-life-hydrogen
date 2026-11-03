@@ -434,7 +434,10 @@ export function ProductView({
     );
   // Nothing personalized (e.g. blank envelopes on a return-address-only
   // card) → nothing to approve or proof.
-  const needsApproval = personalizable && panelHasQuestions;
+  // Hide list "Before we print": nothing custom to approve (Sydney), e.g.
+  // mugs, shirts and calendars that only ask which months.
+  const needsApproval =
+    personalizable && panelHasQuestions && !hidden.includes('Before we print');
   const addProof = needsApproval && wantsProof && !freeProof && !!proof;
 
   const shownFields = activeSchema?.fields ?? [];
