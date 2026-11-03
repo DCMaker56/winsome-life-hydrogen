@@ -3,7 +3,7 @@
  * product route so the Complete-the-Set quick-add sheet can reuse the exact
  * same options, personalization, approval and Add to Cart logic).
  */
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ChevronDown, ChevronLeft, ChevronRight} from 'lucide-react';
 import {Link, useLoaderData} from 'react-router';
 import type {loader} from '~/routes/products.$handle';
@@ -166,6 +166,10 @@ export function ProductView({
   // Add to Cart stays clickable; a click with required info missing shows
   // what's still needed instead of adding to the cart.
   const [triedAddToCart, setTriedAddToCart] = useState(false);
+  // Complete the set appears only once this item is in the cart, so the
+  // page never shows two competing calls to action (Sydney).
+  const [addedToCart, setAddedToCart] = useState(false);
+  const markAdded = useCallback(() => setAddedToCart(true), []);
   // Rifle-style checkpoint: made-to-order + final sale means the customer
   // must explicitly approve their personalization before it can be purchased.
   // The customer either approves the personalization details, or pays for a full
@@ -1084,7 +1088,7 @@ export function ProductView({
             >
               {(fetcher) => (
                 <>
-                {onAdded && <AddedWatcher fetcher={fetcher} onAdded={onAdded} />}
+                <AddedWatcher fetcher={fetcher} onAdded={onAdded ?? markAdded} />
                 <button
                   type="submit"
                   onClick={(e) => {
@@ -1119,7 +1123,7 @@ export function ProductView({
 
             {/* Complete the set — matching pieces (same artwork), added from a
                 slide-in panel pre-filled with this item's personalization. */}
-            {!embedded && (
+            {!embedded && addedToCart && (
               <CompleteTheSet
                 matches={setMatches}
                 accessories={setAccessories}

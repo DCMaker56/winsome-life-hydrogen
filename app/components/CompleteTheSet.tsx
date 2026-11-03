@@ -11,7 +11,7 @@
  */
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
-import {X} from 'lucide-react';
+import {Check, X} from 'lucide-react';
 import {ProductView, type ProductViewData} from '~/components/ProductView';
 import {SET_DISCOUNT_PERCENT, findSet, type SetCardProduct} from '~/lib/matching-sets';
 
@@ -41,7 +41,14 @@ export function CompleteTheSet({
     .join(' · ');
 
   return (
-    <div className="mt-8 space-y-6">
+    <div className="mt-6 space-y-6">
+      <p
+        role="status"
+        className="flex items-center gap-2 font-sans text-[14px] text-[#1B5E3A]"
+      >
+        <Check size={16} strokeWidth={2.25} aria-hidden />
+        Added to your cart.
+      </p>
       {matches.length > 0 && (
         <section
           aria-labelledby="complete-set-title"
