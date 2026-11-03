@@ -167,11 +167,12 @@ export function Layout({children}: {children?: React.ReactNode}) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        {/* Google tag (gtag.js) — Google Ads AW-17795546793. Nonce'd so it
+        {/* Google tag (gtag.js) — shared loader for Google Ads
+            (AW-17795546793) and GA4 analytics (G-H9RRG960BX). Nonce'd so it
             passes our CSP; Google's domains are allowlisted in entry.server. */}
         <script
           async
-          src="https://www.googletagmanager.com/gtag/js?id=AW-17795546793"
+          src="https://www.googletagmanager.com/gtag/js?id=G-H9RRG960BX"
           nonce={nonce}
         />
         <script
@@ -180,7 +181,8 @@ export function Layout({children}: {children?: React.ReactNode}) {
             __html: `window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', 'AW-17795546793');`,
+gtag('config', 'AW-17795546793');
+gtag('config', 'G-H9RRG960BX');`,
           }}
         />
         <link rel="stylesheet" href={resetStyles}></link>
