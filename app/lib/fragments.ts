@@ -21,6 +21,14 @@ export const CART_QUERY_FRAGMENT = `#graphql
       compareAtAmountPerQuantity {
         ...Money
       }
+      subtotalAmount {
+        ...Money
+      }
+    }
+    discountAllocations {
+      discountedAmount {
+        ...Money
+      }
     }
     merchandise {
       ... on ProductVariant {
@@ -75,6 +83,14 @@ export const CART_QUERY_FRAGMENT = `#graphql
         ...Money
       }
       compareAtAmountPerQuantity {
+        ...Money
+      }
+      subtotalAmount {
+        ...Money
+      }
+    }
+    discountAllocations {
+      discountedAmount {
         ...Money
       }
     }

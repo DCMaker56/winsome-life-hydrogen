@@ -1,6 +1,7 @@
 import type {CartLineUpdateInput} from '@shopify/hydrogen/storefront-api-types';
 import type {CartLayout, LineItemChildrenMap} from '~/components/CartMain';
-import {CartForm, Image, type OptimisticCartLine} from '@shopify/hydrogen';
+import {CartForm, Image, Money, type OptimisticCartLine} from '@shopify/hydrogen';
+import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {useVariantUrl} from '~/lib/variants';
 import {Link} from 'react-router';
 import {ProductPrice} from './ProductPrice';
@@ -91,7 +92,7 @@ export function CartLineItem({
             </p>
           </Link>
           <div className="font-serif text-base font-medium text-[#2D2D2D] mt-1">
-            <ProductPrice price={line?.cost?.totalAmount} />
+            <LinePrice line={line} />
           </div>
           {studio ? (
             <ul className="mt-1.5 space-y-0.5 font-sans text-xs text-[#2D2D2D]/55">
@@ -142,6 +143,40 @@ export function CartLineItem({
         </div>
       ) : null}
     </li>
+  );
+}
+
+/**
+ * The line's price. With a discount on it (e.g. a partner code), the regular
+ * price shows crossed out next to the discounted one.
+ */
+function LinePrice({line}: {line: CartLine}) {
+  const cost = line?.cost as
+    | {totalAmount?: MoneyV2; subtotalAmount?: MoneyV2}
+    | undefined;
+  const allocations =
+    (line as {discountAllocations?: Array<{discountedAmount: MoneyV2}>})
+      .discountAllocations ?? [];
+  const saved = allocations.reduce((n, a) => n + Number(a.discountedAmount.amount), 0);
+  const total = cost?.totalAmount;
+  const before = cost?.subtotalAmount;
+  if (!total || !before || saved <= 0 || Number(before.amount) <= Number(total.amount)) {
+    return <ProductPrice price={total} />;
+  }
+  return (
+    <div aria-label="Price" role="group" className="flex flex-wrap items-baseline gap-x-2">
+      <s className="font-sans text-sm font-normal text-[#2D2D2D]/45">
+        <span className="sr-only">Regular price </span>
+        <Money data={before} />
+      </s>
+      <span>
+        <span className="sr-only">Your price </span>
+        <Money data={total} />
+      </span>
+      <span className="font-sans text-xs font-medium text-[#B5462F]">
+        You save <Money data={{...total, amount: saved.toFixed(2)}} as="span" className="inline" />
+      </span>
+    </div>
   );
 }
 

@@ -39,6 +39,7 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
           )}
         </dd>
       </dl>
+      <CartSavings cart={cart} />
       <p className="font-sans text-xs text-[#2D2D2D]/45 mt-1">
         Shipping &amp; taxes calculated at checkout
       </p>
@@ -54,6 +55,29 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
       />
       <CartCheckoutActions checkoutUrl={cart?.checkoutUrl} />
     </div>
+  );
+}
+
+/** "You're saving $X" when discounts (e.g. a partner code) are on the cart. */
+function CartSavings({cart}: {cart: CartSummaryProps['cart']}) {
+  const lines = (cart?.lines?.nodes ?? []) as Array<{
+    discountAllocations?: Array<{discountedAmount: {amount: string}}>;
+  }>;
+  const saved = lines.reduce(
+    (n, l) =>
+      n + (l.discountAllocations ?? []).reduce((m, a) => m + Number(a.discountedAmount.amount), 0),
+    0,
+  );
+  const currency = cart?.cost?.subtotalAmount?.currencyCode;
+  if (saved <= 0 || !currency) return null;
+  const codes = (cart?.discountCodes ?? []).filter((d) => d.applicable).map((d) => d.code);
+  return (
+    <p className="mt-2 flex items-center justify-between font-sans text-sm font-medium text-[#B5462F]">
+      <span>
+        You’re saving{codes.length ? ` with ${codes.join(', ')}` : ''}
+      </span>
+      <Money data={{amount: saved.toFixed(2), currencyCode: currency}} />
+    </p>
   );
 }
 
