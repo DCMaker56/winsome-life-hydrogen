@@ -20,6 +20,7 @@ import type {Route} from './+types/pages.retail-partners';
 import {SITE_URL} from '~/lib/seo';
 import {STORE_TYPES, type RetailInquiryResult} from '~/lib/retail-inquiry';
 import {parseRetailInquiry, saveRetailInquiry} from '~/lib/retail-inquiry.server';
+import signageCounter from '~/assets/retail/signage-counter.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -399,6 +400,30 @@ function PartnerKit() {
             </li>
           ))}
         </ul>
+        <figure className="mt-14 lg:mt-20 grid lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+          <img
+            src={signageCounter}
+            alt="Pink Personalized Stationery sign from The Winsome Life in a clear acrylic stand on a store counter, listing notecards, notepads, wine tags, gift tags, stickers and place cards"
+            width={1122}
+            height={1402}
+            loading="lazy"
+            className="w-full max-w-md mx-auto lg:max-w-none ring-1 ring-[#C9A96E]/20"
+          />
+          <figcaption className="text-center lg:text-left">
+            <p className="font-sans text-[11px] tracking-[0.25em] uppercase text-[#C9A96E] mb-3">
+              Counter signage
+            </p>
+            <h3 className="font-serif font-medium text-[1.9rem] leading-tight text-[#1B294E] mb-4">
+              A sign that starts the conversation.
+            </h3>
+            <p className="font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]/75 max-w-md mx-auto lg:mx-0">
+              Your acrylic stand arrives with our signage, inviting shoppers to
+              ask about personalized notecards, notepads, wine tags, gift tags,
+              stickers and place cards. It sits neatly on a counter or shelf
+              and lets your customers know they can order right in your store.
+            </p>
+          </figcaption>
+        </figure>
         <p className="text-center mt-10 font-serif italic text-[1.25rem] text-[#2D2D2D]/75">
           No inventory. No upfront cost. No risk.
         </p>
