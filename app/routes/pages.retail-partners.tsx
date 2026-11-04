@@ -31,6 +31,7 @@ import artBee from '~/assets/retail/art-bee.webp';
 import artHydrangea from '~/assets/retail/art-hydrangea.webp';
 import artDragonfly from '~/assets/retail/art-dragonfly.webp';
 import artShell from '~/assets/retail/art-shell.webp';
+import artOrchid from '~/assets/retail/art-orchid.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -534,6 +535,11 @@ function HowItWorks() {
       art: artShell,
       body: 'We personalize, produce and ship every order, so you never handle a thing.',
     },
+    {
+      title: 'You earn',
+      art: artOrchid,
+      body: 'With exclusive partner pricing, your store earns on every order, with no inventory and no risk.',
+    },
   ];
   return (
     <section
@@ -545,11 +551,11 @@ function HowItWorks() {
         <SectionHeading eyebrow="How It Works" id="how-title">
           Seamless for you. Beautiful for your customers.
         </SectionHeading>
-        <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <ol className="flex flex-wrap justify-center gap-x-6 gap-y-12">
           {steps.map((s, i) => (
-            <li key={s.title} className="text-center px-2">
+            <li key={s.title} className="text-center px-1 w-full sm:w-[calc(50%-12px)] lg:w-[calc(20%-20px)]">
               {/* Original paintings (photos of the artwork), one per step (Sydney). */}
-              <div className="relative mx-auto w-48 h-48 bg-white p-2 shadow-sm ring-1 ring-[#C9A96E]/40">
+              <div className="relative mx-auto w-48 h-48 lg:w-44 lg:h-44 bg-white p-2 shadow-sm ring-1 ring-[#C9A96E]/40">
                 {/* Original artwork: no right-click save, drag or long-press
                     save (Sydney). Screenshots can't be blocked; the images
                     are small and carry a © watermark. */}
@@ -795,7 +801,7 @@ const FAQS = [
   },
   {
     q: 'How does partner pricing work?',
-    a: 'We’ll share the details of partner pricing when we connect. Tell us a little about your store below and we’ll be in touch.',
+    a: 'Partners receive an exclusive 35% discount off our retail prices. Your customers pay the regular retail price, so your store earns the difference on every order, with no inventory to buy and no risk. Tell us a little about your store below and we’ll walk you through the details.',
   },
 ];
 
