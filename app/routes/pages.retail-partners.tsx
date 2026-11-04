@@ -323,7 +323,7 @@ function Hero() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Anchor to={IDS.inquiry} className={BTN_SOLID}>
-                Apply to Partner
+                Become a Partner
               </Anchor>
               <Anchor to={IDS.kit} className={BTN_OUTLINE}>
                 See the Partner Kit
@@ -1262,7 +1262,7 @@ function Inquiry() {
                   disabled={submitting}
                   className={`${BTN_SOLID} mt-8 w-full sm:w-auto disabled:opacity-60 disabled:cursor-wait`}
                 >
-                  {submitting ? 'Sending…' : 'Apply to Partner'}
+                  {submitting ? 'Sending…' : 'Request Your Partner Kit'}
                 </button>
               </Form>
             )}
@@ -1308,7 +1308,7 @@ function MobileInquiryBar() {
         tabIndex={show ? 0 : -1}
         className="flex items-center justify-center w-full bg-[#1B294E] text-white py-3.5 font-sans font-medium text-[12px] tracking-[0.18em] uppercase"
       >
-        Apply to Partner
+        Become a Partner
       </a>
     </div>
   );
