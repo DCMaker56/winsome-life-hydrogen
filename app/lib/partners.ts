@@ -94,6 +94,9 @@ export const PARTNER_PLACEMENTS: Record<string, string[]> = {
   // Wine tags under Wine Tags
   'personalized-wine-tags-custom-prosecco-champagne-tags-mini-prosecco-tags-customize-with-your-own-art-logo-text':
     ['wine-tags-1'],
+  // Tartan plaid wine tags under Wine Tags, and also Christmas / Holiday
+  'personalized-tartan-plaid-wine-tags-christmas-water-bottle-tags-prosecco-champagne-tags':
+    ['wine-tags-1', 'christmas-holiday'],
   // Bordered stationery set under Monograms and also Men
   'bordered-stationery-set-personalized-mens-and-womens-stationary-bordered-notecards-elegant-notecards-mens-womens-birthday-gift-1':
     ['monogram-styles', 'mens'],
