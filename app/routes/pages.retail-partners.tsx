@@ -285,13 +285,20 @@ function Hero() {
               </span>
             </h1>
             <p className="font-sans font-light text-[16px] md:text-lg leading-relaxed text-[#2D2D2D]/80 mt-6">
-              Offer your customers The Winsome Life&rsquo;s beautiful,
-              personalized stationery without buying a single piece of stock.
+              Beautiful personalized stationery. Zero inventory. A new revenue
+              opportunity for your store.
             </p>
             <p className="font-sans font-light text-[14px] md:text-[15px] leading-relaxed text-[#2D2D2D]/65 mt-4">
-              We provide the product samples, catalog, signage and an acrylic
-              display at no cost to you, and we handle all of the production
-              and shipping. All you do is take the order.
+              Delight your customers with The Winsome Life&rsquo;s personalized
+              stationery collection&mdash;without the hassle of stocking
+              inventory.
+            </p>
+            <p className="font-sans font-light text-[14px] md:text-[15px] leading-relaxed text-[#2D2D2D]/65 mt-4">
+              We provide complimentary product samples, catalogs, signage, and
+              display materials. We handle all production and shipping.
+            </p>
+            <p className="font-serif italic text-[1.3rem] md:text-[1.45rem] text-[#1B294E] mt-5">
+              You take the order. We do the rest.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Anchor to={IDS.inquiry} className={BTN_SOLID}>
