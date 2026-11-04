@@ -521,13 +521,18 @@ function HowItWorks() {
             <li key={s.title} className="text-center px-2">
               {/* Original paintings (photos of the artwork), one per step (Sydney). */}
               <div className="relative mx-auto w-48 h-48 bg-white p-2 shadow-sm ring-1 ring-[#C9A96E]/40">
+                {/* Original artwork: no right-click save, drag or long-press
+                    save (Sydney). Screenshots can't be blocked; the images
+                    are small and carry a © watermark. */}
                 <img
                   src={s.art}
                   alt=""
                   width={640}
                   height={640}
                   loading="lazy"
-                  className="w-full h-full object-cover"
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="w-full h-full object-cover select-none pointer-events-auto [-webkit-touch-callout:none] [-webkit-user-drag:none]"
                 />
                 <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white ring-1 ring-[#C9A96E]/70 font-serif text-[1.2rem] text-[#1B294E]">
                   {i + 1}
@@ -542,6 +547,10 @@ function HowItWorks() {
             </li>
           ))}
         </ol>
+        <p className="text-center mt-8 font-sans text-[11px] tracking-wide text-[#2D2D2D]/50">
+          All artwork shown is original and &copy; The Winsome Life. All rights
+          reserved.
+        </p>
         {/* In-store moments for steps 2 and 3 (Sydney's photos). */}
         <div className="mt-14 lg:mt-20 grid sm:grid-cols-2 gap-6 lg:gap-10 max-w-4xl mx-auto">
           {[
