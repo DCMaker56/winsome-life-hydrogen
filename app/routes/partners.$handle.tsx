@@ -17,16 +17,35 @@ import {
   PARTNER_SECTION_TITLES,
 } from '~/lib/partners';
 import type {CardData} from '~/lib/collection-filters.server';
+import {absoluteUrl} from '~/lib/seo';
 
-export const meta: Route.MetaFunction = ({data}) => [
-  {title: `${data?.partner.name ?? 'Partner'} × The Winsome Life`},
-  {
-    name: 'description',
-    content: `Personalized stationery from The Winsome Life, curated for ${data?.partner.name ?? 'our partner'}.`,
-  },
-  // Unlisted: partners share the link with their own customers.
-  {name: 'robots', content: 'noindex'},
-];
+export const meta: Route.MetaFunction = ({data}) => {
+  const name = data?.partner.name ?? 'Partner';
+  const title = `${name} × The Winsome Life`;
+  const description = `A curated collection of personalized stationery from The Winsome Life, chosen especially for ${name} customers.`;
+  const image = data?.partner.shareImage;
+  return [
+    {title},
+    {name: 'description', content: description},
+    // Unlisted: partners share the link with their own customers.
+    {name: 'robots', content: 'noindex'},
+    // Link preview when texted / shared: the partner's header picture.
+    {property: 'og:type', content: 'website'},
+    {property: 'og:title', content: title},
+    {property: 'og:description', content: description},
+    {property: 'og:url', content: absoluteUrl(`/partners/${data?.partner.handle ?? ''}`)},
+    ...(image
+      ? [
+          {property: 'og:image', content: absoluteUrl(image)},
+          {property: 'og:image:width', content: '1200'},
+          {property: 'og:image:height', content: '630'},
+          {property: 'og:image:alt', content: `The Winsome Life × ${name} — Personalized Stationery, a curated collection`},
+          {name: 'twitter:card', content: 'summary_large_image'},
+          {name: 'twitter:image', content: absoluteUrl(image)},
+        ]
+      : []),
+  ];
+};
 
 export async function loader({context, params, request}: Route.LoaderArgs) {
   const partner = params.handle ? PARTNERS[params.handle] : undefined;

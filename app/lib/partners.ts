@@ -16,6 +16,7 @@
  * code, then add an entry below (logo files go in app/assets/partners/).
  */
 import ellieBingLogo from '~/assets/partners/ellie-bing.png';
+import ellieBingShare from '~/assets/partners/ellie-bing-share.jpg';
 
 export type Partner = {
   handle: string;
@@ -30,6 +31,11 @@ export type Partner = {
   intro: string;
   /** Partner logo (image URL); null shows their name as a wordmark. */
   logo: string | null;
+  /**
+   * 1200×630 picture shown when the link is texted or shared (made from
+   * scripts/partner-share-template.html). null = the first product photo.
+   */
+  shareImage: string | null;
   website?: string;
   /** Partner brand colors for the page header. */
   colors: {background: string; text: string; accent: string};
@@ -46,6 +52,7 @@ export const PARTNERS: Record<string, Partner> = {
     intro:
       'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Ellie Bing customers.',
     logo: ellieBingLogo,
+    shareImage: ellieBingShare,
     website: 'https://www.elliebing.com',
     // Ellie Bing's light blue with their deeper blue as the accent (from
     // their website); the black logo reads clearly on the light blue.

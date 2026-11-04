@@ -1,0 +1,25 @@
+<!--
+  Link-preview image for a partner page (what shows when the link is texted
+  or shared). Render at 1200x630 with Playwright, with the partner's logo and
+  app/styles/ParisianScript.woff2 copied next to this file; swap the name,
+  logo and colors per partner. Output goes in app/assets/partners/<handle>-share.jpg.
+-->
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@500&display=block" rel="stylesheet">
+<style>
+@font-face{font-family:"Parisian Script";src:url("ParisianScript.woff2") format("woff2")}
+*{margin:0;box-sizing:border-box}
+body{width:1200px;height:630px;background:#CAEFF6;color:#111;display:flex;align-items:center;justify-content:center}
+.frame{position:absolute;inset:28px;border:2px solid #4679B9}
+.wrap{text-align:center;display:flex;flex-direction:column;align-items:center}
+.eyebrow{font-family:Montserrat,sans-serif;font-weight:500;font-size:22px;letter-spacing:.3em;text-transform:uppercase;opacity:.8}
+img{height:180px;margin-top:24px}
+.script{font-family:"Parisian Script";font-size:66px;line-height:1;margin-top:18px}
+.coll{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:34px;letter-spacing:.12em;text-transform:uppercase;margin-top:44px;display:flex;align-items:center;gap:18px}
+.coll span{color:#4679B9;font-size:22px}
+</style></head><body><div class="frame"></div><div class="wrap">
+<div class="eyebrow">The Winsome Life × Ellie Bing</div>
+<img src="ellie-bing.png">
+<div class="script">Personalized Stationery</div>
+<div class="coll"><span>✦</span>A Curated Collection<span>✦</span></div>
+</div></body></html>
