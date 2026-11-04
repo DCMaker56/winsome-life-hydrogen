@@ -793,8 +793,17 @@ export function ProductView({
             {topOptionGroups.length > 0 && (
               <div className="mb-6 space-y-5">
                 {topOptionGroups.map((opt) =>
-                  // Long lists (e.g. 26 quantity & return-address choices)
-                  // read better as a dropdown; short ones stay as buttons.
+                  // "10 + Blank Envelopes" / "10 + Return Address" asked as
+                  // two questions: how many cards, then which envelopes.
+                  setEnvelopeParts(opt.optionValues) ? (
+                    <SetEnvelopePicker
+                      key={opt.name}
+                      parts={setEnvelopeParts(opt.optionValues)!}
+                      value={selOptions[opt.name] ?? ''}
+                      onChange={(v) => setSelOptions((s) => ({...s, [opt.name]: v}))}
+                    />
+                  ) : // Long lists read better as a dropdown; short ones
+                  // stay as buttons.
                   opt.pictures ? (
                     <div key={opt.name}>
                       <div className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
@@ -1297,6 +1306,99 @@ function optionPictures(
     pictures[value] = url.toString();
   }
   return pictures;
+}
+
+type SetEnvelopePart = {value: string; count: number; returnAddress: boolean};
+
+/** A combined "count + envelopes" option split into its parts, or null when
+ *  the option isn't one (or offers only one kind of envelope). Odd one-offs
+ *  ("For Jessica (200)") are left out. */
+function setEnvelopeParts(values: {name: string}[]): SetEnvelopePart[] | null {
+  const parts = values.flatMap((v) => {
+    const m = v.name.match(/^\s*(\d+)\s*\+\s*(.*)$/);
+    return m && /blank|return/i.test(m[2])
+      ? [{value: v.name, count: Number(m[1]), returnAddress: /return/i.test(m[2])}]
+      : [];
+  });
+  return parts.some((p) => p.returnAddress) && parts.some((p) => !p.returnAddress)
+    ? parts
+    : null;
+}
+
+/** Number of cards, then envelopes — one Shopify choice underneath (Sydney:
+ *  the combined "10 + Return Address" list was confusing). */
+function SetEnvelopePicker({
+  parts,
+  value,
+  onChange,
+}: {
+  parts: SetEnvelopePart[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const current = parts.find((p) => p.value === value) ?? parts[0];
+  const counts = [...new Set(parts.map((p) => p.count))].sort((a, b) => a - b);
+  const pick = (count: number, returnAddress: boolean) => {
+    const match =
+      parts.find((p) => p.count === count && p.returnAddress === returnAddress) ??
+      parts.find((p) => p.count === count);
+    if (match) onChange(match.value);
+  };
+  const label =
+    'font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5';
+  const button = (active: boolean, enabled = true) =>
+    `px-4 py-2 text-sm font-sans border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
+      active
+        ? 'border-[#2D2D2D] bg-[#2D2D2D] text-white'
+        : enabled
+          ? 'border-[#C9A96E]/40 text-[#2D2D2D] hover:border-[#2D2D2D]'
+          : 'border-[#C9A96E]/20 text-[#2D2D2D]/35 cursor-not-allowed'
+    }`;
+  return (
+    <>
+      <div>
+        <div className={label}>Number of Cards</div>
+        <div className="flex flex-wrap gap-2">
+          {counts.map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => pick(c, current.returnAddress)}
+              aria-pressed={current.count === c}
+              className={button(current.count === c)}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div className={label}>Envelopes</div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            {ret: false, text: 'Blank Envelopes'},
+            {ret: true, text: 'Return Address Printed'},
+          ].map(({ret, text}) => {
+            const enabled = parts.some(
+              (p) => p.count === current.count && p.returnAddress === ret,
+            );
+            return (
+              <button
+                key={text}
+                type="button"
+                disabled={!enabled}
+                onClick={() => pick(current.count, ret)}
+                aria-pressed={current.returnAddress === ret}
+                className={button(current.returnAddress === ret, enabled)}
+              >
+                {text}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  );
 }
 
 /**
