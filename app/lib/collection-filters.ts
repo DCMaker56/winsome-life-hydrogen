@@ -33,7 +33,8 @@ export type FilterGroup = {key: string; label: string; options: Option[]};
 
 /**
  * The Collection filter: every collection the products are in, A–Z, except
- * the page's own collection (no "Notecards" filter on the Notecards page).
+ * the page's own collection (no "Notecards" filter on the Notecards page)
+ * and partner-only collections ("partner-…", see ~/lib/partners).
  */
 export function collectionGroup(
   collections: Array<{handle: string; title: string}>,
@@ -41,7 +42,11 @@ export function collectionGroup(
 ): FilterGroup {
   const seen = new Map<string, string>();
   for (const c of collections) {
-    if (c.handle !== currentCollection && !seen.has(c.handle)) {
+    if (
+      c.handle !== currentCollection &&
+      !c.handle.startsWith('partner-') &&
+      !seen.has(c.handle)
+    ) {
       seen.set(c.handle, c.title.replace(/ Collection$/i, ''));
     }
   }
