@@ -24,6 +24,8 @@ import signageCounter from '~/assets/retail/signage-counter.webp';
 import acrylicDisplay from '~/assets/retail/acrylic-display.webp';
 import catalogBinder from '~/assets/retail/catalog-binder.webp';
 import heroSignage from '~/assets/retail/signage-coastal-hero.webp';
+import customerChooses from '~/assets/retail/customer-chooses.webp';
+import ownerTakesOrder from '~/assets/retail/owner-takes-order.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -527,6 +529,37 @@ function HowItWorks() {
             </li>
           ))}
         </ol>
+        {/* In-store moments for steps 2 and 3 (Sydney's photos). */}
+        <div className="mt-14 lg:mt-20 grid sm:grid-cols-2 gap-6 lg:gap-10 max-w-4xl mx-auto">
+          {[
+            {
+              src: customerChooses,
+              alt: 'A shopper browsing The Winsome Life catalog at a boutique counter, with personalized notecard samples in a clear acrylic display',
+              caption: 'Your customer chooses from the catalog and samples.',
+            },
+            {
+              src: ownerTakesOrder,
+              alt: 'A boutique owner writing a stationery order form at a marble counter',
+              caption: 'You take the order. We handle the rest.',
+            },
+          ].map((photo) => (
+            <figure key={photo.caption}>
+              <div className="aspect-[4/5] overflow-hidden ring-1 ring-[#C9A96E]/25 bg-white">
+                <img
+                  src={photo.src}
+                  alt={photo.alt}
+                  width={1136}
+                  height={1408}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <figcaption className="text-center mt-4 font-serif italic text-[1.15rem] text-[#1B294E]">
+                {photo.caption}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
         <div className="text-center mt-12">
           <Anchor to={IDS.inquiry} className={LINK_TEXT}>
             Request your partner kit
