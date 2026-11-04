@@ -23,6 +23,7 @@ import {parseRetailInquiry, saveRetailInquiry} from '~/lib/retail-inquiry.server
 import signageCounter from '~/assets/retail/signage-counter.webp';
 import acrylicDisplay from '~/assets/retail/acrylic-display.webp';
 import catalogBinder from '~/assets/retail/catalog-binder.webp';
+import heroSignage from '~/assets/retail/signage-coastal-hero.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -303,14 +304,14 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative min-h-[300px] sm:min-h-[420px] lg:min-h-[640px]">
+        <div className="relative min-h-[460px] sm:min-h-[560px] lg:min-h-[640px]">
           <img
-            src={HERO_IMAGE}
-            alt="Personalized Winsome Life floral notecards arranged on an elegant writing desk"
-            className="absolute inset-0 w-full h-full object-cover"
+            src={heroSignage}
+            alt="The Winsome Life Personalized Stationery sign in a clear acrylic stand on a woven table in a bright coastal shop"
+            className="absolute inset-0 w-full h-full object-cover object-[center_40%]"
             loading="eager"
-            width={1800}
-            height={1200}
+            width={1122}
+            height={1402}
           />
           <div
             aria-hidden
