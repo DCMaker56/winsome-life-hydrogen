@@ -106,7 +106,11 @@ export const SORT_OPTIONS = [
 
 export type Selection = Record<string, string[]>;
 
-export function parseSelection(params: URLSearchParams): {selection: Selection; sort: string} {
+export function parseSelection(params: URLSearchParams): {
+  selection: Selection;
+  sort: string;
+  q: string;
+} {
   const selection: Selection = {};
   for (const g of FILTER_GROUPS) {
     const values = (params.get(g.key) ?? '')
@@ -117,7 +121,8 @@ export function parseSelection(params: URLSearchParams): {selection: Selection; 
   }
   const s = params.get('sort') ?? 'featured';
   const sort = SORT_OPTIONS.some((o) => o.value === s) ? s : 'featured';
-  return {selection, sort};
+  const q = (params.get('q') ?? '').trim().slice(0, 100);
+  return {selection, sort, q};
 }
 
 function matches(p: FilterProduct, o: Option) {
@@ -146,11 +151,20 @@ export type FacetGroup = {
  * filter on the Floral page).
  */
 export function applyFilters(
-  products: FilterProduct[],
+  allProducts: FilterProduct[],
   selection: Selection,
   sort: string,
   currentCollection?: string,
+  q = '',
 ) {
+  // Search box: every word must appear in the product's name ("duck notepad").
+  const words = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const products = words.length
+    ? allProducts.filter((p) => {
+        const name = p.title.toLowerCase();
+        return words.every((w) => name.includes(w));
+      })
+    : allProducts;
   const results = products.filter((p) => passes(p, selection));
   if (sort === 'price-asc') results.sort((a, b) => a.minPrice - b.minPrice);
   else if (sort === 'price-desc') results.sort((a, b) => b.minPrice - a.minPrice);

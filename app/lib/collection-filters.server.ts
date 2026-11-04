@@ -116,8 +116,8 @@ export async function loadFilteredProducts(
     minPrice: Number(p.priceRange.minVariantPrice.amount),
     publishedAt: p.publishedAt ?? '',
   }));
-  const {selection, sort} = parseSelection(new URL(request.url).searchParams);
-  const {results, facets} = applyFilters(products, selection, sort, collectionHandle);
+  const {selection, sort, q} = parseSelection(new URL(request.url).searchParams);
+  const {results, facets} = applyFilters(products, selection, sort, collectionHandle, q);
   const cards: CardData[] = results.map((r) => {
     const p = byId.get(r.id)!;
     const price = Number(p.priceRange.minVariantPrice.amount);
@@ -131,5 +131,5 @@ export async function loadFilteredProducts(
       type: p.productType || 'stationery',
     };
   });
-  return {cards, facets, selection, sort, total: products.length};
+  return {cards, facets, selection, sort, q, total: products.length};
 }

@@ -28,7 +28,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
 }
 
 export default function AllProducts() {
-  const {cards, facets, sort} = useLoaderData<typeof loader>();
+  const {cards, facets, sort, q} = useLoaderData<typeof loader>();
 
   const listProducts = cards.slice(0, 24).map((p) => ({
     slug: p.slug,
@@ -67,7 +67,13 @@ export default function AllProducts() {
       </section>
 
       <section className="container max-w-7xl mx-auto px-4 lg:px-8">
-        <CollectionFilters facets={facets} sort={sort} resultCount={cards.length} />
+        <CollectionFilters
+          facets={facets}
+          sort={sort}
+          resultCount={cards.length}
+          q={q}
+          searchPlaceholder="Search all designs"
+        />
         <FilteredProductGrid cards={cards} />
       </section>
 

@@ -9,7 +9,7 @@
  */
 import {useEffect, useRef, useState} from 'react';
 import {Link, useNavigation, useSearchParams} from 'react-router';
-import {ChevronDown, SlidersHorizontal, X} from 'lucide-react';
+import {ChevronDown, Search, SlidersHorizontal, X} from 'lucide-react';
 import {SORT_OPTIONS, type FacetGroup} from '~/lib/collection-filters';
 import type {CardData} from '~/lib/collection-filters.server';
 import {buildSrcSet} from '~/lib/seo';
@@ -39,20 +39,78 @@ function useFilterParams() {
       else p.set('sort', value);
     });
   const clearAll = (groups: string[]) =>
-    update((p) => groups.forEach((g) => p.delete(g)));
-  return {toggle, setSort, clearAll};
+    update((p) => [...groups, 'q'].forEach((g) => p.delete(g)));
+  const setQuery = (value: string) =>
+    update((p) => {
+      if (value.trim()) p.set('q', value.trim());
+      else p.delete('q');
+    });
+  return {toggle, setSort, clearAll, setQuery};
+}
+
+/** Search box: narrows the page as you type (after a short pause). */
+function SearchBox({
+  q,
+  placeholder,
+  onSearch,
+  className = '',
+}: {
+  q: string;
+  placeholder: string;
+  onSearch: (value: string) => void;
+  className?: string;
+}) {
+  const [value, setValue] = useState(q);
+  const timer = useRef<number | undefined>(undefined);
+  // Keep in step when the URL changes (e.g. "Clear all").
+  useEffect(() => setValue(q), [q]);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  return (
+    <form
+      role="search"
+      className={`relative ${className}`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        window.clearTimeout(timer.current);
+        onSearch(value);
+      }}
+    >
+      <Search
+        size={16}
+        aria-hidden
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#2D2D2D]/45"
+      />
+      <input
+        type="search"
+        value={value}
+        aria-label={placeholder}
+        placeholder={placeholder}
+        onChange={(e) => {
+          const v = e.target.value;
+          setValue(v);
+          window.clearTimeout(timer.current);
+          timer.current = window.setTimeout(() => onSearch(v), 450);
+        }}
+        className="w-full h-10 pl-9 pr-3 border border-[#C9A96E]/40 bg-white font-sans text-[13px] text-[#2D2D2D] placeholder:text-[#2D2D2D]/45 focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
+      />
+    </form>
+  );
 }
 
 export function CollectionFilters({
   facets,
   sort,
   resultCount,
+  q = '',
+  searchPlaceholder = 'Search',
 }: {
   facets: FacetGroup[];
   sort: string;
   resultCount: number;
+  q?: string;
+  searchPlaceholder?: string;
 }) {
-  const {toggle, setSort, clearAll} = useFilterParams();
+  const {toggle, setSort, clearAll, setQuery} = useFilterParams();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const barRef = useRef<HTMLDivElement>(null);
@@ -108,6 +166,7 @@ export function CollectionFilters({
     <div className="mb-8">
       {/* Desktop bar */}
       <div ref={barRef} className="hidden md:flex flex-wrap items-center gap-2">
+        <SearchBox q={q} placeholder={searchPlaceholder} onSearch={setQuery} className="w-64" />
         {facets.map((g) => {
           const n = g.options.filter((o) => o.selected).length;
           const isOpen = openGroup === g.key;
@@ -155,7 +214,8 @@ export function CollectionFilters({
         </label>
       </div>
 
-      {/* Phone button */}
+      {/* Phone search + button */}
+      <SearchBox q={q} placeholder={searchPlaceholder} onSearch={setQuery} className="md:hidden mb-3" />
       <div className="md:hidden flex items-center justify-between gap-3">
         <button
           type="button"
@@ -171,8 +231,19 @@ export function CollectionFilters({
       </div>
 
       {/* Chosen filters */}
-      {chosen.length > 0 && (
+      {(chosen.length > 0 || q) && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
+          {q && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="inline-flex items-center gap-1.5 h-8 px-3 bg-[#F6F0E7] border border-[#C9A96E]/40 font-sans text-[12px] text-[#2D2D2D] hover:border-[#2D2D2D]"
+              aria-label={`Clear search for ${q}`}
+            >
+              &ldquo;{q}&rdquo;
+              <X size={12} />
+            </button>
+          )}
           {chosen.map((c) => (
             <button
               key={`${c.group}-${c.value}`}
@@ -284,7 +355,7 @@ export function FilteredProductGrid({cards}: {cards: CardData[]}) {
   if (!cards.length) {
     return (
       <p className="py-20 text-center font-sans text-sm text-[#2D2D2D]/60">
-        No pieces match these filters. Try removing one.
+        No pieces match. Try a different word or remove a filter.
       </p>
     );
   }

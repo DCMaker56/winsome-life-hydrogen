@@ -50,7 +50,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 }
 
 export default function CollectionRoute() {
-  const {collection, cards, facets, sort} = useLoaderData<typeof loader>();
+  const {collection, cards, facets, sort, q} = useLoaderData<typeof loader>();
   const count = cards.length;
 
   const listProducts = cards.slice(0, 24).map((p) => ({
@@ -102,7 +102,13 @@ export default function CollectionRoute() {
 
       {/* Filters + product grid */}
       <section className="container max-w-7xl mx-auto px-4 lg:px-8">
-        <CollectionFilters facets={facets} sort={sort} resultCount={count} />
+        <CollectionFilters
+          facets={facets}
+          sort={sort}
+          resultCount={count}
+          q={q}
+          searchPlaceholder={`Search ${collection.title.replace(/ Collection$/i, '').toLowerCase()}`}
+        />
         <FilteredProductGrid cards={cards} />
       </section>
 
