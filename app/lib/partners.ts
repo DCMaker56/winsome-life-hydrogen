@@ -47,8 +47,9 @@ export const PARTNERS: Record<string, Partner> = {
       'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Ellie Bing customers.',
     logo: ellieBingLogo,
     website: 'https://www.elliebing.com',
-    // Ellie Bing's black-and-white look (from their logo).
-    colors: {background: '#FFFFFF', text: '#111111', accent: '#111111'},
+    // Ellie Bing's light blue with their deeper blue as the accent (from
+    // their website); the black logo reads clearly on the light blue.
+    colors: {background: '#CAEFF6', text: '#111111', accent: '#4679B9'},
   },
 };
 
