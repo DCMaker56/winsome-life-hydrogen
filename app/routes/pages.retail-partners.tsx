@@ -317,7 +317,7 @@ function Hero() {
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Anchor to={IDS.inquiry} className={BTN_SOLID}>
-                Become a Retail Partner
+                Apply to Partner
               </Anchor>
               <Anchor to={IDS.kit} className={BTN_OUTLINE}>
                 See How It Works
@@ -1004,6 +1004,10 @@ const FAQS = [
     a: 'Set out the display, let customers browse the samples and catalog, and take their order. We’ll walk you through exactly how to place orders when we set you up.',
   },
   {
+    q: 'Can any store join?',
+    a: 'We review every application and partner with shops whose style and customers are a natural fit for our collection.',
+  },
+  {
     q: 'How does partner pricing work?',
     a: 'Partners receive an exclusive 35% discount off our retail prices. Your customers pay the regular retail price, so your store earns the difference on every order, with no inventory to buy and no risk. Tell us a little about your store below and we’ll walk you through the details.',
   },
@@ -1111,7 +1115,7 @@ function Inquiry() {
       <div className="container max-w-6xl mx-auto px-5 lg:px-8">
         <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-10 lg:gap-16 items-start">
           <div className="lg:sticky lg:top-32">
-            <Eyebrow>Become a Retail Partner</Eyebrow>
+            <Eyebrow>Apply to Become a Retail Partner</Eyebrow>
             <h2
               id="inquiry-title"
               className="font-serif font-medium text-[2.3rem] md:text-5xl leading-[1.08] text-[#1B294E]"
@@ -1119,8 +1123,10 @@ function Inquiry() {
               Let&rsquo;s bring The Winsome Life to your store.
             </h2>
             <p className="mt-6 font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]/75">
-              Tell us a little about your shop. We&rsquo;ll be in touch to share
-              the details and get your partner kit on its way.
+              We partner with a select group of boutiques that share our love
+              of thoughtful, beautifully made gifts. Tell us about your store,
+              and if it&rsquo;s a good fit, we&rsquo;ll be in touch to talk
+              next steps.
             </p>
             <p className="mt-8 font-sans font-light text-[13px] text-[#2D2D2D]/60">
               Prefer email? Write to us at{' '}
@@ -1152,11 +1158,12 @@ function Inquiry() {
                   Thank you
                 </p>
                 <h3 className="font-serif font-medium text-2xl text-[#1B294E] mt-2">
-                  We&rsquo;ve received your request.
+                  We&rsquo;ve received your application.
                 </h3>
                 <p className="font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]/70 mt-4 max-w-md mx-auto">
                   We&rsquo;re so glad you&rsquo;re interested in partnering with
-                  us. A member of our team will be in touch soon.
+                  us. We review every application personally and will be in
+                  touch soon.
                 </p>
               </div>
             ) : (
@@ -1236,7 +1243,7 @@ function Inquiry() {
                   disabled={submitting}
                   className={`${BTN_SOLID} mt-8 w-full sm:w-auto disabled:opacity-60 disabled:cursor-wait`}
                 >
-                  {submitting ? 'Sending…' : 'Become a Retail Partner'}
+                  {submitting ? 'Sending…' : 'Apply to Partner'}
                 </button>
               </Form>
             )}
@@ -1282,7 +1289,7 @@ function MobileInquiryBar() {
         tabIndex={show ? 0 : -1}
         className="flex items-center justify-center w-full bg-[#1B294E] text-white py-3.5 font-sans font-medium text-[12px] tracking-[0.18em] uppercase"
       >
-        Become a Retail Partner
+        Apply to Partner
       </a>
     </div>
   );
