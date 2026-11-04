@@ -24,6 +24,7 @@ import signageCounter from '~/assets/retail/signage-counter.webp';
 import acrylicDisplay from '~/assets/retail/acrylic-display.webp';
 import catalogBinder from '~/assets/retail/catalog-binder.webp';
 import heroSignage from '~/assets/retail/signage-coastal-hero.webp';
+import shareImage from '~/assets/retail/share-retail-partners.jpg';
 import customerChooses from '~/assets/retail/customer-chooses.webp';
 import ownerTakesOrder from '~/assets/retail/owner-takes-order.webp';
 import productSamples from '~/assets/retail/product-samples.webp';
@@ -38,9 +39,8 @@ const CANONICAL = `${SITE_URL}/pages/retail-partners`;
 const TITLE = 'Retail Partner Program | Personalized Stationery, Zero Inventory | The Winsome Life';
 const DESCRIPTION =
   'Offer luxury personalized stationery in your store with zero inventory and no risk. We provide samples, a catalog, signage and an acrylic display at no cost, and handle all production and shipping.';
-// Brand desk-scene photography from the live site: floral notecards on a writing desk.
-const HERO_IMAGE =
-  'https://caatee-kr.myshopify.com/cdn/shop/files/03.png?v=1758893929&width=1800';
+// Link-preview picture (1200×630): the coastal signage photo on cream.
+const SHARE_IMAGE = shareImage.startsWith('http') ? shareImage : `${SITE_URL}${shareImage}`;
 
 export const meta: Route.MetaFunction = () => [
   {title: TITLE},
@@ -50,7 +50,11 @@ export const meta: Route.MetaFunction = () => [
   {property: 'og:title', content: TITLE},
   {property: 'og:description', content: DESCRIPTION},
   {property: 'og:url', content: CANONICAL},
-  {property: 'og:image', content: HERO_IMAGE},
+  {property: 'og:image', content: SHARE_IMAGE},
+  {property: 'og:image:width', content: '1200'},
+  {property: 'og:image:height', content: '630'},
+  {name: 'twitter:card', content: 'summary_large_image'},
+  {name: 'twitter:image', content: SHARE_IMAGE},
 ];
 
 /* ------------------------------------------------------------------ */
@@ -320,7 +324,7 @@ function Hero() {
                 Apply to Partner
               </Anchor>
               <Anchor to={IDS.kit} className={BTN_OUTLINE}>
-                See How It Works
+                See the Partner Kit
               </Anchor>
             </div>
           </div>
