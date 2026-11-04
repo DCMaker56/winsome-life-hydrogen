@@ -35,6 +35,7 @@ import artDragonfly from '~/assets/retail/art-dragonfly.webp';
 import artShell from '~/assets/retail/art-shell.webp';
 import artOrchid from '~/assets/retail/art-orchid.webp';
 import artBirdOfParadise from '~/assets/retail/art-bird-of-paradise.webp';
+import artHydrangeaCutout from '~/assets/retail/art-hydrangea-cutout.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -1178,6 +1179,17 @@ function Inquiry() {
               </Link>
               .
             </p>
+            {/* Original painting (Sydney): blue hydrangea, cut out from the paper. */}
+            <img
+              src={artHydrangeaCutout}
+              alt=""
+              width={760}
+              height={535}
+              loading="lazy"
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              className="hidden sm:block mt-10 w-64 lg:w-72 h-auto select-none [-webkit-touch-callout:none] [-webkit-user-drag:none]"
+            />
           </div>
 
           <div className="bg-white ring-1 ring-[#1B294E]/10 shadow-[0_24px_50px_-30px_rgba(27,41,78,0.3)] p-6 sm:p-9">
