@@ -15,7 +15,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {Form, Link, useActionData, useLoaderData, useNavigation} from 'react-router';
 import {Image, Money} from '@shopify/hydrogen';
-import {BookOpen, Frame, Layers, Signpost} from 'lucide-react';
+import {BookOpen, ChevronDown, Frame, Layers, Signpost} from 'lucide-react';
 import type {Route} from './+types/pages.retail-partners';
 import {SITE_URL} from '~/lib/seo';
 import {STORE_TYPES, type RetailInquiryResult} from '~/lib/retail-inquiry';
@@ -141,7 +141,12 @@ export async function action({request, context}: Route.ActionArgs) {
 /* Shared bits                                                         */
 /* ------------------------------------------------------------------ */
 
-const IDS = {how: 'how-it-works', inquiry: 'become-a-partner'};
+const IDS = {
+  kit: 'partner-kit',
+  how: 'how-it-works',
+  split: 'who-does-what',
+  inquiry: 'become-a-partner',
+};
 const SCRIPT = "'Parisian Script', 'Great Vibes', cursive";
 
 function scrollToId(e: React.MouseEvent<HTMLAnchorElement>, id: string) {
@@ -312,7 +317,7 @@ function Hero() {
               <Anchor to={IDS.inquiry} className={BTN_SOLID}>
                 Become a Retail Partner
               </Anchor>
-              <Anchor to={IDS.how} className={BTN_OUTLINE}>
+              <Anchor to={IDS.kit} className={BTN_OUTLINE}>
                 See How It Works
               </Anchor>
             </div>
@@ -341,15 +346,33 @@ function Hero() {
 
 /* --------------------------- Promises ----------------------------- */
 
+/** A small "keep scrolling" cue to the next section (Sydney: make sure
+ *  stores see the partner kit, then keep going). */
+function NextCue({to, label}: {to: string; label: string}) {
+  return (
+    <div className="text-center mt-12">
+      <a
+        href={`#${to}`}
+        onClick={(e) => scrollToId(e, to)}
+        className="inline-flex flex-col items-center gap-1 font-sans font-medium text-[11px] tracking-[0.25em] uppercase text-[#1B294E]/70 hover:text-[#C9A96E] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C9A96E]"
+      >
+        {label}
+        <ChevronDown aria-hidden size={22} strokeWidth={1.25} className="motion-safe:animate-bounce text-[#C9A96E]" />
+      </a>
+    </div>
+  );
+}
+
 function Promises() {
   const items = [
     {big: 'Zero', label: 'inventory to buy or store'},
     {big: 'No cost', label: 'for samples, catalog, signage and display'},
     {big: 'We ship', label: 'every order, made to order'},
+    {big: 'You earn', label: 'on every order, with zero risk'},
   ];
   return (
     <section aria-label="Program at a glance" className="bg-[#1B294E] text-white">
-      <ul className="container max-w-6xl mx-auto px-5 lg:px-8 py-10 lg:py-12 grid sm:grid-cols-3 gap-8 sm:gap-6 text-center">
+      <ul className="container max-w-6xl mx-auto px-5 lg:px-8 py-10 lg:py-12 grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6 text-center">
         {items.map((it) => (
           <li key={it.big} className="flex flex-col items-center">
             <span className="font-serif text-[2.2rem] lg:text-[2.6rem] leading-none text-[#E8D9B5]">
@@ -423,7 +446,11 @@ function PartnerKit() {
     },
   ];
   return (
-    <section aria-labelledby="kit-title" className="bg-white py-16 lg:py-24">
+    <section
+      id={IDS.kit}
+      aria-labelledby="kit-title"
+      className="scroll-mt-28 bg-white py-16 lg:py-24"
+    >
       <div className="container max-w-6xl mx-auto px-5 lg:px-8">
         <SectionHeading
           eyebrow="Your Partner Kit"
@@ -477,6 +504,7 @@ function PartnerKit() {
         <p className="text-center mt-10 font-serif italic text-[1.25rem] text-[#2D2D2D]/75">
           No inventory. No upfront cost. No risk.
         </p>
+        <NextCue to={IDS.how} label="Next: How it works" />
       </div>
     </section>
   );
@@ -588,6 +616,7 @@ function HowItWorks() {
             Request your partner kit
           </Anchor>
         </div>
+        <NextCue to={IDS.split} label="Next: Who does what" />
       </div>
     </section>
   );
@@ -604,7 +633,11 @@ function WhoDoesWhat() {
     'Ship every order',
   ];
   return (
-    <section aria-labelledby="split-title" className="bg-[#FAF8F5] py-16 lg:py-24">
+    <section
+      id={IDS.split}
+      aria-labelledby="split-title"
+      className="scroll-mt-28 bg-[#FAF8F5] py-16 lg:py-24"
+    >
       <div className="container max-w-5xl mx-auto px-5 lg:px-8">
         <SectionHeading eyebrow="Truly Effortless" id="split-title">
           You take the order. We take care of everything else.
