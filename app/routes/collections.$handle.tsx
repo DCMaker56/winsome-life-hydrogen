@@ -5,8 +5,9 @@
  */
 import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/collections.$handle';
-import {Analytics, getPaginationVariables} from '@shopify/hydrogen';
-import {InfiniteProductGrid} from '~/components/InfiniteProductGrid';
+import {Analytics} from '@shopify/hydrogen';
+import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
+import {loadFilteredProducts} from '~/lib/collection-filters.server';
 import {JsonLd} from '~/components/JsonLd';
 import {
   absoluteUrl,
@@ -37,35 +38,27 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const {handle} = params;
   if (!handle) throw new Response(null, {status: 404});
 
-  const paginationVariables = getPaginationVariables(request, {pageBy: 24});
-
-  const [{collection}] = await Promise.all([
+  const [{collection}, filtered] = await Promise.all([
     context.storefront.query(COLLECTION_QUERY, {
-      variables: {handle, ...paginationVariables},
+      variables: {handle, first: 1},
     }),
+    loadFilteredProducts(context.storefront as never, request, handle),
   ]);
   if (!collection) throw new Response(null, {status: 404});
 
-  return {collection};
+  return {collection, ...filtered};
 }
 
 export default function CollectionRoute() {
-  const {collection} = useLoaderData<typeof loader>();
-  const count = collection.products?.nodes?.length ?? 0;
+  const {collection, cards, facets, sort} = useLoaderData<typeof loader>();
+  const count = cards.length;
 
-  const listProducts = (collection.products?.nodes ?? []).map(
-    (p: {
-      handle: string;
-      title: string;
-      featuredImage?: {url?: string | null} | null;
-      variants?: {nodes?: Array<{price?: {amount?: string} | null} | null>} | null;
-    }) => ({
-      slug: p.handle,
-      title: p.title,
-      image: p.featuredImage?.url ?? undefined,
-      price: Number(p.variants?.nodes?.[0]?.price?.amount ?? 0) || undefined,
-    }),
-  );
+  const listProducts = cards.slice(0, 24).map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    image: p.image ?? undefined,
+    price: p.price || undefined,
+  }));
 
   return (
     <main id="main" className="bg-[#FAF8F5] min-h-screen pb-20">
@@ -97,9 +90,7 @@ export default function CollectionRoute() {
             {collection.title.replace(/ Collection$/i, '')}
           </h1>
           <p className="font-sans text-sm text-[#2D2D2D]/45">
-            {count}
-            {collection.products?.pageInfo?.hasNextPage ? '+' : ''}{' '}
-            {count === 1 ? 'piece' : 'pieces'}
+            {count} {count === 1 ? 'piece' : 'pieces'}
           </p>
           {collection.description && (
             <p className="font-sans font-light text-sm text-[#2D2D2D]/60 leading-relaxed w-full max-w-2xl mt-1">
@@ -109,9 +100,10 @@ export default function CollectionRoute() {
         </div>
       </section>
 
-      {/* Product grid — infinite scroll */}
+      {/* Filters + product grid */}
       <section className="container max-w-7xl mx-auto px-4 lg:px-8">
-        <InfiniteProductGrid connection={collection.products} />
+        <CollectionFilters facets={facets} sort={sort} resultCount={count} />
+        <FilteredProductGrid cards={cards} />
       </section>
 
       <Analytics.CollectionView

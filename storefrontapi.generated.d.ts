@@ -680,81 +680,6 @@ export type StoreCollectionsIndexQuery = {
   };
 };
 
-export type CatalogProductFragment = Pick<
-  StorefrontAPI.Product,
-  | 'id'
-  | 'handle'
-  | 'title'
-  | 'descriptionHtml'
-  | 'vendor'
-  | 'productType'
-  | 'tags'
-> & {
-  featuredImage?: StorefrontAPI.Maybe<
-    Pick<StorefrontAPI.Image, 'url' | 'altText'>
-  >;
-  images: {nodes: Array<Pick<StorefrontAPI.Image, 'url'>>};
-  variants: {
-    nodes: Array<
-      Pick<StorefrontAPI.ProductVariant, 'availableForSale'> & {
-        price: Pick<StorefrontAPI.MoneyV2, 'amount'>;
-        compareAtPrice?: StorefrontAPI.Maybe<
-          Pick<StorefrontAPI.MoneyV2, 'amount'>
-        >;
-      }
-    >;
-  };
-};
-
-export type CatalogQueryVariables = StorefrontAPI.Exact<{
-  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
-  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
-  startCursor?: StorefrontAPI.InputMaybe<
-    StorefrontAPI.Scalars['String']['input']
-  >;
-  endCursor?: StorefrontAPI.InputMaybe<
-    StorefrontAPI.Scalars['String']['input']
-  >;
-}>;
-
-export type CatalogQuery = {
-  products: {
-    nodes: Array<
-      Pick<
-        StorefrontAPI.Product,
-        | 'id'
-        | 'handle'
-        | 'title'
-        | 'descriptionHtml'
-        | 'vendor'
-        | 'productType'
-        | 'tags'
-      > & {
-        featuredImage?: StorefrontAPI.Maybe<
-          Pick<StorefrontAPI.Image, 'url' | 'altText'>
-        >;
-        images: {nodes: Array<Pick<StorefrontAPI.Image, 'url'>>};
-        variants: {
-          nodes: Array<
-            Pick<StorefrontAPI.ProductVariant, 'availableForSale'> & {
-              price: Pick<StorefrontAPI.MoneyV2, 'amount'>;
-              compareAtPrice?: StorefrontAPI.Maybe<
-                Pick<StorefrontAPI.MoneyV2, 'amount'>
-              >;
-            }
-          >;
-        };
-      }
-    >;
-    pageInfo: Pick<
-      StorefrontAPI.PageInfo,
-      'hasPreviousPage' | 'hasNextPage' | 'startCursor' | 'endCursor'
-    >;
-  };
-};
-
 export type PageQueryVariables = StorefrontAPI.Exact<{
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
@@ -1354,17 +1279,13 @@ interface GeneratedQueryTypes {
     return: BlogsQuery;
     variables: BlogsQueryVariables;
   };
-  '#graphql\n  #graphql\n  fragment CatalogProduct on Product {\n    id\n    handle\n    title\n    descriptionHtml\n    vendor\n    productType\n    tags\n    featuredImage { url altText }\n    images(first: 2) { nodes { url } }\n    variants(first: 3) {\n      nodes {\n        price { amount }\n        compareAtPrice { amount }\n        availableForSale\n      }\n    }\n  }\n\n  query Collection(\n    $handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      handle\n      title\n      description\n      products(\n        first: $first\n        last: $last\n        before: $startCursor\n        after: $endCursor\n      ) {\n        nodes { ...ProductItem }\n        pageInfo {\n          hasPreviousPage\n          hasNextPage\n          startCursor\n          endCursor\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  #graphql\n  fragment ProductItem on Product {\n    id\n    handle\n    title\n    descriptionHtml\n    productType\n    tags\n    featuredImage { url altText }\n    images(first: 3) { nodes { url } }\n    variants(first: 3) {\n      nodes {\n        price { amount }\n        compareAtPrice { amount }\n        availableForSale\n      }\n    }\n  }\n\n  query Collection(\n    $handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      handle\n      title\n      description\n      products(\n        first: $first\n        last: $last\n        before: $startCursor\n        after: $endCursor\n      ) {\n        nodes { ...ProductItem }\n        pageInfo {\n          hasPreviousPage\n          hasNextPage\n          startCursor\n          endCursor\n        }\n      }\n    }\n  }\n': {
     return: CollectionQuery;
     variables: CollectionQueryVariables;
   };
   '#graphql\n  query StoreCollectionsIndex($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    collections(first: 60, sortKey: TITLE) {\n      nodes {\n        id\n        handle\n        title\n        description\n        image { url altText }\n        products(first: 1) {\n          nodes {\n            featuredImage { url }\n          }\n        }\n      }\n    }\n  }\n': {
     return: StoreCollectionsIndexQuery;
     variables: StoreCollectionsIndexQueryVariables;
-  };
-  '#graphql\n  query Catalog(\n    $country: CountryCode\n    $language: LanguageCode\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n  ) @inContext(country: $country, language: $language) {\n    products(first: $first, last: $last, before: $startCursor, after: $endCursor, query: "tag_not:add-on") {\n      nodes { ...CatalogProduct }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        startCursor\n        endCursor\n      }\n    }\n  }\n  #graphql\n  fragment CatalogProduct on Product {\n    id\n    handle\n    title\n    descriptionHtml\n    vendor\n    productType\n    tags\n    featuredImage { url altText }\n    images(first: 2) { nodes { url } }\n    variants(first: 3) {\n      nodes {\n        price { amount }\n        compareAtPrice { amount }\n        availableForSale\n      }\n    }\n  }\n\n': {
-    return: CatalogQuery;
-    variables: CatalogQueryVariables;
   };
   '#graphql\n  query Page(\n    $language: LanguageCode,\n    $country: CountryCode,\n    $handle: String!\n  )\n  @inContext(language: $language, country: $country) {\n    page(handle: $handle) {\n      handle\n      id\n      title\n      body\n      seo {\n        description\n        title\n      }\n    }\n  }\n': {
     return: PageQuery;

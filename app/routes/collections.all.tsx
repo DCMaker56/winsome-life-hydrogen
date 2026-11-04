@@ -3,8 +3,9 @@
  */
 import type {Route} from './+types/collections.all';
 import {useLoaderData, Link} from 'react-router';
-import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
-import {InfiniteProductGrid} from '~/components/InfiniteProductGrid';
+import {Analytics} from '@shopify/hydrogen';
+import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
+import {loadFilteredProducts} from '~/lib/collection-filters.server';
 import {JsonLd} from '~/components/JsonLd';
 import {absoluteUrl, breadcrumbJsonLd, itemListJsonLd} from '~/lib/seo';
 
@@ -23,25 +24,17 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export async function loader({context, request}: Route.LoaderArgs) {
-  const paginationVariables = getPaginationVariables(request, {pageBy: 24});
-
-  const [{products}] = await Promise.all([
-    context.storefront.query(CATALOG_QUERY, {
-      variables: {...paginationVariables},
-    }),
-  ]);
-
-  return {products};
+  return loadFilteredProducts(context.storefront as never, request);
 }
 
 export default function AllProducts() {
-  const {products} = useLoaderData<typeof loader>();
+  const {cards, facets, sort} = useLoaderData<typeof loader>();
 
-  const listProducts = (products.nodes ?? []).map((p) => ({
-    slug: p.handle,
+  const listProducts = cards.slice(0, 24).map((p) => ({
+    slug: p.slug,
     title: p.title,
-    image: p.featuredImage?.url ?? undefined,
-    price: Number(p.variants?.nodes?.[0]?.price?.amount ?? 0) || undefined,
+    image: p.image ?? undefined,
+    price: p.price || undefined,
   }));
 
   return (
@@ -74,7 +67,8 @@ export default function AllProducts() {
       </section>
 
       <section className="container max-w-7xl mx-auto px-4 lg:px-8">
-        <InfiniteProductGrid connection={products} />
+        <CollectionFilters facets={facets} sort={sort} resultCount={cards.length} />
+        <FilteredProductGrid cards={cards} />
       </section>
 
       <Analytics.CollectionView
@@ -83,46 +77,3 @@ export default function AllProducts() {
     </main>
   );
 }
-
-const PRODUCT_FRAGMENT = `#graphql
-  fragment CatalogProduct on Product {
-    id
-    handle
-    title
-    descriptionHtml
-    vendor
-    productType
-    tags
-    featuredImage { url altText }
-    images(first: 2) { nodes { url } }
-    variants(first: 3) {
-      nodes {
-        price { amount }
-        compareAtPrice { amount }
-        availableForSale
-      }
-    }
-  }
-` as const;
-
-const CATALOG_QUERY = `#graphql
-  query Catalog(
-    $country: CountryCode
-    $language: LanguageCode
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
-  ) @inContext(country: $country, language: $language) {
-    products(first: $first, last: $last, before: $startCursor, after: $endCursor, query: "tag_not:add-on") {
-      nodes { ...CatalogProduct }
-      pageInfo {
-        hasPreviousPage
-        hasNextPage
-        startCursor
-        endCursor
-      }
-    }
-  }
-  ${PRODUCT_FRAGMENT}
-` as const;
