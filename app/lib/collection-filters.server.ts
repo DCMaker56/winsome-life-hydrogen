@@ -5,6 +5,7 @@
  */
 import {
   applyFilters,
+  collectionGroup,
   parseSelection,
   type FilterProduct,
 } from '~/lib/collection-filters';
@@ -24,7 +25,7 @@ type RawProduct = {
   featuredImage: {url: string} | null;
   priceRange: {minVariantPrice: {amount: string}};
   compareAtPriceRange: {maxVariantPrice: {amount: string}};
-  collections: {nodes: Array<{handle: string}>};
+  collections: {nodes: Array<{handle: string; title: string}>};
 };
 
 type Page = {
@@ -37,7 +38,7 @@ const FIELDS = `
   featuredImage { url }
   priceRange { minVariantPrice { amount } }
   compareAtPriceRange { maxVariantPrice { amount } }
-  collections(first: 60) { nodes { handle } }
+  collections(first: 60) { nodes { handle title } }
 `;
 
 const COLLECTION_PRODUCTS = `
@@ -116,8 +117,14 @@ export async function loadFilteredProducts(
     minPrice: Number(p.priceRange.minVariantPrice.amount),
     publishedAt: p.publishedAt ?? '',
   }));
-  const {selection, sort, q} = parseSelection(new URL(request.url).searchParams);
-  const {results, facets} = applyFilters(products, selection, sort, collectionHandle, q);
+  const groups = [
+    collectionGroup(
+      raw.flatMap((p) => p.collections.nodes),
+      collectionHandle,
+    ),
+  ];
+  const {selection, sort, q} = parseSelection(new URL(request.url).searchParams, groups);
+  const {results, facets} = applyFilters(products, groups, selection, sort, q);
   const cards: CardData[] = results.map((r) => {
     const p = byId.get(r.id)!;
     const price = Number(p.priceRange.minVariantPrice.amount);

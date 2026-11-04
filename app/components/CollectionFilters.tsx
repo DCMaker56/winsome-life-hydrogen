@@ -1,6 +1,6 @@
 /*
  * CollectionFilters — the filter bar on product-type pages and Shop All
- * (Theme · Occasion · For · Style · Price · Sort), plus the filtered grid.
+ * (search · Collection · Sort), plus the filtered grid.
  *
  * Desktop: a row of dropdowns with checkboxes and counts, chosen filters as
  * removable chips. Phones: one "Filter & Sort" button that opens a panel
@@ -190,7 +190,11 @@ export function CollectionFilters({
                 />
               </button>
               {isOpen && (
-                <div className="absolute left-0 top-full mt-2 z-30 w-64 max-h-80 overflow-y-auto bg-white ring-1 ring-[#C9A96E]/30 shadow-[0_18px_40px_-20px_rgba(45,45,45,0.35)] py-1.5">
+                <div
+                  className={`absolute left-0 top-full mt-2 z-30 max-h-[26rem] overflow-y-auto bg-white ring-1 ring-[#C9A96E]/30 shadow-[0_18px_40px_-20px_rgba(45,45,45,0.35)] py-1.5 ${
+                    g.options.length > 12 ? 'w-[34rem] grid grid-cols-2' : 'w-64'
+                  }`}
+                >
                   {g.options.map((o) => checkbox(g.key, o))}
                 </div>
               )}
