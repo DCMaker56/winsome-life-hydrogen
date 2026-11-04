@@ -27,6 +27,10 @@ import heroSignage from '~/assets/retail/signage-coastal-hero.webp';
 import customerChooses from '~/assets/retail/customer-chooses.webp';
 import ownerTakesOrder from '~/assets/retail/owner-takes-order.webp';
 import productSamples from '~/assets/retail/product-samples.webp';
+import artBee from '~/assets/retail/art-bee.webp';
+import artHydrangea from '~/assets/retail/art-hydrangea.webp';
+import artDragonfly from '~/assets/retail/art-dragonfly.webp';
+import artShell from '~/assets/retail/art-shell.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -483,22 +487,22 @@ function HowItWorks() {
   const steps = [
     {
       title: 'We set you up',
-      art: '/honeybee.png',
+      art: artBee,
       body: 'We send your partner kit: samples, catalog, signage and the acrylic display, all at no cost.',
     },
     {
       title: 'Your customer chooses',
-      art: '/illustrations/flr-hydrangea-wc.png',
+      art: artHydrangea,
       body: 'Shoppers browse the samples and catalog, then pick their design and personalization.',
     },
     {
       title: 'You take the order',
-      art: '/illustrations/flr-long-stem-rose-wc.png',
+      art: artDragonfly,
       body: 'That’s your only job. No stock to manage, no production, no packing.',
     },
     {
       title: 'We craft and ship',
-      art: '/illustrations/map-globe-wc.png',
+      art: artShell,
       body: 'We personalize, produce and ship every order, so you never handle a thing.',
     },
   ];
@@ -515,15 +519,15 @@ function HowItWorks() {
         <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           {steps.map((s, i) => (
             <li key={s.title} className="text-center px-2">
-              {/* Darlene's watercolors, one per step (Sydney). */}
-              <div className="relative mx-auto w-44 h-44 rounded-full bg-white ring-1 ring-[#C9A96E]/30 flex items-center justify-center">
+              {/* Original paintings (photos of the artwork), one per step (Sydney). */}
+              <div className="relative mx-auto w-48 h-48 bg-white p-2 shadow-sm ring-1 ring-[#C9A96E]/40">
                 <img
                   src={s.art}
                   alt=""
-                  width={1024}
-                  height={1024}
+                  width={640}
+                  height={640}
                   loading="lazy"
-                  className="w-32 h-32 object-contain"
+                  className="w-full h-full object-cover"
                 />
                 <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white ring-1 ring-[#C9A96E]/70 font-serif text-[1.2rem] text-[#1B294E]">
                   {i + 1}
