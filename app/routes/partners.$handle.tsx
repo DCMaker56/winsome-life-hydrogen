@@ -9,7 +9,12 @@ import {data, useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/partners.$handle';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
-import {PARTNERS, PARTNER_SECTION_ORDER} from '~/lib/partners';
+import {
+  PARTNERS,
+  PARTNER_SECTION_ORDER,
+  PARTNER_SECTION_RULES,
+  PARTNER_SECTION_TITLES,
+} from '~/lib/partners';
 import type {CardData} from '~/lib/collection-filters.server';
 
 export const meta: Route.MetaFunction = ({data}) => [
@@ -60,14 +65,19 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const more: CardData[] = [];
   for (const card of rest.cards) {
     const handles = new Set((collectionsById[card.id] ?? []).map((c) => c.handle));
-    const home = PARTNER_SECTION_ORDER.find((h) => handles.has(h));
+    const rule = PARTNER_SECTION_RULES.find(
+      (r) =>
+        (r.collection && handles.has(r.collection)) ||
+        (r.titleMatch && r.titleMatch.test(card.title)),
+    );
+    const home = rule?.section ?? PARTNER_SECTION_ORDER.find((h) => handles.has(h));
     if (home) buckets.set(home, [...(buckets.get(home) ?? []), card]);
     else more.push(card);
   }
   const sections = [
     ...PARTNER_SECTION_ORDER.filter((h) => buckets.has(h)).map((h) => ({
       handle: h,
-      title: titles.get(h) ?? h,
+      title: PARTNER_SECTION_TITLES[h] ?? titles.get(h) ?? h,
       cards: buckets.get(h)!,
     })),
     ...(more.length ? [{handle: 'more', title: 'More Favorites', cards: more}] : []),

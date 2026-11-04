@@ -54,11 +54,30 @@ export const PARTNERS: Record<string, Partner> = {
 };
 
 /**
- * Partner pages group products under collection headings, in this order.
- * A product shows once, under the first heading it belongs to; anything that
- * matches none goes under "More Favorites". Headings with no products are
- * skipped, so this list can include every theme.
+ * Partner pages group products under headings. Each product shows once:
+ *  1. Anything in Place Cards goes under "Place Cards" only.
+ *  2. Anything with Christmas / Holiday / Thanksgiving in its name goes under
+ *     "Christmas / Holiday" only.
+ *  3. Otherwise, under the first heading below that it's in a collection for.
+ *  Anything left goes under "More Favorites". Headings show in this order;
+ *  empty ones are skipped. (Rules per Sydney, Nov 2026.)
  */
+export const PARTNER_SECTION_RULES: Array<{
+  section: string;
+  collection?: string;
+  titleMatch?: RegExp;
+}> = [
+  {section: 'place-cards', collection: 'place-cards'},
+  {section: 'christmas-holiday', titleMatch: /christmas|holiday|thanksgiving/i},
+];
+
+/** Heading names that differ from the Shopify collection's title. */
+export const PARTNER_SECTION_TITLES: Record<string, string> = {
+  classics: 'Family / Couples Stationery',
+  'place-cards': 'Place Cards',
+  'christmas-holiday': 'Christmas / Holiday',
+};
+
 export const PARTNER_SECTION_ORDER = [
   'monogram-styles',
   'floral',
@@ -78,6 +97,7 @@ export const PARTNER_SECTION_ORDER = [
   'affinity-hobbies',
   'greek-life-sorority-fraternity',
   'mahjong',
+  'place-cards',
   'christmas-holiday',
   'fall-autumn',
   'winter-1',
