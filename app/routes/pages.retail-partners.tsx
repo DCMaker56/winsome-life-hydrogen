@@ -1022,7 +1022,7 @@ const FAQS = [
 const RETAIL_REVIEWS = [
   {
     name: 'Georgina',
-    text: 'Gold standard for personalized notecards. Especially appropriate for our needs living in Arizona for the winter months. Would purchase from this seller again.',
+    text: 'Gold standard for personalized notecards.',
     rating: 5,
   },
   {name: 'Robin', text: 'Just gorgeous! Paper is perfect!', rating: 5},
