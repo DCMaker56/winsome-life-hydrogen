@@ -104,7 +104,7 @@ export default function PartnerPage() {
         style={{background: colors.background, color: colors.text}}
       >
         <div className="container max-w-5xl mx-auto px-5 lg:px-8 py-12 lg:py-16 text-center">
-          <p className="font-sans font-medium text-[11px] tracking-[0.3em] uppercase opacity-70">
+          <p className="font-sans font-medium text-[13px] md:text-sm tracking-[0.25em] uppercase opacity-80">
             The Winsome Life <span aria-hidden>×</span>
             <span className="sr-only">and</span> {partner.name}
           </p>
@@ -121,7 +121,7 @@ export default function PartnerPage() {
               </span>
             )}
             <span
-              className="text-[1.9rem] md:text-[2.4rem] leading-none"
+              className="text-[2.3rem] md:text-[3rem] leading-none"
               style={{
                 fontFamily: "'Parisian Script', 'Great Vibes', cursive",
                 color: colors.text,
@@ -130,12 +130,12 @@ export default function PartnerPage() {
               Personalized Stationery
             </span>
           </h1>
-          <p className="mt-5 max-w-xl mx-auto font-sans font-light text-[15px] md:text-base leading-relaxed opacity-85">
+          <p className="mt-5 max-w-2xl mx-auto font-sans text-[17px] md:text-[19px] leading-relaxed opacity-90">
             {partner.intro}
           </p>
           {partner.discountCode && (
             <p
-              className="mt-6 inline-flex items-center gap-2 px-4 py-2 border font-sans text-[13px] tracking-wide"
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 border font-sans font-medium text-[15px] md:text-base tracking-wide"
               style={{borderColor: colors.accent}}
             >
               <span aria-hidden style={{color: colors.accent}}>✦</span>
@@ -181,7 +181,11 @@ export default function PartnerPage() {
                     {s.cards.length}
                   </span>
                 </div>
-                <FilteredProductGrid cards={s.cards} hideEnd />
+                <FilteredProductGrid
+                  cards={s.cards}
+                  hideEnd
+                  discountPercent={partner.discountPercent}
+                />
               </section>
             ))}
           </div>

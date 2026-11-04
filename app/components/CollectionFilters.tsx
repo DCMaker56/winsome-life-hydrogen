@@ -351,10 +351,13 @@ const PAGE = 48;
 export function FilteredProductGrid({
   cards,
   hideEnd = false,
+  discountPercent,
 }: {
   cards: CardData[];
   /** Sections on one page: no "You've reached the end" under each. */
   hideEnd?: boolean;
+  /** Partner pages: show the regular price crossed out next to the discounted one. */
+  discountPercent?: number | null;
 }) {
   const [shown, setShown] = useState(PAGE);
   const navigation = useNavigation();
@@ -405,7 +408,19 @@ export function FilteredProductGrid({
                 <h3 className="font-serif font-medium text-[15px] sm:text-base text-[#2D2D2D] leading-tight mb-1 group-hover:text-[#C9A96E] transition-colors line-clamp-2 min-h-[2.6rem]">
                   {p.title}
                 </h3>
-                <p className="font-sans text-sm text-[#2D2D2D]/65">From ${p.price.toFixed(2)}</p>
+                {discountPercent ? (
+                  <p className="font-sans text-sm sm:text-[15px] flex flex-wrap items-baseline gap-x-2">
+                    <span className="text-[#2D2D2D]/50">
+                      From <s>${p.price.toFixed(2)}</s>
+                    </span>
+                    <span className="font-semibold text-[#2D2D2D]">
+                      ${(p.price * (1 - discountPercent / 100)).toFixed(2)}
+                    </span>
+                    <span className="text-xs font-medium text-[#B5462F]">{discountPercent}% off</span>
+                  </p>
+                ) : (
+                  <p className="font-sans text-sm text-[#2D2D2D]/65">From ${p.price.toFixed(2)}</p>
+                )}
               </div>
             </Link>
           </li>
