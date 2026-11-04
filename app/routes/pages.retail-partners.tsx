@@ -248,6 +248,7 @@ export default function RetailPartnersPage() {
       <PartnerKit />
       <HowItWorks />
       <WhoDoesWhat />
+      <PartnerPage products={products} />
       <Showcase products={products} />
       <IdealFor />
       <Faq />
@@ -689,6 +690,205 @@ function WhoDoesWhat() {
 
 /* ---------------------------- Showcase ---------------------------- */
 
+/* ------------------------ Partner page sample ---------------------- */
+
+/** Made-up logo for the fictional sample boutique: a drooping willow
+ *  branch over a spaced serif wordmark. */
+function WillowHomeLogo({className = ''}: {className?: string}) {
+  // Hanging willow strands from an arched branch, each with paired leaves.
+  const strands = Array.from({length: 9}, (_, i) => {
+    const t = i / 8;
+    const x = 66 + t * 108;
+    const y = 16 - 8 * 4 * t * (1 - t);
+    const len = 14 + (1 - Math.abs(t - 0.5) * 2) * 14;
+    const sway = 3 * (t - 0.5);
+    return {x, y, len, sway};
+  });
+  return (
+    <svg
+      viewBox="0 0 240 92"
+      role="img"
+      aria-label="The Willow Home (sample logo)"
+      className={className}
+    >
+      <path
+        d="M66 16 Q120 0 174 16"
+        stroke="#5E7A62"
+        strokeWidth="1.3"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {strands.map(({x, y, len, sway}, i) => (
+        <g key={i}>
+          <path
+            d={`M${x} ${y} q${sway} ${len / 2} ${sway * 2} ${len}`}
+            stroke="#7E9A7F"
+            strokeWidth="0.7"
+            fill="none"
+          />
+          {[1, 2, 3, 4].map((k) => {
+            const lx = x + sway * 2 * (k / 5);
+            const ly = y + len * (k / 5);
+            return [-1, 1].map((side) => (
+              <ellipse
+                key={`${k}${side}`}
+                cx={lx + side * 1.6}
+                cy={ly + 1.2}
+                rx="0.9"
+                ry="2.6"
+                transform={`rotate(${side * 28} ${lx} ${ly})`}
+                fill="#8FAA8E"
+              />
+            ));
+          })}
+        </g>
+      ))}
+      <text
+        x="120"
+        y="66"
+        textAnchor="middle"
+        fontFamily="'Cormorant Garamond', Georgia, serif"
+        fontSize="17"
+        letterSpacing="3.5"
+        fill="#3F5A47"
+      >
+        THE WILLOW HOME
+      </text>
+      <text
+        x="120"
+        y="83"
+        textAnchor="middle"
+        fontFamily="'Cormorant Garamond', Georgia, serif"
+        fontStyle="italic"
+        fontSize="9"
+        letterSpacing="1.5"
+        fill="#5E7A62"
+      >
+        gifts &amp; home &middot; est. 2012
+      </text>
+    </svg>
+  );
+}
+
+/** A labeled mockup of the co-branded page we build for each partner
+ *  (the real ones live at /partners/<handle>). Not interactive. */
+function PartnerPage({products}: {products: CardProduct[]}) {
+  const tiles = products.slice(0, 6);
+  const points = [
+    'Your logo and colors at the top of the page',
+    'A curated selection chosen with you',
+    'Partner pricing applied automatically',
+    'Shareable with your staff and customers',
+  ];
+  return (
+    <section aria-labelledby="partner-page-title" className="bg-white py-16 lg:py-24">
+      <div className="container max-w-6xl mx-auto px-5 lg:px-8">
+        <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-12 lg:gap-16 items-center">
+          <div>
+            <Eyebrow>Your Own Partner Page</Eyebrow>
+            <h2
+              id="partner-page-title"
+              className="font-serif font-medium text-[2.3rem] md:text-[2.8rem] leading-[1.08] text-[#1B294E]"
+            >
+              A curated page,
+              <br />
+              just for your store.
+            </h2>
+            <div className="mt-6 space-y-4 font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]/75">
+              <p>
+                We create a private, co-branded web page for every partner,
+                featuring a selection of our stationery chosen with you to suit
+                your shop and your customers.
+              </p>
+              <p>
+                You and your customers can browse your collection, personalize
+                each piece and place orders right from your page, any time.
+              </p>
+            </div>
+            <ul className="mt-7 space-y-3">
+              {points.map((t) => (
+                <li
+                  key={t}
+                  className="flex items-start gap-3 font-sans text-[14px] leading-snug text-[#2D2D2D]/85"
+                >
+                  <span aria-hidden className="mt-[7px] w-1.5 h-1.5 shrink-0 rotate-45 bg-[#C9A96E]" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <figure>
+            <div className="bg-white shadow-[0_30px_60px_-30px_rgba(27,41,78,0.35)] ring-1 ring-[#1B294E]/10">
+              {/* Window chrome */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-[#1B294E]/10 bg-[#FAF8F5]">
+                <span aria-hidden className="w-2 h-2 rounded-full bg-[#1B294E]/15" />
+                <span aria-hidden className="w-2 h-2 rounded-full bg-[#1B294E]/15" />
+                <span aria-hidden className="w-2 h-2 rounded-full bg-[#1B294E]/15" />
+                <span className="hidden sm:block ml-3 flex-1 truncate font-sans text-[10px] text-[#2D2D2D]/45 bg-white ring-1 ring-[#1B294E]/10 px-2.5 py-1">
+                  thewinsomelife.com/partners/the-willow-home
+                </span>
+                <span className="ml-auto font-sans font-medium text-[10px] tracking-[0.22em] uppercase text-[#C9A96E] ring-1 ring-[#C9A96E]/50 px-2.5 py-1 whitespace-nowrap">
+                  Sample Page
+                </span>
+              </div>
+
+              {/* Partner header */}
+              <div className="bg-[#E9EEE6] px-5 pt-5 pb-4 text-center">
+                <WillowHomeLogo className="h-16 sm:h-20 mx-auto" />
+                <p className="font-sans text-[10px] tracking-[0.28em] uppercase text-[#3F5A47]/70 mt-2">
+                  Personalized stationery by The Winsome Life
+                </p>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <p className="font-serif text-[1.2rem] text-[#3F5A47]">
+                    Curated for The Willow Home
+                  </p>
+                  <span className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#3F5A47] bg-[#E9EEE6] px-2 py-1 whitespace-nowrap">
+                    Partner pricing applied
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                  {tiles.map((p) => (
+                    <div key={p.handle}>
+                      <div className="overflow-hidden bg-[#F6F0E7]">
+                        {p.featuredImage ? (
+                          <Image
+                            data={{...p.featuredImage, altText: p.featuredImage.altText ?? shortTitle(p.title)}}
+                            aspectRatio="1/1"
+                            crop="center"
+                            sizes="(min-width: 1024px) 170px, 30vw"
+                            loading="lazy"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div aria-hidden className="aspect-square" />
+                        )}
+                      </div>
+                      <p className="font-serif text-[13px] leading-tight text-[#1B294E] mt-2 line-clamp-2">
+                        {shortTitle(p.title)}
+                      </p>
+                      <p className="font-sans text-[10px] tracking-[0.14em] uppercase text-[#3F5A47]/70 mt-1">
+                        Personalize &amp; order
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <figcaption className="mt-4 text-center font-sans font-light text-[12px] text-[#2D2D2D]/55">
+              An illustration of a partner page. The Willow Home is a fictional
+              store.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Showcase({products}: {products: CardProduct[]}) {
   if (!products.length) return null;
   return (
@@ -765,12 +965,16 @@ function IdealFor() {
         >
           Made for shops that love a thoughtful gift.
         </h2>
-        <ul className="mt-10 flex flex-wrap justify-center gap-3">
-          {stores.map((s) => (
+        {/* Plain text with gold diamond dividers, so it doesn't look clickable. */}
+        <ul className="mt-10 flex flex-wrap justify-center items-center gap-x-4 gap-y-3 max-w-3xl mx-auto">
+          {stores.map((s, i) => (
             <li
               key={s}
-              className="font-sans text-[14px] text-[#2D2D2D]/85 px-5 py-2.5 ring-1 ring-[#C9A96E]/40 bg-[#FAF8F5]"
+              className="flex items-center gap-4 font-serif italic text-[1.15rem] md:text-[1.25rem] text-[#1B294E]/85"
             >
+              {i > 0 && (
+                <span aria-hidden className="w-1.5 h-1.5 rotate-45 bg-[#C9A96E]" />
+              )}
               {s}
             </li>
           ))}
