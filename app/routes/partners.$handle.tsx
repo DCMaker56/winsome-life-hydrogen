@@ -11,6 +11,7 @@ import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFil
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
 import {
   PARTNERS,
+  PARTNER_PLACEMENTS,
   PARTNER_SECTION_ORDER,
   PARTNER_SECTION_RULES,
   PARTNER_SECTION_TITLES,
@@ -64,6 +65,11 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const buckets = new Map<string, CardData[]>();
   const more: CardData[] = [];
   for (const card of rest.cards) {
+    const placed = PARTNER_PLACEMENTS[card.slug];
+    if (placed) {
+      for (const h of placed) buckets.set(h, [...(buckets.get(h) ?? []), card]);
+      continue;
+    }
     const handles = new Set((collectionsById[card.id] ?? []).map((c) => c.handle));
     const rule = PARTNER_SECTION_RULES.find(
       (r) =>

@@ -71,10 +71,39 @@ export const PARTNER_SECTION_RULES: Array<{
   {section: 'christmas-holiday', titleMatch: /christmas|holiday|thanksgiving/i},
 ];
 
+/**
+ * Hand-placed products (by product handle): shown under exactly these
+ * headings, ahead of the rules above. A product can sit under several.
+ */
+export const PARTNER_PLACEMENTS: Record<string, string[]> = {
+  // Dog stationery under Dogs & Cats (Sydney)
+  'personalized-dog-bow-stationery-set-stationary-dog-breed-flat-notecards-christmas-bow-dog-lover-gift':
+    ['dogs'],
+  'custom-dog-stationery-stationary-choose-your-dog-breed-custom-canine-notecards-dog-lover-gift-ability-to-add-multiple-dogs-1':
+    ['dogs'],
+  // Scalloped stationery under Monograms
+  'scalloped-stationery-set-with-border': ['monogram-styles'],
+  // Fall gift tags under Christmas / Holiday
+  'personalized-fall-gift-tags-or-stickers-thanksgiving-gift-tags-thanksgiving-stickers-monogram-fall-gift-tag':
+    ['christmas-holiday'],
+  // Golf notepad + stationery under Sports, and also Men
+  'personalized-golf-notepad-monogram-golf-notepad-golf-lover-gift-golfer-birthday-present-customize-with-text-of-your-choice':
+    ['sports-1', 'mens'],
+  'personalized-golf-stationery-stationary-golfing-notecards-golfer-gift-mens-womens-golf-gift-monogram-stationery-with-initials-1':
+    ['sports-1', 'mens'],
+  // Wine tags under Wine Tags
+  'personalized-wine-tags-custom-prosecco-champagne-tags-mini-prosecco-tags-customize-with-your-own-art-logo-text':
+    ['wine-tags-1'],
+  // Bordered stationery set under Monograms and also Men
+  'bordered-stationery-set-personalized-mens-and-womens-stationary-bordered-notecards-elegant-notecards-mens-womens-birthday-gift-1':
+    ['monogram-styles', 'mens'],
+};
+
 /** Heading names that differ from the Shopify collection's title. */
 export const PARTNER_SECTION_TITLES: Record<string, string> = {
   classics: 'Family / Couples Stationery',
   'place-cards': 'Place Cards',
+  'wine-tags-1': 'Wine Tags',
   'christmas-holiday': 'Christmas / Holiday',
 };
 
@@ -97,6 +126,7 @@ export const PARTNER_SECTION_ORDER = [
   'affinity-hobbies',
   'greek-life-sorority-fraternity',
   'mahjong',
+  'wine-tags-1',
   'place-cards',
   'christmas-holiday',
   'fall-autumn',
