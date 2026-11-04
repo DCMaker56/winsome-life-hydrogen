@@ -46,7 +46,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   ]);
   if (!collection) throw new Response(null, {status: 404});
 
-  return {collection, ...filtered};
+  const {collectionsById: _unused, ...rest} = filtered;
+  return {collection, ...rest};
 }
 
 export default function CollectionRoute() {

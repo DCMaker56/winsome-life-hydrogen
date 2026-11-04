@@ -24,7 +24,11 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export async function loader({context, request}: Route.LoaderArgs) {
-  return loadFilteredProducts(context.storefront as never, request);
+  const {collectionsById: _unused, ...rest} = await loadFilteredProducts(
+    context.storefront as never,
+    request,
+  );
+  return rest;
 }
 
 export default function AllProducts() {

@@ -9,7 +9,8 @@ import {data, useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/partners.$handle';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
-import {PARTNERS} from '~/lib/partners';
+import {PARTNERS, PARTNER_SECTION_ORDER} from '~/lib/partners';
+import type {CardData} from '~/lib/collection-filters.server';
 
 export const meta: Route.MetaFunction = ({data}) => [
   {title: `${data?.partner.name ?? 'Partner'} × The Winsome Life`},
@@ -29,6 +30,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     context.storefront as never,
     request,
     partner.collection,
+    {withCollections: true},
   );
 
   // Put the partner's code on the cart (keeping any others) so it's applied
@@ -49,11 +51,33 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     }
   }
 
-  return data({partner, ...products}, headers ? {headers} : undefined);
+  // Group the (searched / filtered / sorted) results under collection headings.
+  const {collectionsById, ...rest} = products;
+  const titles = new Map<string, string>();
+  for (const list of Object.values(collectionsById))
+    for (const c of list) titles.set(c.handle, c.title.replace(/ Collection$/i, ''));
+  const buckets = new Map<string, CardData[]>();
+  const more: CardData[] = [];
+  for (const card of rest.cards) {
+    const handles = new Set((collectionsById[card.id] ?? []).map((c) => c.handle));
+    const home = PARTNER_SECTION_ORDER.find((h) => handles.has(h));
+    if (home) buckets.set(home, [...(buckets.get(home) ?? []), card]);
+    else more.push(card);
+  }
+  const sections = [
+    ...PARTNER_SECTION_ORDER.filter((h) => buckets.has(h)).map((h) => ({
+      handle: h,
+      title: titles.get(h) ?? h,
+      cards: buckets.get(h)!,
+    })),
+    ...(more.length ? [{handle: 'more', title: 'More Favorites', cards: more}] : []),
+  ];
+
+  return data({partner, ...rest, sections}, headers ? {headers} : undefined);
 }
 
 export default function PartnerPage() {
-  const {partner, cards, facets, sort, q} = useLoaderData<typeof loader>();
+  const {partner, cards, facets, sort, q, sections} = useLoaderData<typeof loader>();
   const {colors} = partner;
 
   return (
@@ -124,7 +148,28 @@ export default function PartnerPage() {
           q={q}
           searchPlaceholder={`Search the ${partner.name} collection`}
         />
-        <FilteredProductGrid cards={cards} />
+        {cards.length === 0 ? (
+          <FilteredProductGrid cards={cards} />
+        ) : (
+          <div className="space-y-14">
+            {sections.map((s) => (
+              <section key={s.handle} aria-labelledby={`sec-${s.handle}`}>
+                <div className="flex items-baseline gap-3 mb-5 pb-3 border-b border-[#2D2D2D]/10">
+                  <h3
+                    id={`sec-${s.handle}`}
+                    className="font-serif font-medium text-2xl md:text-[1.75rem] text-[#2D2D2D]"
+                  >
+                    {s.title}
+                  </h3>
+                  <span className="font-sans text-xs text-[#2D2D2D]/45">
+                    {s.cards.length}
+                  </span>
+                </div>
+                <FilteredProductGrid cards={s.cards} hideEnd />
+              </section>
+            ))}
+          </div>
+        )}
         <p className="mt-16 text-center font-sans font-light text-[13px] text-[#2D2D2D]/55">
           Every piece is personalized and made to order by{' '}
           <Link to="/" className="underline decoration-[#C9A96E] underline-offset-2 hover:text-[#C9A96E]">

@@ -106,6 +106,7 @@ export async function loadFilteredProducts(
   storefront: Storefront,
   request: Request,
   collectionHandle?: string,
+  options: {withCollections?: boolean} = {},
 ) {
   const raw = await fetchAll(storefront, collectionHandle);
   const byId = new Map(raw.map((p) => [p.id, p]));
@@ -138,5 +139,10 @@ export async function loadFilteredProducts(
       type: p.productType || 'stationery',
     };
   });
-  return {cards, facets, selection, sort, q, total: products.length};
+  // Each card's collections (for pages that group products under headings).
+  const collectionsById: Record<string, Array<{handle: string; title: string}>> =
+    options.withCollections
+      ? Object.fromEntries(results.map((r) => [r.id, byId.get(r.id)!.collections.nodes]))
+      : {};
+  return {cards, facets, selection, sort, q, total: products.length, collectionsById};
 }

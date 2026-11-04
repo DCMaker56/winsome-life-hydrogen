@@ -52,6 +52,42 @@ export const PARTNERS: Record<string, Partner> = {
   },
 };
 
+/**
+ * Partner pages group products under collection headings, in this order.
+ * A product shows once, under the first heading it belongs to; anything that
+ * matches none goes under "More Favorites". Headings with no products are
+ * skipped, so this list can include every theme.
+ */
+export const PARTNER_SECTION_ORDER = [
+  'monogram-styles',
+  'floral',
+  'seaside',
+  'nature-1',
+  'classics',
+  'christian-1',
+  'family-couples',
+  'baby',
+  'mens',
+  'teacher',
+  'business-professional',
+  'sports-1',
+  'military',
+  'travel',
+  'dogs',
+  'affinity-hobbies',
+  'greek-life-sorority-fraternity',
+  'mahjong',
+  'christmas-holiday',
+  'fall-autumn',
+  'winter-1',
+  'spring-1',
+  'summer',
+  'valentines-day',
+  'easter',
+  'halloween',
+  'graduation',
+];
+
 /** Partner-only collections never appear in the public "Filter by Collection". */
 export function isPartnerCollection(handle: string) {
   return handle.startsWith('partner-');

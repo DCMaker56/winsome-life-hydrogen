@@ -348,7 +348,14 @@ export function CollectionFilters({
 const PAGE = 48;
 
 /** The filtered grid: shows 48 at a time with a "Show more" button. */
-export function FilteredProductGrid({cards}: {cards: CardData[]}) {
+export function FilteredProductGrid({
+  cards,
+  hideEnd = false,
+}: {
+  cards: CardData[];
+  /** Sections on one page: no "You've reached the end" under each. */
+  hideEnd?: boolean;
+}) {
   const [shown, setShown] = useState(PAGE);
   const navigation = useNavigation();
   const loading = navigation.state === 'loading';
@@ -404,7 +411,7 @@ export function FilteredProductGrid({cards}: {cards: CardData[]}) {
           </li>
         ))}
       </ul>
-      <div className="mt-12 flex flex-col items-center gap-3">
+      <div className={`flex flex-col items-center gap-3 ${hideEnd && shown >= cards.length ? '' : 'mt-12'}`}>
         {shown < cards.length ? (
           <button
             type="button"
@@ -413,7 +420,7 @@ export function FilteredProductGrid({cards}: {cards: CardData[]}) {
           >
             Show more ({cards.length - shown})
           </button>
-        ) : (
+        ) : hideEnd ? null : (
           <p className="font-sans font-light text-xs tracking-[0.15em] uppercase text-[#2D2D2D]/35">
             You&rsquo;ve reached the end
           </p>
