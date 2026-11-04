@@ -14,7 +14,9 @@ import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ADVANCE_MS = 4500;
 
-const reviews = [
+type Review = {name: string; text: string; rating: number};
+
+const homeReviews: Review[] = [
   {
     name: "Lissa",
     text: "This is my only source for personalized stationery cards. Love their product!",
@@ -52,7 +54,7 @@ function ReviewSlide({
   index,
   total,
 }: {
-  review: (typeof reviews)[number];
+  review: Review;
   index: number;
   total: number;
 }) {
@@ -86,7 +88,15 @@ function ReviewSlide({
   );
 }
 
-export default function SocialProof() {
+/** Homepage reviews by default; other pages (e.g. Retail Partners) pass
+ *  their own, plus an optional line under the dots like a rating summary. */
+export default function SocialProof({
+  reviews = homeReviews,
+  note,
+}: {
+  reviews?: Review[];
+  note?: string;
+} = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -198,6 +208,11 @@ export default function SocialProof() {
             />
           ))}
         </div>
+        {note && (
+          <p className="mt-6 text-center font-sans text-[12px] tracking-[0.2em] uppercase text-[#2D2D2D]/60">
+            {note}
+          </p>
+        )}
       </div>
     </section>
   );

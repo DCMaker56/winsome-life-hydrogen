@@ -18,6 +18,7 @@ import {Image, Money} from '@shopify/hydrogen';
 import {BookOpen, ChevronDown, Frame, Layers, Signpost} from 'lucide-react';
 import type {Route} from './+types/pages.retail-partners';
 import {SITE_URL} from '~/lib/seo';
+import SocialProof from '~/components/SocialProof';
 import {STORE_TYPES, type RetailInquiryResult} from '~/lib/retail-inquiry';
 import {parseRetailInquiry, saveRetailInquiry} from '~/lib/retail-inquiry.server';
 import signageCounter from '~/assets/retail/signage-counter.webp';
@@ -248,6 +249,7 @@ export default function RetailPartnersPage() {
   return (
     <main id="main" className="bg-[#FAF8F5] text-[#2D2D2D]">
       <Hero />
+      <SocialProof reviews={RETAIL_REVIEWS} note={RETAIL_REVIEWS_NOTE} />
       <Promises />
       <PartnerKit />
       <HowItWorks />
@@ -256,7 +258,6 @@ export default function RetailPartnersPage() {
       <Showcase products={products} />
       <IdealFor />
       <Faq />
-      <Reviews />
       <Inquiry />
       <MobileInquiryBar />
     </main>
@@ -1016,59 +1017,20 @@ const FAQS = [
 
 /* ----------------------------- Reviews ---------------------------- */
 
-/** Real Etsy reviews (picked with Sydney, Nov 2026). Update the count and
- *  quotes here; reviewers are first names only. */
-const REVIEWS = {
-  rating: '5.0',
-  count: 660,
-  quotes: [
-    {
-      text: 'Gold standard for personalized notecards. Especially appropriate for our needs living in Arizona for the winter months. Would purchase from this seller again.',
-      name: 'Georgina',
-    },
-    {text: 'Just gorgeous! Paper is perfect!', name: 'Robin'},
-    {text: 'Absolutely stunning! The seller is amazing and so helpful!', name: 'Diane'},
-  ],
-};
-
-function Reviews() {
-  return (
-    <section aria-labelledby="reviews-title" className="bg-white py-16 lg:py-20">
-      <div className="container max-w-6xl mx-auto px-5 lg:px-8 text-center">
-        <p aria-hidden className="text-[#C9A96E] text-[1.4rem] tracking-[0.35em]">
-          &#9733;&#9733;&#9733;&#9733;&#9733;
-        </p>
-        <h2
-          id="reviews-title"
-          className="font-serif font-medium text-3xl md:text-[2.4rem] leading-tight text-[#1B294E] mt-3"
-        >
-          Loved by our customers.
-        </h2>
-        <p className="mt-3 font-sans text-[12px] tracking-[0.2em] uppercase text-[#2D2D2D]/60">
-          {REVIEWS.rating} stars &middot; {REVIEWS.count} reviews on our Etsy shop
-        </p>
-        <ul className="mt-10 grid md:grid-cols-3 gap-6 lg:gap-8 text-left">
-          {REVIEWS.quotes.map((q) => (
-            <li
-              key={q.name}
-              className="bg-[#FAF8F5] ring-1 ring-[#C9A96E]/20 px-6 py-7 flex flex-col"
-            >
-              <span aria-hidden className="font-serif text-[3rem] leading-none text-[#C9A96E]/70 h-6">
-                &ldquo;
-              </span>
-              <blockquote className="mt-3 flex-1 font-serif italic text-[1.15rem] leading-relaxed text-[#1B294E]">
-                {q.text}
-              </blockquote>
-              <p className="mt-4 font-sans text-[12px] tracking-[0.18em] uppercase text-[#2D2D2D]/60">
-                &mdash; {q.name}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
+/** Real Etsy reviews (picked with Sydney, Nov 2026), shown in the homepage
+ *  review carousel format. Update the count and quotes here. */
+const RETAIL_REVIEWS = [
+  {
+    name: 'Georgina',
+    text: 'Gold standard for personalized notecards. Especially appropriate for our needs living in Arizona for the winter months. Would purchase from this seller again.',
+    rating: 5,
+  },
+  {name: 'Robin', text: 'Just gorgeous! Paper is perfect!', rating: 5},
+  {name: 'Diane', text: 'Absolutely stunning! The seller is amazing and so helpful!', rating: 5},
+  {name: 'Roxanne', text: 'Excellent in every way. Will shop again soon.', rating: 5},
+  {name: 'Noelle', text: '10/10 would buy again! Love them.', rating: 5},
+];
+const RETAIL_REVIEWS_NOTE = '5.0 stars · 660 reviews on our Etsy shop';
 
 function Faq() {
   return (
