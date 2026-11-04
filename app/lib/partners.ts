@@ -13,8 +13,9 @@
  *
  * To add a partner: create a "Partner - <Name>" collection in Shopify (handle
  * partner-<name>), publish it to the Hydrogen storefront, create the discount
- * code, then add an entry below.
+ * code, then add an entry below (logo files go in app/assets/partners/).
  */
+import ellieBingLogo from '~/assets/partners/ellie-bing.png';
 
 export type Partner = {
   handle: string;
@@ -39,14 +40,15 @@ export const PARTNERS: Record<string, Partner> = {
     handle: 'ellie-bing',
     name: 'Ellie Bing',
     collection: 'partner-ellie-bing',
-    discountCode: 'ELLIEBING',
-    discountPercent: null,
+    // Shopify code discount: 35% off the partner collection only.
+    discountCode: 'ELLIEBING35',
+    discountPercent: 35,
     intro:
       'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Ellie Bing customers.',
-    logo: null,
+    logo: ellieBingLogo,
     website: 'https://www.elliebing.com',
-    // Placeholder palette until we have Ellie Bing's brand colors.
-    colors: {background: '#F3EEE6', text: '#2D2D2D', accent: '#9A7B4F'},
+    // Ellie Bing's black-and-white look (from their logo).
+    colors: {background: '#FFFFFF', text: '#111111', accent: '#111111'},
   },
 };
 

@@ -59,7 +59,10 @@ export default function PartnerPage() {
   return (
     <main id="main" className="bg-[#FAF8F5] min-h-screen pb-20">
       {/* Co-branded header in the partner's colors */}
-      <section style={{background: colors.background, color: colors.text}}>
+      <section
+        className="border-b border-[#111111]/10"
+        style={{background: colors.background, color: colors.text}}
+      >
         <div className="container max-w-5xl mx-auto px-5 lg:px-8 py-12 lg:py-16 text-center">
           <p className="font-sans font-medium text-[11px] tracking-[0.3em] uppercase opacity-70">
             The Winsome Life <span aria-hidden>×</span>
@@ -70,7 +73,7 @@ export default function PartnerPage() {
               <img
                 src={partner.logo}
                 alt={partner.name}
-                className="h-20 md:h-24 w-auto object-contain"
+                className="h-24 md:h-32 w-auto max-w-full object-contain"
               />
             ) : (
               <span className="font-serif font-medium text-4xl md:text-6xl leading-none tracking-wide">
