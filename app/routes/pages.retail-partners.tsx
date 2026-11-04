@@ -302,7 +302,8 @@ function Hero() {
             </p>
             <p className="font-sans font-light text-[14px] md:text-[15px] leading-relaxed text-[#2D2D2D]/65 mt-4">
               We provide complimentary product samples, catalogs, signage, and
-              display materials. We handle all production and shipping.
+              display materials. We handle all production and shipping. You
+              enjoy exclusive retailer pricing and earn revenue on every order.
             </p>
             <p className="font-serif italic text-[1.3rem] md:text-[1.45rem] text-[#1B294E] mt-5">
               You take the order. We do the rest.
