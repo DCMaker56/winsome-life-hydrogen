@@ -472,18 +472,22 @@ function HowItWorks() {
   const steps = [
     {
       title: 'We set you up',
+      art: '/honeybee.png',
       body: 'We send your partner kit: samples, catalog, signage and the acrylic display, all at no cost.',
     },
     {
       title: 'Your customer chooses',
+      art: '/illustrations/flr-hydrangea-wc.png',
       body: 'Shoppers browse the samples and catalog, then pick their design and personalization.',
     },
     {
       title: 'You take the order',
+      art: '/illustrations/flr-long-stem-rose-wc.png',
       body: 'That’s your only job. No stock to manage, no production, no packing.',
     },
     {
       title: 'We craft and ship',
+      art: '/illustrations/map-globe-wc.png',
       body: 'We personalize, produce and ship every order, so you never handle a thing.',
     },
   ];
@@ -500,10 +504,21 @@ function HowItWorks() {
         <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
           {steps.map((s, i) => (
             <li key={s.title} className="text-center px-2">
-              <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white ring-1 ring-[#C9A96E]/70 font-serif text-[1.35rem] text-[#1B294E]">
-                {i + 1}
-              </span>
-              <h3 className="font-serif font-medium text-[1.45rem] leading-snug text-[#1B294E] mt-5 mb-3">
+              {/* Darlene's watercolors, one per step (Sydney). */}
+              <div className="relative mx-auto w-44 h-44 rounded-full bg-white ring-1 ring-[#C9A96E]/30 flex items-center justify-center">
+                <img
+                  src={s.art}
+                  alt=""
+                  width={1024}
+                  height={1024}
+                  loading="lazy"
+                  className="w-32 h-32 object-contain"
+                />
+                <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white ring-1 ring-[#C9A96E]/70 font-serif text-[1.2rem] text-[#1B294E]">
+                  {i + 1}
+                </span>
+              </div>
+              <h3 className="font-serif font-medium text-[1.45rem] leading-snug text-[#1B294E] mt-8 mb-3">
                 {s.title}
               </h3>
               <p className="font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]/70 max-w-xs mx-auto">
