@@ -47,7 +47,7 @@ export function collectionGroup(
   }
   return {
     key: 'collection',
-    label: 'Collection',
+    label: 'Filter by Collection',
     options: [...seen.entries()]
       .sort((a, b) => a[1].localeCompare(b[1]))
       .map(([handle, title]) => ({value: handle, label: title, collection: handle})),
