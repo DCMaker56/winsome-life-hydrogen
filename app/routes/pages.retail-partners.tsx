@@ -1144,8 +1144,7 @@ function Inquiry() {
             <p className="mt-6 font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]/75">
               We partner with a select group of boutiques that share our love
               of thoughtful, beautifully made gifts. Tell us about your store,
-              and if it&rsquo;s a good fit, we&rsquo;ll be in touch to talk
-              next steps.
+              and we&rsquo;ll be in touch to talk next steps.
             </p>
             <p className="mt-8 font-sans font-light text-[13px] text-[#2D2D2D]/60">
               Prefer email? Write to us at{' '}
