@@ -26,6 +26,7 @@ import catalogBinder from '~/assets/retail/catalog-binder.webp';
 import heroSignage from '~/assets/retail/signage-coastal-hero.webp';
 import customerChooses from '~/assets/retail/customer-chooses.webp';
 import ownerTakesOrder from '~/assets/retail/owner-takes-order.webp';
+import productSamples from '~/assets/retail/product-samples.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -368,12 +369,18 @@ function PartnerKit() {
     Icon: typeof Layers;
     title: string;
     body: string;
-    photo?: {src: string; width: number; height: number; alt: string};
+    photo?: {src: string; width: number; height: number; alt: string; position?: string};
   }[] = [
     {
       Icon: Layers,
       title: 'Product samples',
       body: 'Real pieces your customers can hold, so they can feel the paper and see the printing before they order.',
+      photo: {
+        src: productSamples,
+        width: 1536,
+        height: 1024,
+        alt: 'Winsome Life notecard samples on marble: rainbow Thank You, Michelle Chick green border, hydrangea and lotus designs',
+      },
     },
     {
       Icon: BookOpen,
@@ -406,6 +413,7 @@ function PartnerKit() {
         width: 1024,
         height: 1536,
         alt: 'Clear tiered acrylic display holding Winsome Life sample stationery: Apres Ski, From the Desk Of, monogram, mahjong, thank you and scalloped cards',
+        position: '50% 30%',
       },
     },
   ];
@@ -426,7 +434,7 @@ function PartnerKit() {
               className="bg-[#FAF8F5] ring-1 ring-[#C9A96E]/20 text-center flex flex-col"
             >
               <div className="relative">
-                <div className="aspect-[4/5] overflow-hidden bg-[#F6F0E7] flex items-center justify-center">
+                <div className="aspect-square overflow-hidden bg-[#F6F0E7] flex items-center justify-center">
                   {photo ? (
                     <img
                       src={photo.src}
@@ -435,6 +443,7 @@ function PartnerKit() {
                       height={photo.height}
                       loading="lazy"
                       className="w-full h-full object-cover"
+                      style={photo.position ? {objectPosition: photo.position} : undefined}
                     />
                   ) : (
                     <Icon
