@@ -352,7 +352,14 @@ function Promises() {
 /* --------------------------- Partner kit -------------------------- */
 
 function PartnerKit() {
-  const kit = [
+  // Photos from Sydney; product samples gets its photo when it arrives
+  // (until then its card shows the icon in the photo spot).
+  const kit: {
+    Icon: typeof Layers;
+    title: string;
+    body: string;
+    photo?: {src: string; width: number; height: number; alt: string};
+  }[] = [
     {
       Icon: Layers,
       title: 'Product samples',
@@ -362,16 +369,34 @@ function PartnerKit() {
       Icon: BookOpen,
       title: 'Catalog',
       body: 'Our designs and personalization options in one place, so customers can browse and choose with ease.',
+      photo: {
+        src: catalogBinder,
+        width: 1199,
+        height: 1312,
+        alt: 'The Winsome Life Personalized Stationery product catalog binder with a honeybee on the cover',
+      },
     },
     {
       Icon: Signpost,
       title: 'Signage',
       body: 'Elegant in-store signs that let shoppers know they can order personalized stationery right here.',
+      photo: {
+        src: signageCounter,
+        width: 1122,
+        height: 1402,
+        alt: 'Pink Personalized Stationery sign from The Winsome Life in a clear acrylic stand on a store counter',
+      },
     },
     {
       Icon: Frame,
       title: 'Acrylic display',
       body: 'A clear acrylic display that presents the samples beautifully on your counter or shelf.',
+      photo: {
+        src: acrylicDisplay,
+        width: 1024,
+        height: 1536,
+        alt: 'Clear tiered acrylic display holding Winsome Life sample stationery: Apres Ski, From the Desk Of, monogram, mahjong, thank you and scalloped cards',
+      },
     },
   ];
   return (
@@ -385,60 +410,14 @@ function PartnerKit() {
           Everything you need, provided at no cost.
         </SectionHeading>
         <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {kit.map(({Icon, title, body}) => (
+          {kit.map(({Icon, title, body, photo}) => (
             <li
               key={title}
-              className="bg-[#FAF8F5] ring-1 ring-[#C9A96E]/20 px-6 py-8 text-center flex flex-col items-center"
+              className="bg-[#FAF8F5] ring-1 ring-[#C9A96E]/20 text-center flex flex-col"
             >
-              <span className="w-14 h-14 rounded-full ring-1 ring-[#C9A96E]/60 flex items-center justify-center text-[#1B294E]">
-                <Icon size={22} strokeWidth={1.25} aria-hidden />
-              </span>
-              <h3 className="font-serif font-medium text-[1.45rem] text-[#1B294E] mt-5 mb-2">
-                {title}
-              </h3>
-              <p className="font-sans font-light text-[14px] leading-relaxed text-[#2D2D2D]/70">
-                {body}
-              </p>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-14 lg:mt-20">
-          <p className="text-center font-sans text-[11px] tracking-[0.25em] uppercase text-[#C9A96E] mb-3">
-            See the kit in a store
-          </p>
-          <h3 className="text-center font-serif font-medium text-[1.9rem] leading-tight text-[#1B294E] mb-10">
-            Ready to set out on your counter.
-          </h3>
-          <ul className="grid sm:grid-cols-3 gap-8 lg:gap-10">
-            {[
-              {
-                src: signageCounter,
-                width: 1122,
-                height: 1402,
-                title: 'Counter signage',
-                alt: 'Pink Personalized Stationery sign from The Winsome Life in a clear acrylic stand on a store counter',
-                body: 'Invites shoppers to ask about personalized notecards, notepads, wine tags, gift tags, stickers and place cards.',
-              },
-              {
-                src: acrylicDisplay,
-                width: 1024,
-                height: 1536,
-                title: 'Acrylic display & samples',
-                alt: 'Clear tiered acrylic display holding Winsome Life sample stationery: Apres Ski, From the Desk Of, monogram, mahjong, thank you and scalloped cards',
-                body: 'A clear tiered stand filled with a curated set of real samples customers can pick up and feel.',
-              },
-              {
-                src: catalogBinder,
-                width: 1199,
-                height: 1312,
-                title: 'Product catalog',
-                alt: 'The Winsome Life Personalized Stationery product catalog binder with a honeybee on the cover',
-                body: 'Our full collection and personalization options in one binder, so customers can browse and choose.',
-              },
-            ].map((photo) => (
-              <li key={photo.title}>
-                <figure>
-                  <div className="aspect-[4/5] overflow-hidden ring-1 ring-[#C9A96E]/20 bg-[#FAF8F5]">
+              <div className="relative">
+                <div className="aspect-[4/5] overflow-hidden bg-[#F6F0E7] flex items-center justify-center">
+                  {photo ? (
                     <img
                       src={photo.src}
                       alt={photo.alt}
@@ -447,20 +426,30 @@ function PartnerKit() {
                       loading="lazy"
                       className="w-full h-full object-cover"
                     />
-                  </div>
-                  <figcaption className="text-center mt-5">
-                    <span className="block font-serif font-medium text-[1.35rem] text-[#1B294E] mb-1.5">
-                      {photo.title}
-                    </span>
-                    <span className="block font-sans font-light text-[14px] leading-relaxed text-[#2D2D2D]/70 max-w-xs mx-auto">
-                      {photo.body}
-                    </span>
-                  </figcaption>
-                </figure>
-              </li>
-            ))}
-          </ul>
-        </div>
+                  ) : (
+                    <Icon
+                      size={56}
+                      strokeWidth={0.9}
+                      aria-hidden
+                      className="text-[#1B294E]/40"
+                    />
+                  )}
+                </div>
+                <span className="absolute left-1/2 -bottom-7 -translate-x-1/2 w-14 h-14 rounded-full bg-[#FAF8F5] ring-1 ring-[#C9A96E]/60 flex items-center justify-center text-[#1B294E]">
+                  <Icon size={22} strokeWidth={1.25} aria-hidden />
+                </span>
+              </div>
+              <div className="px-6 pt-11 pb-8">
+                <h3 className="font-serif font-medium text-[1.45rem] text-[#1B294E] mb-2">
+                  {title}
+                </h3>
+                <p className="font-sans font-light text-[14px] leading-relaxed text-[#2D2D2D]/70">
+                  {body}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
         <p className="text-center mt-10 font-serif italic text-[1.25rem] text-[#2D2D2D]/75">
           No inventory. No upfront cost. No risk.
         </p>
