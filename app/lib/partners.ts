@@ -81,6 +81,13 @@ export const PARTNER_PLACEMENTS: Record<string, string[]> = {
     ['dogs'],
   'custom-dog-stationery-stationary-choose-your-dog-breed-custom-canine-notecards-dog-lover-gift-ability-to-add-multiple-dogs-1':
     ['dogs'],
+  // Christmas dog gift tags under Dogs & Cats, and also Christmas / Holiday
+  'personalized-christmas-dog-gift-tags-customize-your-dog-breed': ['dogs', 'christmas-holiday'],
+  // Tennis "Perfect Day" set (in no collection) under Sports
+  'personalized-tennis-perfect-day-stationery-set-stationary-tennis-gift-women-tennis-partner-gift-tennis-skirts-ra':
+    ['sports-1'],
+  'personalized-tennis-perfect-day-stationery-set-stationary-tennis-gift-women-tennis-partner-gift-tennis-skirts-rackets-and-mimosas-1':
+    ['sports-1'],
   // Scalloped stationery under Monograms
   'scalloped-stationery-set-with-border': ['monogram-styles'],
   // Fall gift tags under Christmas / Holiday
