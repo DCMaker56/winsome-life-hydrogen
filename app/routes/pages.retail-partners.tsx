@@ -878,10 +878,6 @@ function PartnerPage({products}: {products: CardProduct[]}) {
                 </div>
               </div>
             </div>
-            <figcaption className="mt-4 text-center font-sans font-light text-[12px] text-[#2D2D2D]/55">
-              An illustration of a partner page. The Willow Home is a fictional
-              store.
-            </figcaption>
           </figure>
         </div>
       </div>
