@@ -108,7 +108,7 @@ export default function PartnerPage() {
               className="text-[1.9rem] md:text-[2.4rem] leading-none"
               style={{
                 fontFamily: "'Parisian Script', 'Great Vibes', cursive",
-                color: colors.accent,
+                color: colors.text,
               }}
             >
               Personalized Stationery
