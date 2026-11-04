@@ -34,6 +34,7 @@ import artHydrangea from '~/assets/retail/art-hydrangea.webp';
 import artDragonfly from '~/assets/retail/art-dragonfly.webp';
 import artShell from '~/assets/retail/art-shell.webp';
 import artOrchid from '~/assets/retail/art-orchid.webp';
+import artBirdOfParadise from '~/assets/retail/art-bird-of-paradise.webp';
 
 const CONTACT_EMAIL = 'info@thewinsomelife.com';
 const CANONICAL = `${SITE_URL}/pages/retail-partners`;
@@ -960,6 +961,17 @@ function IdealFor() {
   return (
     <section aria-labelledby="ideal-title" className="bg-white py-16 lg:py-20">
       <div className="container max-w-5xl mx-auto px-5 lg:px-8 text-center">
+        {/* Original painting (Sydney): bird of paradise, cut out from the paper. */}
+        <img
+          src={artBirdOfParadise}
+          alt=""
+          width={623}
+          height={700}
+          loading="lazy"
+          draggable={false}
+          onContextMenu={(e) => e.preventDefault()}
+          className="mx-auto mb-6 w-28 md:w-36 h-auto select-none [-webkit-touch-callout:none] [-webkit-user-drag:none]"
+        />
         <Eyebrow>A Natural Fit</Eyebrow>
         <h2
           id="ideal-title"
