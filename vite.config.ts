@@ -4,6 +4,7 @@ import {oxygen} from '@shopify/mini-oxygen/vite';
 import {reactRouter} from '@react-router/dev/vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import tailwindcss from '@tailwindcss/vite';
+import {responsiveImages} from './vite/responsive-images';
 
 export default defineConfig({
   plugins: [
@@ -12,6 +13,7 @@ export default defineConfig({
     reactRouter(),
     tsconfigPaths(),
     tailwindcss(),
+    responsiveImages(),
   ],
   build: {
     // Allow a strict Content-Security-Policy
