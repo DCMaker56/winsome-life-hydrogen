@@ -16,7 +16,12 @@ export async function loader({
     getLink: ({type, baseUrl, handle}) => `${baseUrl}/${type}/${handle}`,
   });
 
-  response.headers.set('Cache-Control', `max-age=${60 * 60 * 24}`);
-
-  return response;
+  // Partner-only collections (partner-…) stay out of the sitemap.
+  const xml = (await response.text()).replace(
+    /<url>(?:(?!<\/url>)[\s\S])*\/collections\/partner-(?:(?!<\/url>)[\s\S])*<\/url>/g,
+    '',
+  );
+  const headers = new Headers(response.headers);
+  headers.set('Cache-Control', `max-age=${60 * 60 * 24}`);
+  return new Response(xml, {status: response.status, headers});
 }

@@ -424,6 +424,8 @@ async function predictiveSearch({
   }
 
   items.products = items.products.filter((p) => !isAddOnHandle(p.handle));
+  // Partner-only collections (partner-…) are private to their partner page.
+  items.collections = items.collections.filter((c) => !c.handle.startsWith('partner-'));
 
   const total = Object.values(items).reduce(
     (acc: number, item: Array<unknown>) => acc + item.length,

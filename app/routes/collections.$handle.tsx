@@ -17,6 +17,7 @@ import {
   type Section,
 } from '~/lib/collection-sections';
 import {JsonLd} from '~/components/JsonLd';
+import {isPartnerCollection} from '~/lib/partners';
 import {SectionJumpNav, SectionList} from '~/components/CollectionSections';
 import {
   absoluteUrl,
@@ -45,7 +46,8 @@ export const meta: Route.MetaFunction = ({data}) => {
 
 export async function loader({context, params, request}: Route.LoaderArgs) {
   const {handle} = params;
-  if (!handle) throw new Response(null, {status: 404});
+  // Partner-only collections (partner-…) are private to their partner page.
+  if (!handle || isPartnerCollection(handle)) throw new Response(null, {status: 404});
 
   const [{collection}, filtered] = await Promise.all([
     context.storefront.query(COLLECTION_QUERY, {
