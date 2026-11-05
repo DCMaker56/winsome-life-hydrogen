@@ -5,7 +5,7 @@
  * and the partner's discount code put on the cart automatically. See
  * ~/lib/partners for how partners are set up.
  */
-import {data, useLoaderData, Link} from 'react-router';
+import {data, useLoaderData, useSearchParams, Link} from 'react-router';
 import type {Route} from './+types/partners.$handle';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
@@ -86,11 +86,16 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     moreTitle: 'More Favorites',
   });
 
-  return data({partner, ...rest, sections}, headers ? {headers} : undefined);
+  // Customer view (?view=customer): no prices or discount, for browsing with
+  // customers. Partner view (default) shows prices and the partner discount.
+  const customerView = new URL(request.url).searchParams.get('view') === 'customer';
+
+  return data({partner, ...rest, sections, customerView}, headers ? {headers} : undefined);
 }
 
 export default function PartnerPage() {
-  const {partner, cards, facets, sort, q, sections} = useLoaderData<typeof loader>();
+  const {partner, cards, facets, sort, q, sections, customerView} =
+    useLoaderData<typeof loader>();
   const {colors} = partner;
 
   return (
@@ -130,7 +135,7 @@ export default function PartnerPage() {
           <p className="mt-5 max-w-2xl mx-auto font-sans text-[17px] md:text-[19px] leading-relaxed opacity-90">
             {partner.intro}
           </p>
-          {partner.discountCode && (
+          {partner.discountCode && !customerView && (
             <p
               className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 border font-sans font-medium text-[15px] md:text-base tracking-wide"
               style={{borderColor: colors.accent}}
@@ -146,6 +151,7 @@ export default function PartnerPage() {
       </section>
 
       <section className="container max-w-7xl mx-auto px-4 lg:px-8 pt-10">
+        <ViewToggle customerView={customerView} />
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-6">
           <h2 className="font-serif font-medium text-2xl md:text-3xl text-[#2D2D2D]">
             The {partner.name} Collection
@@ -162,7 +168,7 @@ export default function PartnerPage() {
           searchPlaceholder={`Search the ${partner.name} collection`}
         />
         {cards.length === 0 ? (
-          <FilteredProductGrid cards={cards} />
+          <FilteredProductGrid cards={cards} hidePrices={customerView} />
         ) : (
           <div className="space-y-14">
             {sections.map((s) => (
@@ -182,6 +188,7 @@ export default function PartnerPage() {
                   cards={s.cards}
                   hideEnd
                   discountPercent={partner.discountPercent}
+                  hidePrices={customerView}
                 />
               </section>
             ))}
@@ -196,5 +203,48 @@ export default function PartnerPage() {
         </p>
       </section>
     </main>
+  );
+}
+
+/** Customer view (no prices) ↔ Partner view (prices and discount). */
+function ViewToggle({customerView}: {customerView: boolean}) {
+  const [params] = useSearchParams();
+  const href = (customer: boolean) => {
+    const next = new URLSearchParams(params);
+    if (customer) next.set('view', 'customer');
+    else next.delete('view');
+    const qs = next.toString();
+    return qs ? `?${qs}` : '?';
+  };
+  const option = (customer: boolean, label: string) => {
+    const active = customer === customerView;
+    return (
+      <Link
+        to={href(customer)}
+        replace
+        preventScrollReset
+        aria-current={active ? 'true' : undefined}
+        className={`px-4 py-2 rounded-full font-sans text-[13px] tracking-wide transition-colors ${
+          active ? 'bg-[#2D2D2D] text-white' : 'text-[#2D2D2D]/70 hover:text-[#2D2D2D]'
+        }`}
+      >
+        {label}
+      </Link>
+    );
+  };
+  return (
+    <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 mb-6">
+      <span className="font-sans text-xs text-[#2D2D2D]/55">
+        {customerView ? 'Prices hidden' : 'Showing prices & discount'}
+      </span>
+      <div
+        role="group"
+        aria-label="Page view"
+        className="inline-flex p-1 rounded-full bg-white ring-1 ring-[#2D2D2D]/15"
+      >
+        {option(true, 'Customer view')}
+        {option(false, 'Partner view')}
+      </div>
+    </div>
   );
 }
