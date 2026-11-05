@@ -42,7 +42,7 @@ const popularSearches = [
   { label: "Monogram Notecards", slug: "/collections/monogram-styles" },
   { label: "Monogram Sets", slug: "/collections/monogram" },
   ...(GIFT_SETS_OPEN ? [{ label: "Gift Sets", slug: "/gift-sets" }] : []),
-  { label: "Wedding Stationery", slug: "/collections/place-cards" },
+  { label: "Wedding Stationery", slug: "/collections/weddings-events" },
   ...(BUILD_YOUR_OWN_OPEN ? [{ label: "Build Your Own", slug: "/build-your-own" }] : []),
 ];
 

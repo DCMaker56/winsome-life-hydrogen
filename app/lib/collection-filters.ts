@@ -43,6 +43,11 @@ export const PRODUCT_TYPE_COLLECTIONS = [
   'artwork',
   'calendars',
   'mugs',
+  'coasters',
+  'bookmarks',
+  'signs-milestone-cards',
+  'invitations-announcements',
+  'apparel',
 ];
 
 /** Seasonal collections ("Filter by Season"), in calendar order. */
