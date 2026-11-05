@@ -17,6 +17,8 @@
  */
 import ellieBingLogo from '~/assets/partners/ellie-bing.png';
 import ellieBingShare from '~/assets/partners/ellie-bing-share.jpg';
+import carmonWeedenLogo from '~/assets/partners/carmon-weeden.png';
+import carmonWeedenShare from '~/assets/partners/carmon-weeden-share.jpg';
 
 export type Partner = {
   handle: string;
@@ -31,6 +33,13 @@ export type Partner = {
   intro: string;
   /** Partner logo (image URL); null shows their name as a wordmark. */
   logo: string | null;
+  /** Round logo (shown with a soft white ring). */
+  logoRound?: boolean;
+  /**
+   * Show the Customer view (no prices) / Store view toggle. Customer view is
+   * also reachable at ?view=customer.
+   */
+  viewToggle?: boolean;
   /**
    * 1200×630 picture shown when the link is texted or shared (made from
    * scripts/partner-share-template.html). null = the first product photo.
@@ -57,6 +66,23 @@ export const PARTNERS: Record<string, Partner> = {
     // Ellie Bing's light blue with their deeper blue as the accent (from
     // their website); the black logo reads clearly on the light blue.
     colors: {background: '#CAEFF6', text: '#111111', accent: '#4679B9'},
+  },
+  'carmon-weeden': {
+    handle: 'carmon-weeden',
+    name: 'Carmon Weeden',
+    collection: 'partner-carmon-weeden',
+    // Shopify code discount CARMONW30: 30% off (most collections), ends
+    // Dec 31, 2026.
+    discountCode: 'CARMONW30',
+    discountPercent: 30,
+    intro:
+      'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Carmon Weeden customers.',
+    logo: carmonWeedenLogo,
+    logoRound: true,
+    viewToggle: true,
+    shareImage: carmonWeedenShare,
+    // Texas burnt orange (Sydney) to set off the purple Events logo.
+    colors: {background: '#BF5700', text: '#FFFFFF', accent: '#FFE3C8'},
   },
 };
 

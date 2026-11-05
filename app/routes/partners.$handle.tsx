@@ -88,7 +88,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 
   // Customer view (?view=customer): no prices or discount, for browsing with
   // customers. Store view (default) shows prices and the partner discount.
-  const customerView = new URL(request.url).searchParams.get('view') === 'customer';
+  const customerView =
+    !!partner.viewToggle && new URL(request.url).searchParams.get('view') === 'customer';
 
   return data({partner, ...rest, sections, customerView}, headers ? {headers} : undefined);
 }
@@ -115,7 +116,9 @@ export default function PartnerPage() {
               <img
                 src={partner.logo}
                 alt={partner.name}
-                className="h-24 md:h-32 w-auto max-w-full object-contain"
+                className={`h-24 md:h-32 w-auto max-w-full object-contain ${
+                  partner.logoRound ? 'rounded-full ring-4 ring-white/85 shadow-md' : ''
+                }`}
               />
             ) : (
               <span className="font-serif font-medium text-4xl md:text-6xl leading-none tracking-wide">
@@ -151,7 +154,7 @@ export default function PartnerPage() {
       </section>
 
       <section className="container max-w-7xl mx-auto px-4 lg:px-8 pt-10">
-        <ViewToggle customerView={customerView} />
+        {partner.viewToggle && <ViewToggle customerView={customerView} />}
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-6">
           <h2 className="font-serif font-medium text-2xl md:text-3xl text-[#2D2D2D]">
             The {partner.name} Collection
