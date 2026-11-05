@@ -25,6 +25,7 @@ import signageCounter from '~/assets/retail/signage-counter.webp';
 import acrylicDisplay from '~/assets/retail/acrylic-display.webp';
 import catalogBinder from '~/assets/retail/catalog-binder.webp';
 import heroSignage from '~/assets/retail/signage-coastal-hero.webp';
+import {ResponsiveImg} from '~/components/ResponsiveImg';
 import shareImage from '~/assets/retail/share-retail-partners.jpg';
 import customerChooses from '~/assets/retail/customer-chooses.webp';
 import ownerTakesOrder from '~/assets/retail/owner-takes-order.webp';
@@ -330,8 +331,9 @@ function Hero() {
         </div>
 
         <div className="relative min-h-[460px] sm:min-h-[560px] lg:min-h-[640px]">
-          <img
+          <ResponsiveImg
             src={heroSignage}
+            sizes="(min-width: 1024px) 50vw, 100vw"
             alt="The Winsome Life Personalized Stationery sign in a clear acrylic stand on a woven table in a bright coastal shop"
             className="absolute inset-0 w-full h-full object-cover object-[center_40%]"
             loading="eager"
@@ -473,8 +475,9 @@ function PartnerKit() {
               <div className="relative">
                 <div className="aspect-square overflow-hidden bg-[#F6F0E7] flex items-center justify-center">
                   {photo ? (
-                    <img
+                    <ResponsiveImg
                       src={photo.src}
+                      sizes="(min-width: 1024px) 400px, (min-width: 640px) 70vw, 140vw"
                       alt={photo.alt}
                       width={photo.width}
                       height={photo.height}
@@ -563,8 +566,9 @@ function HowItWorks() {
                 {/* Original artwork: no right-click save, drag or long-press
                     save (Sydney). Screenshots can't be blocked; the images
                     are small and carry a © watermark. */}
-                <img
+                <ResponsiveImg
                   src={s.art}
+                  sizes="192px"
                   alt=""
                   width={640}
                   height={640}
@@ -606,8 +610,9 @@ function HowItWorks() {
           ].map((photo) => (
             <figure key={photo.caption}>
               <div className="aspect-[4/5] overflow-hidden ring-1 ring-[#C9A96E]/25 bg-white">
-                <img
+                <ResponsiveImg
                   src={photo.src}
+                  sizes="(min-width: 640px) 440px, 100vw"
                   alt={photo.alt}
                   width={1136}
                   height={1408}
@@ -958,8 +963,9 @@ function IdealFor() {
     <section aria-labelledby="ideal-title" className="bg-white py-16 lg:py-20">
       <div className="container max-w-5xl mx-auto px-5 lg:px-8 text-center">
         {/* Original painting (Sydney): bird of paradise, cut out from the paper. */}
-        <img
+        <ResponsiveImg
           src={artBirdOfParadise}
+          sizes="(min-width: 768px) 144px, 112px"
           alt=""
           width={623}
           height={700}
@@ -1175,8 +1181,9 @@ function Inquiry() {
               .
             </p>
             {/* Original painting (Sydney): blue hydrangea, cut out from the paper. */}
-            <img
+            <ResponsiveImg
               src={artHydrangeaCutout}
+              sizes="(min-width: 1024px) 288px, 256px"
               alt=""
               width={760}
               height={535}
