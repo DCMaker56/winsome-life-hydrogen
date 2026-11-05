@@ -7,6 +7,8 @@
  */
 import {useLoaderData, Link} from 'react-router';
 import type {Route} from './+types/collections._index';
+import {PRODUCT_TYPE_COLLECTIONS} from '~/lib/collection-filters';
+import {isPartnerCollection} from '~/lib/partners';
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Shop by Interest | The Winsome Life'},
@@ -18,23 +20,16 @@ export const meta: Route.MetaFunction = () => [
 ];
 
 /** Product-format collections — everything else is an interest/niche. */
-const FORMAT_HANDLES = new Set([
-  'notecards',
-  'notepads',
-  'gift-tags-stickers',
-  'wine-tags-1',
-  'calendars',
-  'artwork',
-  'place-cards',
-  'holiday-photo-cards',
-  'bestsellers',
-]);
+const FORMAT_HANDLES = new Set([...PRODUCT_TYPE_COLLECTIONS, 'bestsellers']);
 
 const TILE_TONES = ['bg-[#F6F2EA]', 'bg-[#EFEAE2]', 'bg-[#F3EEE9]', 'bg-[#EAE5DC]'];
 
 export async function loader({context}: Route.LoaderArgs) {
   const {collections} = await context.storefront.query(COLLECTIONS_QUERY);
-  const nodes = collections?.nodes ?? [];
+  // Partner-only collections (partner-…) are private to their partner page.
+  const nodes = (collections?.nodes ?? []).filter(
+    (c: {handle: string}) => !isPartnerCollection(c.handle),
+  );
   return {
     interests: nodes.filter(
       (c: {handle: string}) => !FORMAT_HANDLES.has(c.handle),

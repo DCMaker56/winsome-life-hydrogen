@@ -10,8 +10,11 @@ export type SectionGroup = Section & {subsections: Section[] | null};
 
 export function SectionJumpNav({sections}: {sections: Section[]}) {
   return (
-    <nav aria-label="Jump to a section" className="mb-10 -mt-2">
-      <ul className="flex flex-wrap gap-2">
+    <nav aria-label="Jump to a section" className="mb-10 -mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span className="font-sans font-medium text-[11px] tracking-[0.2em] uppercase text-[#2D2D2D]/55">
+        Jump to:
+      </span>
+      <ul className="contents">
         {sections.map((s) => (
           <li key={s.handle}>
             <a

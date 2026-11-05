@@ -87,7 +87,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   });
 
   // Customer view (?view=customer): no prices or discount, for browsing with
-  // customers. Partner view (default) shows prices and the partner discount.
+  // customers. Store view (default) shows prices and the partner discount.
   const customerView = new URL(request.url).searchParams.get('view') === 'customer';
 
   return data({partner, ...rest, sections, customerView}, headers ? {headers} : undefined);
@@ -206,7 +206,7 @@ export default function PartnerPage() {
   );
 }
 
-/** Customer view (no prices) ↔ Partner view (prices and discount). */
+/** Customer view (no prices) ↔ Store view (prices and discount). */
 function ViewToggle({customerView}: {customerView: boolean}) {
   const [params] = useSearchParams();
   const href = (customer: boolean) => {
@@ -233,17 +233,14 @@ function ViewToggle({customerView}: {customerView: boolean}) {
     );
   };
   return (
-    <div className="flex flex-wrap items-center justify-center sm:justify-end gap-3 mb-6">
-      <span className="font-sans text-xs text-[#2D2D2D]/55">
-        {customerView ? 'Prices hidden' : 'Showing prices & discount'}
-      </span>
+    <div className="flex justify-center sm:justify-end mb-6">
       <div
         role="group"
         aria-label="Page view"
         className="inline-flex p-1 rounded-full bg-white ring-1 ring-[#2D2D2D]/15"
       >
         {option(true, 'Customer view')}
-        {option(false, 'Partner view')}
+        {option(false, 'Store view')}
       </div>
     </div>
   );
