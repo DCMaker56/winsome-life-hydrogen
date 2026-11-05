@@ -62,7 +62,7 @@ type TocEntry = {title: string; page: number; level: 1 | 2};
  * Splits contents lines into pages by their printed height (points): a
  * product-type line with its gap above is taller than a collection line.
  */
-const TOC_PAGE_HEIGHT = 600;
+const TOC_PAGE_HEIGHT = 460;
 function splitToc(entries: TocEntry[]) {
   const pages: TocEntry[][] = [[]];
   let used = 0;
@@ -341,7 +341,8 @@ const CATALOG_CSS = `
 .cover-foot { font-family: Montserrat, sans-serif; font-size: 11pt; margin-top: auto; opacity: .8; }
 .toc { padding: .8in .9in; }
 .toc h1, .option h1 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 34pt; color: #1B294E; margin-bottom: .25in; }
-.toc li { display: flex; align-items: baseline; gap: 8px; font-family: 'Cormorant Garamond', serif; }
+.toc li { display: flex; align-items: baseline; gap: 8px; font-family: 'Cormorant Garamond', serif; line-height: 1.2; white-space: nowrap; }
+.toc li span:first-child { overflow: hidden; text-overflow: ellipsis; }
 .toc .toc-1 { font-size: 17pt; font-weight: 700; margin-top: .14in; color: #1B294E; }
 .toc .toc-2 { font-size: 14pt; padding-left: .35in; }
 .toc .dots { flex: 1; border-bottom: 1.5px dotted #b9b2a6; transform: translateY(-4px); }

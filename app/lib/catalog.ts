@@ -32,7 +32,6 @@ export const CATALOG_OPTION_PAGES: CatalogOptionPage[] = [
     title: 'Monogram Options',
     images: [
       'https://cdn.shopify.com/s/files/1/0938/6203/5753/files/monogram-style-options-15.png?v=1793204718',
-      'https://cdn.shopify.com/s/files/1/0938/6203/5753/files/il_fullxfull.6904461107_7hyb.jpg?v=1761945972',
     ],
     candidates: [
       'gid://shopify/Product/9828551688489', // Monogram Stationery Set
