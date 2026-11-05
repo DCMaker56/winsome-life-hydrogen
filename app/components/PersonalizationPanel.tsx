@@ -251,11 +251,17 @@ export function PersonalizationPanel({
                       className="w-full aspect-square object-contain"
                     />
                   ) : (
-                    <span className="w-full aspect-square bg-[#FAF8F5]" />
+                    // A choice without a picture (e.g. "No liners") shows its
+                    // name in the tile instead of an empty square.
+                    <span className="w-full aspect-square bg-[#FAF8F5] flex items-center justify-center p-2 font-sans text-sm text-center text-[#2D2D2D]">
+                      {opt}
+                    </span>
                   )}
-                  <span className="font-sans text-[11px] leading-tight text-center text-[#2D2D2D]">
-                    {opt}
-                  </span>
+                  {img ? (
+                    <span className="font-sans text-[11px] leading-tight text-center text-[#2D2D2D]">
+                      {opt}
+                    </span>
+                  ) : null}
                 </button>
               );
             })}
