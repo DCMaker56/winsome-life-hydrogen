@@ -52,11 +52,31 @@ type MediaProduct = {
 type Item = {card: CardData; collection: string};
 type Page =
   | {kind: 'cover'}
-  | {kind: 'toc'; entries: Array<{title: string; page: number; level: 1 | 2}>}
+  | {kind: 'toc'; entries: TocEntry[]}
   | {kind: 'products'; type: string; items: Item[]}
   | {kind: 'option'; title: string; note?: string; image: string | null};
 
-const TOC_LINES_PER_PAGE = 36;
+type TocEntry = {title: string; page: number; level: 1 | 2};
+
+/**
+ * Splits contents lines into pages by their printed height (points): a
+ * product-type line with its gap above is taller than a collection line.
+ */
+const TOC_PAGE_HEIGHT = 600;
+function splitToc(entries: TocEntry[]) {
+  const pages: TocEntry[][] = [[]];
+  let used = 0;
+  for (const e of entries) {
+    const h = e.level === 1 ? 30 : 17.5;
+    if (used + h > TOC_PAGE_HEIGHT && pages[pages.length - 1].length) {
+      pages.push([]);
+      used = 0;
+    }
+    pages[pages.length - 1].push(e);
+    used += h;
+  }
+  return pages;
+}
 
 export async function loader({context, params, request}: Route.LoaderArgs) {
   const partner = params.handle ? PARTNERS[params.handle] : undefined;
@@ -111,46 +131,68 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     }
   }
 
-  const options = CATALOG_OPTION_PAGES.map((o) => {
-    let image = o.image ?? null;
-    if (!image && o.fromAlt) {
+  // One page per chosen photo; options without a photo yet are left out.
+  const options: Array<{title: string; note?: string; image: string; first: boolean}> = [];
+  for (const o of CATALOG_OPTION_PAGES) {
+    let images = o.images ?? [];
+    if (!images.length && o.fromAlt) {
       const p = mediaById.get(o.fromAlt.product);
-      image = p?.media.nodes.find((m) => m.image && o.fromAlt!.alt.test(m.image.altText ?? ''))?.image?.url ?? null;
+      const found = p?.media.nodes.find((m) => m.image && o.fromAlt!.alt.test(m.image.altText ?? ''));
+      images = found?.image ? [found.image.url] : [];
     }
-    return {title: o.title, note: o.note, image};
-  });
+    images.forEach((image, i) =>
+      options.push({
+        title: images.length > 1 ? `${o.title} (${i + 1} of ${images.length})` : o.title,
+        note: o.note,
+        image,
+        first: i === 0,
+      }),
+    );
+  }
 
-  // Contents: product types, their collections, then options.
-  const tocLines = groups.length + groups.reduce((n, g) => n + (g.subsections?.length ?? 0), 0) + 1 + options.length;
-  const tocPages = Math.max(1, Math.ceil(tocLines / TOC_LINES_PER_PAGE));
-  const firstProductPage = 2 + tocPages;
-  const entries: Array<{title: string; page: number; level: 1 | 2}> = [];
-  let seen = new Set<string>();
-  productPages.forEach((p, i) => {
-    const page = firstProductPage + i;
-    if (i === 0 || productPages[i - 1].type !== p.type) {
-      entries.push({title: p.type, page, level: 1});
-      seen = new Set();
-    }
-    for (const c of p.collections) {
-      if (c && !seen.has(c)) {
-        seen.add(c);
-        entries.push({title: c, page, level: 2});
+  // Contents: product types, their collections, then options. Page numbers
+  // depend on how many contents pages there are, so settle that first.
+  const buildEntries = (tocPages: number) => {
+    const firstProductPage = 2 + tocPages;
+    const entries: TocEntry[] = [];
+    let seen = new Set<string>();
+    productPages.forEach((p, i) => {
+      const page = firstProductPage + i;
+      if (i === 0 || productPages[i - 1].type !== p.type) {
+        entries.push({title: p.type, page, level: 1});
+        seen = new Set();
       }
-    }
-  });
-  const firstOptionPage = firstProductPage + productPages.length;
-  entries.push({title: 'Personalization Options', page: firstOptionPage, level: 1});
-  options.forEach((o, i) => entries.push({title: o.title, page: firstOptionPage + i, level: 2}));
+      for (const c of p.collections) {
+        if (c && !seen.has(c)) {
+          seen.add(c);
+          entries.push({title: c, page, level: 2});
+        }
+      }
+    });
+    const firstOptionPage = firstProductPage + productPages.length;
+    entries.push({title: 'Personalization Options', page: firstOptionPage, level: 1});
+    options.forEach((o, i) => {
+      if (o.first)
+        entries.push({
+          title: o.title.replace(/ \(1 of \d+\)$/, ''),
+          page: firstOptionPage + i,
+          level: 2,
+        });
+    });
+    return entries;
+  };
+  let tocPages = 1;
+  let toc = splitToc(buildEntries(tocPages));
+  while (toc.length !== tocPages) {
+    tocPages = toc.length;
+    toc = splitToc(buildEntries(tocPages));
+  }
 
   const pages: Page[] = [
     {kind: 'cover'},
-    ...Array.from({length: tocPages}, (_, i) => ({
-      kind: 'toc' as const,
-      entries: entries.slice(i * TOC_LINES_PER_PAGE, (i + 1) * TOC_LINES_PER_PAGE),
-    })),
+    ...toc.map((entries) => ({kind: 'toc' as const, entries})),
     ...productPages.map((p) => ({kind: 'products' as const, type: p.type, items: p.items})),
-    ...options.map((o) => ({kind: 'option' as const, ...o})),
+    ...options.map((o) => ({kind: 'option' as const, title: o.title, note: o.note, image: o.image})),
   ];
   return {partner, pick: false as const, options: [], pages};
 }
@@ -197,7 +239,7 @@ export default function PartnerCatalog() {
           )}
           {page.kind === 'toc' && (
             <div className="toc">
-              <h1>Contents</h1>
+              <h1>{data.pages[i - 1]?.kind === 'toc' ? 'Contents (continued)' : 'Contents'}</h1>
               <ul>
                 {page.entries.map((e, j) => (
                   <li key={j} className={e.level === 1 ? 'toc-1' : 'toc-2'}>
