@@ -9,6 +9,7 @@ import {
   Scripts,
   ScrollRestoration,
   useRouteLoaderData,
+  useMatches,
 } from 'react-router';
 import type {Route} from './+types/root';
 import favicon32 from '~/assets/favicon-32.png';
@@ -209,10 +210,16 @@ gtag('config', 'G-H9RRG960BX');`,
 
 export default function App() {
   const data = useRouteLoaderData<RootLoader>('root');
+  const bare = useMatches().some(
+    (m) => (m.handle as {bare?: boolean} | undefined)?.bare,
+  );
 
   if (!data) {
     return <Outlet />;
   }
+
+  // Printable pages (e.g. partner catalogs) render without the site chrome.
+  if (bare) return <Outlet />;
 
   return (
     <Analytics.Provider
