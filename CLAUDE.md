@@ -58,5 +58,6 @@ Also:
 - Match the live site first; innovate second unless told otherwise.
 - Keep neighboring homepage sections visibly distinct in background color.
 - Keep the personalization picker at exactly the 10 approved fonts unless Sydney changes the list.
+- Edit website photos from the full-quality master in `design/originals/` (or the original download), never by re-saving the compressed copy in `app/assets/` — repeated re-saves make photos blurry.
 - Don't reintroduce deleted homepage sections (Shop by Category, old FeatureBands, "Why We're Different").
 - Implement a feedback batch fully → deploy to Oxygen preview → report what changed and what you need next.
