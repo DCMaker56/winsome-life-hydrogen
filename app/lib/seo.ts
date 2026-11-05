@@ -129,6 +129,8 @@ function offer({price, availability = 'InStock', url, sku, finalSale}: OfferInpu
     itemCondition: 'https://schema.org/NewCondition',
     url,
     ...(sku ? {sku} : {}),
+    // Google Merchant listings wants a price-validity window on the offer.
+    validFrom: new Date().toISOString().slice(0, 10),
     priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
     hasMerchantReturnPolicy: merchantReturnPolicy(finalSale),
     shippingDetails: shippingDetails(),
@@ -156,6 +158,26 @@ export interface ProductSchemaInput {
   variants?: VariantInput[];
 }
 
+/** Pull a size-like option value (e.g. "5 x 7 Inch") from a variant's options.
+ *  Google Merchant listings flags a missing `size` field as critical. */
+function sizeOf(
+  selectedOptions?: Array<{name: string; value: string}>,
+): string | undefined {
+  return selectedOptions?.find((o) => /size/i.test(o.name))?.value;
+}
+
+/** Map a variant option name to a schema.org pvariant-property URL that Google
+ *  recognizes for ProductGroup.variesBy; unknown dimensions pass through as
+ *  free text (e.g. "Number of Sheets"). */
+function variesByUrl(name: string): string {
+  const n = name.toLowerCase();
+  if (n.includes('size')) return 'https://schema.org/size';
+  if (n.includes('color') || n.includes('colour')) return 'https://schema.org/color';
+  if (n.includes('material')) return 'https://schema.org/material';
+  if (n.includes('pattern')) return 'https://schema.org/pattern';
+  return name;
+}
+
 /**
  * Product JSON-LD. When the product has more than one real variant (paper type,
  * size…), emits a ProductGroup with each variant as an `isVariantOf` Product so
@@ -181,10 +203,12 @@ export function productJsonLd(p: ProductSchemaInput) {
   };
 
   if (!isGroup) {
+    const soloSize = sizeOf(distinctVariants[0]?.selectedOptions);
     return {
       ...base,
       '@type': 'Product',
       url,
+      ...(soloSize ? {size: soloSize} : {}),
       offers: offer({
         price: p.price,
         availability,
@@ -211,13 +235,18 @@ export function productJsonLd(p: ProductSchemaInput) {
     '@id': groupId,
     productGroupID: p.id,
     url,
-    variesBy: variesBy.map((v) => `https://schema.org/${v.replace(/\s+/g, '')}`),
+    variesBy: variesBy.map(variesByUrl),
     hasVariant: distinctVariants.map((v) => {
       const variantName = v.selectedOptions?.map((o) => o.value).join(' / ');
+      const vSize = sizeOf(v.selectedOptions);
       return {
         '@type': 'Product',
         name: `${p.title}${variantName ? ` — ${variantName}` : ''}`,
+        // Per-variant description + size: Google validates each variant Product
+        // and flags these as missing when only the group carries them.
+        description: p.description,
         image: images,
+        ...(vSize ? {size: vSize} : {}),
         ...(v.sku ? {sku: v.sku} : {}),
         isVariantOf: {'@id': groupId},
         ...(v.selectedOptions?.length
