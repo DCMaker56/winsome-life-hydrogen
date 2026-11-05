@@ -17,6 +17,7 @@ import {
   type Section,
 } from '~/lib/collection-sections';
 import {JsonLd} from '~/components/JsonLd';
+import {SectionJumpNav, SectionList} from '~/components/CollectionSections';
 import {
   absoluteUrl,
   breadcrumbJsonLd,
@@ -132,43 +133,8 @@ export default function CollectionRoute() {
         />
         {sections ? (
           <>
-            {/* Jump to a heading */}
-            <nav aria-label="Jump to a collection" className="mb-10 -mt-2">
-              <ul className="flex flex-wrap gap-2">
-                {sections.map((s) => (
-                  <li key={s.handle}>
-                    <a
-                      href={`#sec-${s.handle}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C9A96E]/40 bg-white font-sans text-[13px] text-[#2D2D2D] hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors"
-                    >
-                      {s.title}
-                      <span className="text-[11px] text-[#2D2D2D]/45">{s.cards.length}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <div className="space-y-14">
-              {sections.map((s) => (
-                <section
-                  key={s.handle}
-                  id={`sec-${s.handle}`}
-                  aria-labelledby={`sec-${s.handle}-title`}
-                  className="scroll-mt-28"
-                >
-                  <div className="flex items-baseline gap-3 mb-5 pb-3 border-b border-[#2D2D2D]/10">
-                    <h2
-                      id={`sec-${s.handle}-title`}
-                      className="font-serif font-medium text-2xl md:text-[1.75rem] text-[#2D2D2D]"
-                    >
-                      {s.title}
-                    </h2>
-                    <span className="font-sans text-xs text-[#2D2D2D]/45">{s.cards.length}</span>
-                  </div>
-                  <FilteredProductGrid cards={s.cards} hideEnd />
-                </section>
-              ))}
-            </div>
+            <SectionJumpNav sections={sections} />
+            <SectionList sections={sections} />
           </>
         ) : (
           <FilteredProductGrid cards={cards} />

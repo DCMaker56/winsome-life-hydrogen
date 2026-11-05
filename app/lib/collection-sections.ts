@@ -11,6 +11,7 @@
  * are skipped.
  */
 import type {CardData} from '~/lib/collection-filters.server';
+import {PRODUCT_TYPE_COLLECTIONS} from '~/lib/collection-filters';
 
 export type Section = {handle: string; title: string; cards: CardData[]};
 
@@ -119,3 +120,30 @@ export const PRODUCT_TYPE_SECTION_ORDER = [
   'spring-1',
   'summer',
 ];
+
+/**
+ * Shop All: products grouped by product type (Notecards, Notepads, …, in
+ * PRODUCT_TYPE_COLLECTIONS order), then by collection within each type
+ * (types with fewer than MIN_TO_GROUP products stay one grid). Each product
+ * shows once, under its first product type; products with none go last.
+ */
+export function groupByTypeThenCollection(
+  cards: CardData[],
+  collectionsById: Record<string, Array<{handle: string; title: string}>>,
+) {
+  const types = groupIntoSections(cards, collectionsById, {
+    order: PRODUCT_TYPE_COLLECTIONS,
+    moreTitle: 'Other Designs',
+  });
+  return types.map((t) => {
+    let subsections: Section[] | null = null;
+    if (t.cards.length >= MIN_TO_GROUP) {
+      subsections = groupIntoSections(t.cards, collectionsById, {
+        order: PRODUCT_TYPE_SECTION_ORDER,
+        rules: PRODUCT_TYPE_SECTION_RULES,
+      });
+      if (subsections.length < 2) subsections = null;
+    }
+    return {...t, subsections};
+  });
+}

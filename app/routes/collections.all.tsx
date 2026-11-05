@@ -7,6 +7,8 @@ import {Analytics} from '@shopify/hydrogen';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
 import {JsonLd} from '~/components/JsonLd';
+import {SectionGroups, SectionJumpNav} from '~/components/CollectionSections';
+import {groupByTypeThenCollection} from '~/lib/collection-sections';
 import {absoluteUrl, breadcrumbJsonLd, itemListJsonLd} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = () => {
@@ -24,15 +26,19 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export async function loader({context, request}: Route.LoaderArgs) {
-  const {collectionsById: _unused, ...rest} = await loadFilteredProducts(
+  const {collectionsById, ...rest} = await loadFilteredProducts(
     context.storefront as never,
     request,
+    undefined,
+    {withCollections: true},
   );
-  return rest;
+  // Grouped by product type, then by collection within each (Sydney).
+  const groups = groupByTypeThenCollection(rest.cards, collectionsById);
+  return {...rest, groups: groups.length >= 2 ? groups : null};
 }
 
 export default function AllProducts() {
-  const {cards, facets, sort, q} = useLoaderData<typeof loader>();
+  const {cards, facets, sort, q, groups} = useLoaderData<typeof loader>();
 
   const listProducts = cards.slice(0, 24).map((p) => ({
     slug: p.slug,
@@ -78,7 +84,14 @@ export default function AllProducts() {
           q={q}
           searchPlaceholder="Search all designs"
         />
-        <FilteredProductGrid cards={cards} />
+        {groups ? (
+          <>
+            <SectionJumpNav sections={groups} />
+            <SectionGroups groups={groups} />
+          </>
+        ) : (
+          <FilteredProductGrid cards={cards} />
+        )}
       </section>
 
       <Analytics.CollectionView
