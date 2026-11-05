@@ -99,6 +99,7 @@ export function ProductView({
     photoFee,
     extraFee,
     extraPhotoFee,
+    envelopeLiner,
     extraQuestions,
     hidden,
     textLength,
@@ -525,7 +526,24 @@ export function ProductView({
       ?.eachLabel?.toLowerCase() ?? 'pet';
   const extraLabel = (n: number) =>
     `additional ${extraNoun}${n > 1 ? 's' : ''}`;
+  // Envelope liners: one per card ("Envelope Liners: Yes"), so the count is
+  // the cards in the chosen quantity (e.g. "50" or "50 + Blank Envelopes")
+  // times how many sets are in the cart.
+  const wantsLiners = shownFields.some(
+    (f) =>
+      /envelope liner/i.test(f.label) && /^yes\b/i.test(personalization.fields[f.key] ?? ''),
+  );
+  const cardsPerSet = parseInt(
+    Object.entries(selOptions).find(([name]) => /quantity|number of cards/i.test(name))?.[1] ??
+      '',
+    10,
+  );
+  const linerCount =
+    envelopeLiner && wantsLiners && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
   const addOns = [
+    ...(envelopeLiner && linerCount
+      ? [{...envelopeLiner, quantity: linerCount, label: 'envelope liners'}]
+      : []),
     ...(photoFee && photoCount
       ? [{...photoFee, quantity: photoCount, label: 'custom photo'}]
       : []),
@@ -773,7 +791,7 @@ export function ProductView({
             </p>
             <p className="font-sans font-light text-xs text-[#2D2D2D]/50 mb-6 flex items-center gap-1.5">
               <span className="text-[#C9A96E]">✦</span>
-              Made to order in 5–7 business days · Free shipping over $75
+              Made to order in {wantsLiners ? '7–9' : '5–7'} business days · Free shipping over $75
             </p>
 
             {/* Full product description — never truncated (renders the complete

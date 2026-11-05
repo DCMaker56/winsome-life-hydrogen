@@ -19,6 +19,7 @@ import {
   EXTRA_PHOTO_FEE_PRODUCT_HANDLE,
   PHOTO_FEE_PRODUCT_HANDLE,
   PROOF_PRODUCT_HANDLE,
+  ENVELOPE_LINER_PRODUCT_HANDLE,
 } from '~/lib/addons';
 import {stampUploadedFiles} from '~/lib/uploads.server';
 import {parseHiddenStandard, questionsToFields} from '~/lib/personalization-questions';
@@ -68,7 +69,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const {storefront} = context;
   // Background: put order numbers on files customers uploaded (see uploads.server).
   context.waitUntil?.(stampUploadedFiles(context.env));
-  const [{product}, proofData, photoFeeData, extraFeeData, extraPhotoFeeData] = await Promise.all([
+  const [{product}, proofData, photoFeeData, extraFeeData, extraPhotoFeeData, linerData] =
+    await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
     }),
@@ -88,6 +90,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // And each photo beyond those included on a photo card ($12 each).
     storefront
       .query(PROOF_PRODUCT_QUERY, {variables: {handle: EXTRA_PHOTO_FEE_PRODUCT_HANDLE}})
+      .catch(() => null),
+    // And envelope liners, charged per card when the customer adds them.
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: ENVELOPE_LINER_PRODUCT_HANDLE}})
       .catch(() => null),
   ]);
   if (!product?.id) throw new Response(null, {status: 404});
@@ -123,6 +129,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const extraPhotoFeeVariant = extraPhotoFeeData?.product?.variants?.nodes?.[0];
   const extraPhotoFee = extraPhotoFeeVariant?.availableForSale
     ? {variantId: extraPhotoFeeVariant.id, price: Number(extraPhotoFeeVariant.price.amount)}
+    : null;
+  const linerVariant = linerData?.product?.variants?.nodes?.[0];
+  const envelopeLiner = linerVariant?.availableForSale
+    ? {variantId: linerVariant.id, price: Number(linerVariant.price.amount)}
     : null;
 
   // This product's own questions, managed in Shopify admin. While the
@@ -221,6 +231,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     photoFee,
     extraFee,
     extraPhotoFee,
+    envelopeLiner,
     extraQuestions,
     hidden,
     textLength,
