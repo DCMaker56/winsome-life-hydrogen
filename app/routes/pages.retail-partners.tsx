@@ -307,18 +307,13 @@ function Hero() {
               </span>
             </h1>
             <p className="font-sans font-light text-[16px] md:text-lg leading-relaxed text-[#2D2D2D]/80 mt-6">
-              Beautiful personalized stationery. Zero inventory. A new revenue
-              opportunity for your store.
+              Beautiful personalized stationery. Zero inventory. More revenue
+              for your store.
             </p>
             <p className="font-sans font-light text-[14px] md:text-[15px] leading-relaxed text-[#2D2D2D]/65 mt-4">
-              Delight your customers with The Winsome Life&rsquo;s personalized
-              stationery collection&mdash;without the hassle of stocking
-              inventory.
-            </p>
-            <p className="font-sans font-light text-[14px] md:text-[15px] leading-relaxed text-[#2D2D2D]/65 mt-4">
-              We provide complimentary product samples, catalogs, signage, and
-              display materials. We handle all production and shipping. You
-              enjoy exclusive retailer pricing and earn revenue on every order.
+              We provide complimentary samples, catalogs, and displays, plus
+              exclusive retailer pricing. We handle all personalization,
+              production, and shipping.
             </p>
             <p className="font-serif italic text-[1.3rem] md:text-[1.45rem] text-[#1B294E] mt-5">
               You take the order. We do the rest.
