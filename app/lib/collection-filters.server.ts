@@ -5,7 +5,7 @@
  */
 import {
   applyFilters,
-  collectionGroup,
+  collectionGroups,
   parseSelection,
   type FilterProduct,
 } from '~/lib/collection-filters';
@@ -118,12 +118,10 @@ export async function loadFilteredProducts(
     minPrice: Number(p.priceRange.minVariantPrice.amount),
     publishedAt: p.publishedAt ?? '',
   }));
-  const groups = [
-    collectionGroup(
-      raw.flatMap((p) => p.collections.nodes),
-      collectionHandle,
-    ),
-  ];
+  const groups = collectionGroups(
+    raw.flatMap((p) => p.collections.nodes),
+    collectionHandle,
+  );
   const {selection, sort, q} = parseSelection(new URL(request.url).searchParams, groups);
   const {results, facets} = applyFilters(products, groups, selection, sort, q);
   const cards: CardData[] = results.map((r) => {

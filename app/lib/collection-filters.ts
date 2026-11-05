@@ -1,13 +1,14 @@
 /*
- * Collection filters — on the product-type pages (Notecards, Notepads, …)
- * and Shop All: a search box, one "Collection" filter and Sort.
+ * Collection filters — on the collection pages and Shop All: a search box,
+ * Product Type / Collection / Season filters and Sort.
  *
- * Per Sydney, the only filter is Collection, built automatically from every
- * Shopify collection the page's products belong to (Floral, Sports,
- * Christmas / Holiday, Men, Monograms, …). Nothing is hand-picked, so a new
- * collection shows up on its own and no product can be hidden by a missing
- * group. Picking several collections widens the results (Floral OR Seaside).
- * Choices live in the URL (?collection=floral,seaside&sort=price-asc&q=duck)
+ * Filters are built automatically from every Shopify collection the page's
+ * products belong to, split into Product Type, Collection and Season (see
+ * collectionGroups). A new collection shows up on its own (under Collection
+ * unless it's listed as a product type or season). Picking several choices in
+ * one filter widens the results (Floral OR Seaside); choices in different
+ * filters narrow them (Notecards AND Christmas). Choices live in the URL
+ * (?type=notecards&collection=floral,seaside&season=spring-1&sort=price-asc&q=duck)
  * so a filtered page can be shared.
  */
 
@@ -31,15 +32,44 @@ type Option = {
 
 export type FilterGroup = {key: string; label: string; options: Option[]};
 
+/** Product-type collections ("Filter by Product Type"). */
+export const PRODUCT_TYPE_COLLECTIONS = [
+  'notecards',
+  'notepads',
+  'gift-tags-stickers',
+  'wine-tags-1',
+  'place-cards',
+  'holiday-photo-cards',
+  'artwork',
+  'calendars',
+  'mugs',
+];
+
+/** Seasonal collections ("Filter by Season"), in calendar order. */
+export const SEASON_COLLECTIONS = [
+  'winter-1',
+  'valentines-day',
+  'st-patricks-day',
+  'easter',
+  'spring-1',
+  'summer',
+  'halloween',
+  'fall-autumn',
+  'christmas-holiday',
+];
+
 /**
- * The Collection filter: every collection the products are in, A–Z, except
- * the page's own collection (no "Notecards" filter on the Notecards page)
- * and partner-only collections ("partner-…", see ~/lib/partners).
+ * The filters, built from every collection the page's products are in
+ * (except the page's own collection and partner-only "partner-…" ones):
+ *  - Filter by Product Type: Notecards, Notepads, … (not on product-type pages)
+ *  - Filter by Collection: themes and everything else, A–Z
+ *  - Filter by Season: seasonal collections, in calendar order
+ * Groups with nothing to offer are hidden.
  */
-export function collectionGroup(
+export function collectionGroups(
   collections: Array<{handle: string; title: string}>,
   currentCollection?: string,
-): FilterGroup {
+): FilterGroup[] {
   const seen = new Map<string, string>();
   for (const c of collections) {
     if (
@@ -50,13 +80,25 @@ export function collectionGroup(
       seen.set(c.handle, c.title.replace(/ Collection$/i, ''));
     }
   }
-  return {
-    key: 'collection',
-    label: 'Filter by Collection',
-    options: [...seen.entries()]
-      .sort((a, b) => a[1].localeCompare(b[1]))
-      .map(([handle, title]) => ({value: handle, label: title, collection: handle})),
-  };
+  const opt = (handle: string) => ({
+    value: handle,
+    label: seen.get(handle)!,
+    collection: handle,
+  });
+  const onTypePage =
+    !!currentCollection && PRODUCT_TYPE_COLLECTIONS.includes(currentCollection);
+  const types = onTypePage ? [] : PRODUCT_TYPE_COLLECTIONS.filter((h) => seen.has(h));
+  const seasons = SEASON_COLLECTIONS.filter((h) => seen.has(h));
+  const rest = [...seen.keys()]
+    .filter(
+      (h) => !PRODUCT_TYPE_COLLECTIONS.includes(h) && !SEASON_COLLECTIONS.includes(h),
+    )
+    .sort((a, b) => seen.get(a)!.localeCompare(seen.get(b)!));
+  return [
+    {key: 'type', label: 'Filter by Product Type', options: types.map(opt)},
+    {key: 'collection', label: 'Filter by Collection', options: rest.map(opt)},
+    {key: 'season', label: 'Filter by Season', options: seasons.map(opt)},
+  ];
 }
 
 export const SORT_OPTIONS = [

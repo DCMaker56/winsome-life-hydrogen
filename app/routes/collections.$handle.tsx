@@ -8,6 +8,14 @@ import type {Route} from './+types/collections.$handle';
 import {Analytics} from '@shopify/hydrogen';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
+import {
+  GROUPED_PAGES,
+  MIN_TO_GROUP,
+  PRODUCT_TYPE_SECTION_ORDER,
+  PRODUCT_TYPE_SECTION_RULES,
+  groupIntoSections,
+  type Section,
+} from '~/lib/collection-sections';
 import {JsonLd} from '~/components/JsonLd';
 import {
   absoluteUrl,
@@ -42,16 +50,28 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     context.storefront.query(COLLECTION_QUERY, {
       variables: {handle, first: 1},
     }),
-    loadFilteredProducts(context.storefront as never, request, handle),
+    loadFilteredProducts(context.storefront as never, request, handle, {
+      withCollections: GROUPED_PAGES.has(handle),
+    }),
   ]);
   if (!collection) throw new Response(null, {status: 404});
 
-  const {collectionsById: _unused, ...rest} = filtered;
-  return {collection, ...rest};
+  // Product-type pages (Notecards, Notepads, …) group their products under
+  // collection headings: Monograms, Floral, Sports, … (Sydney).
+  const {collectionsById, ...rest} = filtered;
+  let sections: Section[] | null = null;
+  if (GROUPED_PAGES.has(handle) && rest.total >= MIN_TO_GROUP) {
+    sections = groupIntoSections(rest.cards, collectionsById, {
+      order: PRODUCT_TYPE_SECTION_ORDER,
+      rules: PRODUCT_TYPE_SECTION_RULES,
+    });
+    if (sections.length < 2) sections = null;
+  }
+  return {collection, ...rest, sections};
 }
 
 export default function CollectionRoute() {
-  const {collection, cards, facets, sort, q} = useLoaderData<typeof loader>();
+  const {collection, cards, facets, sort, q, sections} = useLoaderData<typeof loader>();
   const count = cards.length;
 
   const listProducts = cards.slice(0, 24).map((p) => ({
@@ -110,7 +130,49 @@ export default function CollectionRoute() {
           q={q}
           searchPlaceholder={`Search ${collection.title.replace(/ Collection$/i, '').toLowerCase()}`}
         />
-        <FilteredProductGrid cards={cards} />
+        {sections ? (
+          <>
+            {/* Jump to a heading */}
+            <nav aria-label="Jump to a collection" className="mb-10 -mt-2">
+              <ul className="flex flex-wrap gap-2">
+                {sections.map((s) => (
+                  <li key={s.handle}>
+                    <a
+                      href={`#sec-${s.handle}`}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#C9A96E]/40 bg-white font-sans text-[13px] text-[#2D2D2D] hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors"
+                    >
+                      {s.title}
+                      <span className="text-[11px] text-[#2D2D2D]/45">{s.cards.length}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <div className="space-y-14">
+              {sections.map((s) => (
+                <section
+                  key={s.handle}
+                  id={`sec-${s.handle}`}
+                  aria-labelledby={`sec-${s.handle}-title`}
+                  className="scroll-mt-28"
+                >
+                  <div className="flex items-baseline gap-3 mb-5 pb-3 border-b border-[#2D2D2D]/10">
+                    <h2
+                      id={`sec-${s.handle}-title`}
+                      className="font-serif font-medium text-2xl md:text-[1.75rem] text-[#2D2D2D]"
+                    >
+                      {s.title}
+                    </h2>
+                    <span className="font-sans text-xs text-[#2D2D2D]/45">{s.cards.length}</span>
+                  </div>
+                  <FilteredProductGrid cards={s.cards} hideEnd />
+                </section>
+              ))}
+            </div>
+          </>
+        ) : (
+          <FilteredProductGrid cards={cards} />
+        )}
       </section>
 
       <Analytics.CollectionView

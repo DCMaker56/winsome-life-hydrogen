@@ -16,7 +16,7 @@ import {
   PARTNER_SECTION_RULES,
   PARTNER_SECTION_TITLES,
 } from '~/lib/partners';
-import type {CardData} from '~/lib/collection-filters.server';
+import {groupIntoSections} from '~/lib/collection-sections';
 import {absoluteUrl} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = ({data}) => {
@@ -78,35 +78,13 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 
   // Group the (searched / filtered / sorted) results under collection headings.
   const {collectionsById, ...rest} = products;
-  const titles = new Map<string, string>();
-  for (const list of Object.values(collectionsById))
-    for (const c of list) titles.set(c.handle, c.title.replace(/ Collection$/i, ''));
-  const buckets = new Map<string, CardData[]>();
-  const more: CardData[] = [];
-  for (const card of rest.cards) {
-    const placed = PARTNER_PLACEMENTS[card.slug];
-    if (placed) {
-      for (const h of placed) buckets.set(h, [...(buckets.get(h) ?? []), card]);
-      continue;
-    }
-    const handles = new Set((collectionsById[card.id] ?? []).map((c) => c.handle));
-    const rule = PARTNER_SECTION_RULES.find(
-      (r) =>
-        (r.collection && handles.has(r.collection)) ||
-        (r.titleMatch && r.titleMatch.test(card.title)),
-    );
-    const home = rule?.section ?? PARTNER_SECTION_ORDER.find((h) => handles.has(h));
-    if (home) buckets.set(home, [...(buckets.get(home) ?? []), card]);
-    else more.push(card);
-  }
-  const sections = [
-    ...PARTNER_SECTION_ORDER.filter((h) => buckets.has(h)).map((h) => ({
-      handle: h,
-      title: PARTNER_SECTION_TITLES[h] ?? titles.get(h) ?? h,
-      cards: buckets.get(h)!,
-    })),
-    ...(more.length ? [{handle: 'more', title: 'More Favorites', cards: more}] : []),
-  ];
+  const sections = groupIntoSections(rest.cards, collectionsById, {
+    order: PARTNER_SECTION_ORDER,
+    titles: PARTNER_SECTION_TITLES,
+    rules: PARTNER_SECTION_RULES,
+    placements: PARTNER_PLACEMENTS,
+    moreTitle: 'More Favorites',
+  });
 
   return data({partner, ...rest, sections}, headers ? {headers} : undefined);
 }
