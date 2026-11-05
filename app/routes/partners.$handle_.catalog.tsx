@@ -62,7 +62,8 @@ type TocEntry = {title: string; page: number; level: 1 | 2};
  * Splits contents lines into pages by their printed height (points): a
  * product-type line with its gap above is taller than a collection line.
  */
-const TOC_PAGE_HEIGHT = 460;
+/** Two columns per contents page, each about 460pt of lines (with room to spare). */
+const TOC_PAGE_HEIGHT = 2 * 540;
 function splitToc(entries: TocEntry[]) {
   const pages: TocEntry[][] = [[]];
   let used = 0;
@@ -339,11 +340,15 @@ const CATALOG_CSS = `
 .cover-script { font-size: 44pt; line-height: 1.1; margin-top: .4in; }
 .cover-sub { font-family: 'Cormorant Garamond', serif; font-size: 20pt; letter-spacing: .14em; text-transform: uppercase; margin-top: .25in; }
 .cover-foot { font-family: Montserrat, sans-serif; font-size: 11pt; margin-top: auto; opacity: .8; }
-.toc { padding: .8in .9in; }
+.toc { padding: .7in .7in; }
+.toc ul { height: 8.4in; column-count: 2; column-gap: .45in; column-fill: auto; }
+.toc li { break-inside: avoid; }
+.toc .toc-1 { break-after: avoid; }
+.toc ul > li:first-child.toc-1 { margin-top: 0; }
 .toc h1, .option h1 { font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 34pt; color: #1B294E; margin-bottom: .25in; }
 .toc li { display: flex; align-items: baseline; gap: 8px; font-family: 'Cormorant Garamond', serif; line-height: 1.2; white-space: nowrap; }
 .toc li span:first-child { overflow: hidden; text-overflow: ellipsis; }
-.toc .toc-1 { font-size: 17pt; font-weight: 700; margin-top: .14in; color: #1B294E; }
+.toc .toc-1 { font-size: 16pt; font-weight: 700; margin-top: .14in; color: #1B294E; }
 .toc .toc-2 { font-size: 14pt; padding-left: .35in; }
 .toc .dots { flex: 1; border-bottom: 1.5px dotted #b9b2a6; transform: translateY(-4px); }
 .products, .option { height: 100%; padding: .45in .5in .8in; display: flex; flex-direction: column; }
