@@ -100,6 +100,7 @@ export function ProductView({
     extraFee,
     extraPhotoFee,
     envelopeLiner,
+    euroFlap,
     extraQuestions,
     hidden,
     textLength,
@@ -540,9 +541,19 @@ export function ProductView({
   );
   const linerCount =
     envelopeLiner && wantsLiners && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
+  // Euro flap envelopes: an envelope-flap question answered "Euro…" adds the
+  // upcharge once per envelope (straight flap is the included price).
+  const wantsEuroFlap = shownFields.some(
+    (f) => /flap/i.test(f.label) && /^euro\b/i.test(personalization.fields[f.key] ?? ''),
+  );
+  const euroFlapCount =
+    euroFlap && wantsEuroFlap && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
   const addOns = [
     ...(envelopeLiner && linerCount
       ? [{...envelopeLiner, quantity: linerCount, label: 'envelope liners'}]
+      : []),
+    ...(euroFlap && euroFlapCount
+      ? [{...euroFlap, quantity: euroFlapCount, label: 'Euro flap envelopes'}]
       : []),
     ...(photoFee && photoCount
       ? [{...photoFee, quantity: photoCount, label: 'custom photo'}]
