@@ -87,16 +87,19 @@ export default function HeroSection() {
             <h1 className="font-serif font-medium text-[#2D2D2D] leading-[1.05] text-5xl md:text-6xl lg:text-[4.5rem]">
               <span className="wl-word wl-w1 inline-block">Uniquely</span>{" "}
               <span className="relative inline-block">
-                {/* Script "Y" + print "ou." (Sydney, Nov 2026) — echoes the
-                    script "F" in Founder's Welcome. */}
-                <span className="wl-word wl-w2 inline-block text-[#2D2D2D] pr-[0.08em]">
-                  <span
-                    className="inline-block -mr-[0.3em] align-[-0.02em]"
-                    style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive", fontSize: '1.02em', lineHeight: 1}}
-                  >
-                    Y
-                  </span>
-                  ou.
+                {/* "You." in Parisian Script, about 15% smaller than the
+                    original 1.4em so it doesn't overpower the line (Nov 2026). */}
+                <span
+                  className="wl-word wl-w2 inline-block text-[#2D2D2D]"
+                  style={{
+                    fontFamily: "'Parisian Script', 'Great Vibes', cursive",
+                    fontSize: "1.2em",
+                    lineHeight: "1",
+                    verticalAlign: "-0.04em",
+                    paddingRight: "0.08em",
+                  }}
+                >
+                  You.
                 </span>
                 {/* Honeybee — rests beside "You." (flight animation off for now,
                     per Sydney; the path is kept in HERO_CSS), slanted ~20° left. */}
