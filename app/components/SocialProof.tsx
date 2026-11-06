@@ -24,7 +24,7 @@ function EtsyRating() {
       href={ETSY_RATING.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group mt-10 mx-auto flex w-fit max-w-full flex-col sm:flex-row items-center gap-2 sm:gap-5 rounded-full bg-white/75 ring-1 ring-[#C9A96E]/35 px-7 py-4 sm:py-3.5 shadow-sm hover:bg-white transition-colors"
+      className="group mt-10 mx-auto flex w-fit max-w-full flex-col sm:flex-row items-center gap-2 sm:gap-5 px-4 py-2"
       aria-label={`Rated ${ETSY_RATING.stars} out of 5 stars from ${ETSY_RATING.reviews} reviews on our Etsy shop`}
     >
       <span className="flex gap-1" aria-hidden>
