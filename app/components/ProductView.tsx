@@ -102,6 +102,7 @@ export function ProductView({
     envelopeLiner,
     euroFlap,
     cardstockUpgrade,
+    recipientAddressing,
     extraQuestions,
     hidden,
     textLength,
@@ -560,7 +561,35 @@ export function ProductView({
     cardstockUpgrade && wantsCardstockUpgrade && cardsPerSet > 0
       ? cardsPerSet * quantity
       : 0;
+  // Recipient addressing: "Recipient Addresses: Yes" charges per address, as
+  // many as the customer says they're sending ("Number of Addresses"), never
+  // more than the envelopes in the order.
+  const wantsAddressing = shownFields.some(
+    (f) =>
+      /recipient address/i.test(f.label) && /^yes\b/i.test(personalization.fields[f.key] ?? ''),
+  );
+  const addressCountField = shownFields.find((f) => /number of addresses/i.test(f.label));
+  const addressesTyped = parseInt(
+    (addressCountField ? personalization.fields[addressCountField.key] : '')?.replace(/[^\d]/g, '') ??
+      '',
+    10,
+  );
+  const addressCount =
+    recipientAddressing && wantsAddressing && addressesTyped > 0 && cardsPerSet > 0
+      ? Math.min(addressesTyped, cardsPerSet * quantity)
+      : 0;
+  // Each of these takes 2 more business days to make.
+  const extraDays = (wantsLiners ? 2 : 0) + (wantsAddressing ? 2 : 0);
   const addOns = [
+    ...(recipientAddressing && addressCount
+      ? [
+          {
+            ...recipientAddressing,
+            quantity: addressCount,
+            label: `recipient address${addressCount > 1 ? 'es' : ''}`,
+          },
+        ]
+      : []),
     ...(envelopeLiner && linerCount
       ? [{...envelopeLiner, quantity: linerCount, label: 'envelope liners'}]
       : []),
@@ -598,6 +627,13 @@ export function ProductView({
             .filter(isMissing)
             .map(fieldLabel),
         ),
+        // A number we can charge for (e.g. "48"), not just any text.
+        ...(wantsAddressing &&
+        addressCountField &&
+        (personalization.fields[addressCountField.key] ?? '').trim() &&
+        !(addressesTyped > 0)
+          ? ['Number of Addresses (a number, e.g. 48)']
+          : []),
         ...(needsApproval && !proofApproved && !wantsProof
           ? [
               proof
@@ -817,7 +853,7 @@ export function ProductView({
             </p>
             <p className="font-sans font-light text-xs text-[#2D2D2D]/50 mb-6 flex items-center gap-1.5">
               <span className="text-[#C9A96E]">✦</span>
-              Made to order in {wantsLiners ? '7–9' : '5–7'} business days · Free shipping over $75
+              Made to order in {5 + extraDays}–{7 + extraDays} business days · Free shipping over $75
             </p>
 
             {/* Full product description — never truncated (renders the complete

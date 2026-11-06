@@ -16,6 +16,8 @@ export const ENVELOPE_LINER_PRODUCT_HANDLE = 'envelope-liners';
 export const EURO_FLAP_PRODUCT_HANDLE = 'euro-flap-envelopes';
 /** Charged per card for the 240 lb double thick cardstock upgrade ($1.25 each). */
 export const CARDSTOCK_UPGRADE_PRODUCT_HANDLE = 'double-thick-cardstock';
+/** Charged per address when we print recipient addresses on envelopes ($0.60 each). */
+export const RECIPIENT_ADDRESSING_PRODUCT_HANDLE = 'recipient-addressing';
 // Listing queries filter them with `query: "tag_not:add-on"` (written inline
 // so GraphQL codegen can read the queries).
 
@@ -26,4 +28,5 @@ export const isAddOnHandle = (handle?: string | null) =>
   handle === EXTRA_PHOTO_FEE_PRODUCT_HANDLE ||
   handle === ENVELOPE_LINER_PRODUCT_HANDLE ||
   handle === EURO_FLAP_PRODUCT_HANDLE ||
-  handle === CARDSTOCK_UPGRADE_PRODUCT_HANDLE;
+  handle === CARDSTOCK_UPGRADE_PRODUCT_HANDLE ||
+  handle === RECIPIENT_ADDRESSING_PRODUCT_HANDLE;
