@@ -12,6 +12,9 @@ export const EXTRA_ITEM_FEE_PRODUCT_HANDLE = 'additional-pet-fee';
 export const EXTRA_PHOTO_FEE_PRODUCT_HANDLE = 'additional-photo-fee';
 /** Charged per card when the customer adds envelope liners ($0.55 each). */
 export const ENVELOPE_LINER_PRODUCT_HANDLE = 'envelope-liners';
+/** Envelope liners priced by order size: each variant's name is the fewest
+ *  cards its per-card price applies to ("1", "20", "30", … "100"). */
+export const ENVELOPE_LINER_TIERS_PRODUCT_HANDLE = 'envelope-liners-tiered';
 /** Charged per envelope when the customer picks Euro flap envelopes ($0.35 each). */
 export const EURO_FLAP_PRODUCT_HANDLE = 'euro-flap-envelopes';
 /** Charged per card for the 240 lb double thick cardstock upgrade ($1.25 each). */
@@ -27,6 +30,7 @@ export const isAddOnHandle = (handle?: string | null) =>
   handle === EXTRA_ITEM_FEE_PRODUCT_HANDLE ||
   handle === EXTRA_PHOTO_FEE_PRODUCT_HANDLE ||
   handle === ENVELOPE_LINER_PRODUCT_HANDLE ||
+  handle === ENVELOPE_LINER_TIERS_PRODUCT_HANDLE ||
   handle === EURO_FLAP_PRODUCT_HANDLE ||
   handle === CARDSTOCK_UPGRADE_PRODUCT_HANDLE ||
   handle === RECIPIENT_ADDRESSING_PRODUCT_HANDLE;

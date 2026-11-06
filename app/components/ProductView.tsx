@@ -245,6 +245,23 @@ export function ProductView({
       v.selectedOptions.every((o) => selOptions[o.name] === o.value),
     ) ?? firstVariant;
   const variantId = selectedVariant?.id;
+  // Envelope liners are priced per card by order size; the liner question's
+  // note shows the price for the cards picked ("$1.15 per card for 20 cards").
+  const cardsInOrder =
+    parseInt(
+      Object.entries(selOptions).find(([name]) => /quantity|number of cards/i.test(name))?.[1] ??
+        '',
+      10,
+    ) * quantity;
+  const linerPriceNow = linerTierFor(envelopeLiner, cardsInOrder)?.price;
+  const linerHelp =
+    linerPriceNow && cardsInOrder > 0
+      ? `$${linerPriceNow.toFixed(2)} per card for ${cardsInOrder} cards (less per card on bigger orders).`
+      : '';
+  const withLinerPrice = (f: PersonalizationField): PersonalizationField =>
+    linerHelp && /envelope liner/i.test(f.label)
+      ? {...f, helpText: [linerHelp, f.helpText].filter(Boolean).join(' ')}
+      : f;
   // Picking a choice with its own photo (e.g. a Teacher Notepad design)
   // brings that photo up in the gallery; the page still opens on photo 1.
   const variantImage = selectedVariant?.image?.url;
@@ -385,7 +402,7 @@ export function ProductView({
           // A follow-up of a follow-up (e.g. the photo uploads after "Back
           // Photos: Upload now", itself shown for "Back of Card: Add photos")
           // hides whenever its lead question is hidden.
-          ...productQuestions.filter(function shown(
+          ...productQuestions.map(withLinerPrice).filter(function shown(
             f: PersonalizationField,
             _i?: number,
             _all?: unknown,
@@ -428,6 +445,7 @@ export function ProductView({
       wantsReturnAddress,
       personalization.fields,
       selOptions,
+      linerHelp,
     ],
   );
 
@@ -547,6 +565,7 @@ export function ProductView({
   );
   const linerCount =
     envelopeLiner && wantsLiners && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
+  const linerTier = linerTierFor(envelopeLiner, cardsPerSet * quantity);
   // Euro flap envelopes: an envelope-flap question answered "Euro…" adds the
   // upcharge once per envelope (straight flap is the included price).
   const wantsEuroFlap = shownFields.some(
@@ -601,8 +620,15 @@ export function ProductView({
           },
         ]
       : []),
-    ...(envelopeLiner && linerCount
-      ? [{...envelopeLiner, quantity: linerCount, label: 'envelope liners'}]
+    ...(linerTier && linerCount
+      ? [
+          {
+            variantId: linerTier.variantId,
+            price: linerTier.price,
+            quantity: linerCount,
+            label: 'envelope liners',
+          },
+        ]
       : []),
     ...(euroFlap && euroFlapCount
       ? [{...euroFlap, quantity: euroFlapCount, label: 'Euro flap envelopes'}]
@@ -1620,4 +1646,14 @@ function AddedWatcher({
     }
   }, [fetcher.state, onAdded]);
   return null;
+}
+
+/** The envelope-liner price tier for an order: the tier with the most cards
+ *  that's still no more than the cards ordered. */
+function linerTierFor(
+  liner: {tiers: Array<{minCards: number; variantId: string; price: number}>} | null | undefined,
+  cards: number,
+) {
+  if (!liner || !(cards > 0)) return undefined;
+  return [...liner.tiers].reverse().find((t) => t.minCards <= cards) ?? liner.tiers[0];
 }

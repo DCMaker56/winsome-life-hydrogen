@@ -19,7 +19,7 @@ import {
   EXTRA_PHOTO_FEE_PRODUCT_HANDLE,
   PHOTO_FEE_PRODUCT_HANDLE,
   PROOF_PRODUCT_HANDLE,
-  ENVELOPE_LINER_PRODUCT_HANDLE,
+  ENVELOPE_LINER_TIERS_PRODUCT_HANDLE,
   EURO_FLAP_PRODUCT_HANDLE,
   CARDSTOCK_UPGRADE_PRODUCT_HANDLE,
   RECIPIENT_ADDRESSING_PRODUCT_HANDLE,
@@ -96,7 +96,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       .catch(() => null),
     // And envelope liners, charged per card when the customer adds them.
     storefront
-      .query(PROOF_PRODUCT_QUERY, {variables: {handle: ENVELOPE_LINER_PRODUCT_HANDLE}})
+      .query(TIERED_ADDON_QUERY, {variables: {handle: ENVELOPE_LINER_TIERS_PRODUCT_HANDLE}})
       .catch(() => null),
     // And Euro flap envelopes, charged per envelope over the straight-flap price.
     storefront
@@ -145,10 +145,17 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const extraPhotoFee = extraPhotoFeeVariant?.availableForSale
     ? {variantId: extraPhotoFeeVariant.id, price: Number(extraPhotoFeeVariant.price.amount)}
     : null;
-  const linerVariant = linerData?.product?.variants?.nodes?.[0];
-  const envelopeLiner = linerVariant?.availableForSale
-    ? {variantId: linerVariant.id, price: Number(linerVariant.price.amount)}
-    : null;
+  // Liners cost less per card on bigger orders: one variant per price tier,
+  // named for the fewest cards it applies to.
+  const linerTiers = (linerData?.product?.variants?.nodes ?? [])
+    .filter((v) => v.availableForSale && Number(v.title) > 0)
+    .map((v) => ({
+      minCards: Number(v.title),
+      variantId: v.id,
+      price: Number(v.price.amount),
+    }))
+    .sort((a, b) => a.minCards - b.minCards);
+  const envelopeLiner = linerTiers.length ? {tiers: linerTiers} : null;
   const euroFlapVariant = euroFlapData?.product?.variants?.nodes?.[0];
   const euroFlap = euroFlapVariant?.availableForSale
     ? {variantId: euroFlapVariant.id, price: Number(euroFlapVariant.price.amount)}
@@ -437,6 +444,20 @@ const PRODUCT_QUERY = `#graphql
         price { amount }
         compareAtPrice { amount }
         availableForSale
+      }
+    }
+  }
+` as const;
+
+const TIERED_ADDON_QUERY = `#graphql
+  query TieredAddonProduct(
+    $country: CountryCode
+    $handle: String!
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    product(handle: $handle) {
+      variants(first: 20) {
+        nodes { id title availableForSale price { amount } }
       }
     }
   }
