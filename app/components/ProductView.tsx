@@ -101,6 +101,7 @@ export function ProductView({
     extraPhotoFee,
     envelopeLiner,
     euroFlap,
+    cardstockUpgrade,
     extraQuestions,
     hidden,
     textLength,
@@ -548,12 +549,26 @@ export function ProductView({
   );
   const euroFlapCount =
     euroFlap && wantsEuroFlap && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
+  // Cardstock upgrade: a cardstock question answered "240 lb…" or "Double…"
+  // adds the upgrade once per card (130 lb is the included paper).
+  const wantsCardstockUpgrade = shownFields.some(
+    (f) =>
+      /card\s?stock/i.test(f.label) &&
+      /^(240|double)\b/i.test(personalization.fields[f.key] ?? ''),
+  );
+  const cardstockCount =
+    cardstockUpgrade && wantsCardstockUpgrade && cardsPerSet > 0
+      ? cardsPerSet * quantity
+      : 0;
   const addOns = [
     ...(envelopeLiner && linerCount
       ? [{...envelopeLiner, quantity: linerCount, label: 'envelope liners'}]
       : []),
     ...(euroFlap && euroFlapCount
       ? [{...euroFlap, quantity: euroFlapCount, label: 'Euro flap envelopes'}]
+      : []),
+    ...(cardstockUpgrade && cardstockCount
+      ? [{...cardstockUpgrade, quantity: cardstockCount, label: 'double thick cardstock'}]
       : []),
     ...(photoFee && photoCount
       ? [{...photoFee, quantity: photoCount, label: 'custom photo'}]

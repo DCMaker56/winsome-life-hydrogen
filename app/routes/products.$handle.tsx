@@ -21,6 +21,7 @@ import {
   PROOF_PRODUCT_HANDLE,
   ENVELOPE_LINER_PRODUCT_HANDLE,
   EURO_FLAP_PRODUCT_HANDLE,
+  CARDSTOCK_UPGRADE_PRODUCT_HANDLE,
 } from '~/lib/addons';
 import {stampUploadedFiles} from '~/lib/uploads.server';
 import {parseHiddenStandard, questionsToFields} from '~/lib/personalization-questions';
@@ -70,7 +71,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const {storefront} = context;
   // Background: put order numbers on files customers uploaded (see uploads.server).
   context.waitUntil?.(stampUploadedFiles(context.env));
-  const [{product}, proofData, photoFeeData, extraFeeData, extraPhotoFeeData, linerData, euroFlapData] =
+  const [{product}, proofData, photoFeeData, extraFeeData, extraPhotoFeeData, linerData, euroFlapData, cardstockData] =
     await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
@@ -99,6 +100,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // And Euro flap envelopes, charged per envelope over the straight-flap price.
     storefront
       .query(PROOF_PRODUCT_QUERY, {variables: {handle: EURO_FLAP_PRODUCT_HANDLE}})
+      .catch(() => null),
+    // And the double thick cardstock upgrade, charged per card.
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: CARDSTOCK_UPGRADE_PRODUCT_HANDLE}})
       .catch(() => null),
   ]);
   if (!product?.id) throw new Response(null, {status: 404});
@@ -142,6 +147,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const euroFlapVariant = euroFlapData?.product?.variants?.nodes?.[0];
   const euroFlap = euroFlapVariant?.availableForSale
     ? {variantId: euroFlapVariant.id, price: Number(euroFlapVariant.price.amount)}
+    : null;
+  const cardstockVariant = cardstockData?.product?.variants?.nodes?.[0];
+  const cardstockUpgrade = cardstockVariant?.availableForSale
+    ? {variantId: cardstockVariant.id, price: Number(cardstockVariant.price.amount)}
     : null;
 
   // This product's own questions, managed in Shopify admin. While the
@@ -242,6 +251,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     extraPhotoFee,
     envelopeLiner,
     euroFlap,
+    cardstockUpgrade,
     extraQuestions,
     hidden,
     textLength,
