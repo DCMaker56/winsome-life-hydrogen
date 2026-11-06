@@ -28,12 +28,12 @@ export default function BrandStory() {
       <div className="container relative z-10 max-w-6xl">
         <div className="grid lg:grid-cols-[1fr_1.05fr] gap-14 lg:gap-20 items-center">
           {/* Layered photos: the painting behind, Sydney's photo in front */}
-          <div className="relative mx-auto w-full max-w-[440px] lg:max-w-[520px] aspect-[1/1.08]">
-            {/* Painting, like a watercolor sheet laid on the table */}
-            <div className="absolute top-0 left-0 w-[72%] aspect-square -rotate-[4deg] bg-white p-2 sm:p-3 shadow-[0_18px_40px_-18px_rgba(45,45,45,0.35)] ring-1 ring-[#2D2D2D]/10">
+          <div className="relative mx-auto w-full max-w-[440px] lg:max-w-[520px] aspect-[1/1.02]">
+            {/* Painting behind, smaller */}
+            <div className="absolute top-0 left-0 w-[56%] aspect-square bg-white p-2 sm:p-3 shadow-[0_18px_40px_-18px_rgba(45,45,45,0.35)] ring-1 ring-[#2D2D2D]/10">
               <ResponsiveImg
                 src={birdOfParadise}
-                sizes="(min-width: 1024px) 360px, 70vw"
+                sizes="(min-width: 1024px) 300px, 56vw"
                 alt="Sydney's original watercolor painting of a bird of paradise flower"
                 width={1400}
                 height={1400}
@@ -46,13 +46,13 @@ export default function BrandStory() {
             {/* Thin gold frame offset behind the portrait */}
             <div
               aria-hidden
-              className="absolute bottom-[-14px] right-[-14px] w-[54%] aspect-[4/5] border border-[#2D2D2D]/25 rotate-[2deg]"
+              className="absolute bottom-[-14px] right-[-14px] w-[64%] aspect-[4/5] border border-[#2D2D2D]/25"
             />
-            {/* Portrait, matted like a print */}
-            <div className="absolute bottom-0 right-0 w-[54%] aspect-[4/5] rotate-[2deg] bg-white p-2 sm:p-3 shadow-[0_24px_50px_-20px_rgba(45,45,45,0.45)]">
+            {/* Portrait in front, the larger of the two */}
+            <div className="absolute bottom-0 right-0 w-[64%] aspect-[4/5] bg-white p-2 sm:p-3 shadow-[0_24px_50px_-20px_rgba(45,45,45,0.45)]">
               <ResponsiveImg
                 src={founderPhoto}
-                sizes="(min-width: 1024px) 290px, 54vw"
+                sizes="(min-width: 1024px) 340px, 64vw"
                 alt="Sydney, founder of The Winsome Life, with her daughter on the beach"
                 width={1066}
                 height={1333}
@@ -62,7 +62,7 @@ export default function BrandStory() {
             </div>
             {/* Gold script tag on the photo corner */}
             <p
-              className="absolute left-[4%] bottom-[4%] text-[#2D2D2D] text-[2.1rem] sm:text-[2.4rem] -rotate-[6deg]"
+              className="absolute left-[2%] bottom-[8%] text-[#2D2D2D] text-[1.55rem] sm:text-[2.4rem]"
               style={script}
               aria-hidden
             >
@@ -72,13 +72,13 @@ export default function BrandStory() {
 
           {/* Welcome copy */}
           <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
-            <p className="font-sans font-medium text-[11px] tracking-[0.3em] uppercase text-[#2D2D2D]/60 mb-7">
+            <p className="font-sans font-medium text-[11px] tracking-[0.3em] uppercase text-[#2D2D2D]/60 mb-10">
               From Our Founder
             </p>
             {/* Script "F", the rest in print; one line on larger screens */}
             <h2 className="font-serif font-medium text-[#2D2D2D] text-[2.4rem] md:text-5xl lg:text-[3.1rem] leading-[1.15] mb-7 lg:whitespace-nowrap">
               <span
-                className="inline-block -mr-[0.2em] align-[-0.04em]"
+                className="inline-block -mr-[0.3em] align-[-0.04em]"
                 style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive", fontSize: '1.2em', lineHeight: 1}}
               >
                 F
