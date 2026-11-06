@@ -272,7 +272,12 @@ export function PersonalizationPanel({
               </span>
             )}
             {checked && (
-              <span className="flex flex-wrap gap-2 mt-2">
+              <span className="block mt-2 font-sans font-medium text-[11px] tracking-[0.1em] uppercase text-[#2D2D2D]/75">
+                Choose your liner color
+              </span>
+            )}
+            {checked && (
+              <span className="flex flex-wrap gap-2 mt-1.5">
                 {ons.map((opt) => (
                   <button
                     key={opt}
