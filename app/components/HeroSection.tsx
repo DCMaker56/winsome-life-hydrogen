@@ -101,9 +101,11 @@ export default function HeroSection() {
                 >
                   You.
                 </span>
-                {/* Honeybee — rests beside "You." (flight animation off for now,
-                    per Sydney; the path is kept in HERO_CSS), slanted ~20° left. */}
-                <span className="wl-bee absolute -right-9 -top-8 md:-right-12 md:-top-10">
+                {/* Honeybee — rests just right of "You.", level with the "ou."
+                    (on phones, where there's no room beside it, just above)
+                    (Sydney's spot, Nov 2026; flight animation off for now, the
+                    path is kept in HERO_CSS), slanted ~20° left. */}
+                <span className="wl-bee absolute w-max -right-3 -top-9 md:right-auto md:left-full md:top-[46%] md:-translate-y-1/2 md:-ml-3">
                   <HoneyBee size={58} slant={-20} />
                 </span>
               </span>
