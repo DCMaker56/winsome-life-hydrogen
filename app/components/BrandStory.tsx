@@ -2,14 +2,14 @@
  * BrandStory — the Founder's Welcome.
  *
  * Two columns on larger screens: a layered photo composition (Sydney's
- * bird-of-paradise watercolor behind, her photo with her daughter in front,
+ * honeybee watercolor behind, her photo with her daughter in front,
  * framed like a print) beside the welcome copy, signature and Learn More.
  * On phones the composition sits above the copy.
  */
 import {Link} from 'react-router';
 import {ResponsiveImg} from '~/components/ResponsiveImg';
 import founderPhoto from '~/assets/home/founder-sydney.jpg';
-import birdOfParadise from '~/assets/home/bird-of-paradise-painting.jpg';
+import beePainting from '~/assets/home/bee-painting.jpg';
 
 const script = {
   fontFamily: "'Parisian Script', 'Great Vibes', cursive",
@@ -32,9 +32,9 @@ export default function BrandStory() {
             {/* Painting behind, smaller */}
             <div className="absolute top-0 left-0 w-[56%] aspect-square bg-white p-2 sm:p-3 shadow-[0_18px_40px_-18px_rgba(45,45,45,0.35)] ring-1 ring-[#2D2D2D]/10">
               <ResponsiveImg
-                src={birdOfParadise}
+                src={beePainting}
                 sizes="(min-width: 1024px) 300px, 56vw"
-                alt="Sydney's original watercolor painting of a bird of paradise flower"
+                alt="Sydney's original watercolor painting of a honeybee with gold detailing"
                 width={1400}
                 height={1400}
                 loading="lazy"
