@@ -57,7 +57,7 @@ export default function BrandStory() {
             </div>
             {/* The brand's script tagline (from the store signage) */}
             <p
-              className="absolute left-[1%] bottom-[5%] w-[34%] text-[#2D2D2D] text-[1.35rem] sm:text-[1.9rem] lg:text-[2.1rem] leading-[1.1]"
+              className="absolute left-[3%] top-[55%] w-[34%] text-[#2D2D2D] text-[1.35rem] sm:text-[1.9rem] lg:text-[2.1rem] leading-[1.1]"
               style={{fontFamily: script.fontFamily}}
               aria-hidden
             >
