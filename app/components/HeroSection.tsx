@@ -103,7 +103,7 @@ export default function HeroSection() {
                 </span>
                 {/* Honeybee perched on the upper right of the "u" in "You." (Sydney, Nov 2026).
                     Flight animation off for now; the path is kept in HERO_CSS. */}
-                <span className="wl-bee absolute w-max left-[86%] top-[30%] -translate-x-1/2 -translate-y-1/2">
+                <span className="wl-bee absolute w-max left-[86%] top-[30%] -translate-x-1/2 -translate-y-1/2 ml-7 md:ml-12">
                   <HoneyBee size={58} slant={-20} />
                 </span>
               </span>
