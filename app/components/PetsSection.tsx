@@ -6,6 +6,8 @@
  * handle lists below pick and order them.
  */
 import {Link} from 'react-router';
+import {ResponsiveImg} from '~/components/ResponsiveImg';
+import bow from '~/assets/home/bow-watercolor.png';
 
 export type PetProduct = {
   handle: string;
@@ -43,28 +45,6 @@ const NAMES: Record<string, string> = {
   [EVERYDAY[5]]: 'Dog Bookmark',
 };
 
-/** Hand-drawn style red ribbon bow (holiday accent). */
-function Bow({className = ''}: {className?: string}) {
-  return (
-    <svg viewBox="0 0 120 84" className={className} aria-hidden focusable="false">
-      {/* tails */}
-      <path d="M55 44 C50 56 44 66 37 78 L46 75 L50 83 C56 70 60 57 61 46 Z" fill="#8E2824" />
-      <path d="M65 44 C70 56 76 66 83 78 L74 75 L70 83 C64 70 60 57 59 46 Z" fill="#8E2824" />
-      {/* loops */}
-      <path d="M60 40 C48 20 24 8 13 18 C3 28 14 46 34 47 C44 47.5 53 45 60 40 Z" fill="#A8322D" />
-      <path d="M60 40 C72 20 96 8 107 18 C117 28 106 46 86 47 C76 47.5 67 45 60 40 Z" fill="#A8322D" />
-      {/* loop folds */}
-      <path d="M58 39 C46 28 30 21 22 25 C30 24 44 31 56 41 Z" fill="#7A211E" opacity=".55" />
-      <path d="M62 39 C74 28 90 21 98 25 C90 24 76 31 64 41 Z" fill="#7A211E" opacity=".55" />
-      <path d="M22 22 C30 16 44 22 52 30" stroke="#fff" strokeOpacity=".35" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      <path d="M98 22 C90 16 76 22 68 30" stroke="#fff" strokeOpacity=".35" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      {/* knot */}
-      <rect x="52" y="33" width="16" height="15" rx="5" fill="#962C28" />
-      <path d="M55 37 C58 35 62 35 65 37" stroke="#fff" strokeOpacity=".35" strokeWidth="1.3" fill="none" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 const name = (p: PetProduct) => NAMES[p.handle] ?? p.title.split('|')[0].trim();
 const script = {fontFamily: "'Parisian Script', 'Great Vibes', cursive", lineHeight: 0.9} as const;
 
@@ -80,27 +60,35 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
   if (!holiday.length && !everyday.length) return null;
 
   return (
-    <section className="py-20 lg:py-24 bg-[#E4EBDF]" aria-labelledby="pets-title">
+    <section className="py-20 lg:py-24 bg-[#123D2E]" aria-labelledby="pets-title">
       <div className="container max-w-6xl">
         <div className="text-center mb-12">
-          <Bow className="mx-auto mb-4 w-[72px] md:w-[84px] h-auto drop-shadow-[0_4px_6px_rgba(122,33,30,0.18)]" />
-          <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#A8322D] mb-4">
+          <ResponsiveImg
+            src={bow}
+            sizes="160px"
+            alt=""
+            width={660}
+            height={566}
+            loading="lazy"
+            className="mx-auto mb-5 w-[120px] md:w-[150px] h-auto drop-shadow-[0_6px_10px_rgba(0,0,0,0.25)]"
+          />
+          <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-white/75 mb-4">
             For the Love of Dogs &amp; Cats
           </p>
           <h2
             id="pets-title"
-            className="font-serif font-medium text-[2.2rem] md:text-[2.8rem] text-[#2D2D2D] leading-tight"
+            className="font-serif font-medium text-[2.2rem] md:text-[2.8rem] text-white leading-tight"
           >
             Made for the{' '}
             <span
-              className="inline-block ml-[0.3em] mr-[0.12em] text-[#A8322D] align-[-0.04em]"
+              className="inline-block ml-[0.3em] mr-[0.12em] text-[#E9D3A6] align-[-0.04em]"
               style={{...script, fontSize: '1.3em'}}
             >
               furry
             </span>{' '}
             family
           </h2>
-          <p className="font-sans font-light text-base text-[#2D2D2D]/70 max-w-xl mx-auto mt-4 leading-relaxed">
+          <p className="font-sans font-light text-base text-white/80 max-w-xl mx-auto mt-4 leading-relaxed">
             Choose their breed or send us a photo, and add up to four
             pets. Hand-painted portraits as one of a kind as they are.
           </p>
@@ -125,8 +113,8 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     )}
-                    <span className="absolute top-4 left-4 bg-[#A8322D] text-white font-sans font-medium text-[10px] tracking-[0.22em] uppercase pl-2 pr-3 py-1.5 inline-flex items-center gap-1.5">
-                      <Bow className="w-[18px] h-auto [&_path]:fill-white [&_rect]:fill-white [&_path[stroke]]:hidden" />
+                    <span className="absolute top-4 left-4 bg-white text-[#A8322D] shadow-sm font-sans font-medium text-[10px] tracking-[0.22em] uppercase pl-1.5 pr-3 py-1 inline-flex items-center gap-1">
+                      <ResponsiveImg src={bow} sizes="40px" alt="" width={660} height={566} className="w-[24px] h-auto" />
                       Holiday
                     </span>
                   </div>
@@ -150,17 +138,17 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
         {everyday.length > 0 && (
           <>
             <div className="flex items-center gap-4 mt-16 mb-8">
-              <span aria-hidden className="h-px flex-1 bg-[#2D2D2D]/15" />
-              <p className="font-sans font-medium text-[11px] tracking-[0.25em] uppercase text-[#2D2D2D]/60">
+              <span aria-hidden className="h-px flex-1 bg-white/25" />
+              <p className="font-sans font-medium text-[11px] tracking-[0.25em] uppercase text-white/70">
                 Year-round favorites
               </p>
-              <span aria-hidden className="h-px flex-1 bg-[#2D2D2D]/15" />
+              <span aria-hidden className="h-px flex-1 bg-white/25" />
             </div>
             <ul className="flex gap-5 overflow-x-auto snap-x pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-6 lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {everyday.map((p) => (
                 <li key={p.handle} className="snap-start shrink-0 w-36 lg:w-auto">
                   <Link to={`/products/${p.handle}`} prefetch="intent" className="group block text-center">
-                    <div className="aspect-square overflow-hidden rounded-full bg-white ring-4 ring-white shadow-[0_10px_24px_-14px_rgba(45,45,45,0.4)] group-hover:ring-[#A8322D]/30 transition-all">
+                    <div className="aspect-square overflow-hidden rounded-full bg-white ring-4 ring-white shadow-[0_10px_24px_-14px_rgba(45,45,45,0.4)] group-hover:ring-[#E9D3A6] transition-all">
                       {p.image && (
                         <img
                           src={`${p.image}${p.image.includes('?') ? '&' : '?'}width=400`}
@@ -170,7 +158,7 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
                         />
                       )}
                     </div>
-                    <p className="font-serif text-[1.02rem] text-[#2D2D2D] leading-snug mt-4 group-hover:text-[#A8322D] transition-colors">
+                    <p className="font-serif text-[1.02rem] text-white leading-snug mt-4 group-hover:text-[#E9D3A6] transition-colors">
                       {name(p)}
                     </p>
                   </Link>
@@ -183,7 +171,7 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
         <div className="text-center mt-14">
           <Link
             to="/collections/dogs"
-            className="inline-flex items-center gap-2 px-9 py-3.5 bg-[#2D2D2D] text-white font-sans font-medium text-[12px] tracking-[0.18em] uppercase hover:bg-[#A8322D] transition-colors"
+            className="inline-flex items-center gap-2 px-9 py-3.5 bg-white text-[#123D2E] font-sans font-medium text-[12px] tracking-[0.18em] uppercase hover:bg-[#E9D3A6] transition-colors"
           >
             Shop All Dogs &amp; Cats <span aria-hidden>&rarr;</span>
           </Link>
