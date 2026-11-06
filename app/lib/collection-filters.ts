@@ -103,8 +103,20 @@ export function collectionGroups(
     {key: 'type', label: 'Filter by Product Type', options: types.map(opt)},
     {key: 'collection', label: 'Filter by Collection', options: rest.map(opt)},
     {key: 'season', label: 'Filter by Season', options: seasons.map(opt)},
+    PRICE_GROUP,
   ];
 }
+
+/** Price ranges by starting price (used by the gift guide's Shop by Budget). */
+export const PRICE_GROUP: FilterGroup = {
+  key: 'price',
+  label: 'Filter by Price',
+  options: [
+    {value: 'under-25', label: 'Under $25', test: (p) => p.minPrice < 25},
+    {value: '25-50', label: '$25 – $50', test: (p) => p.minPrice >= 25 && p.minPrice <= 50},
+    {value: '50-up', label: '$50 & Up', test: (p) => p.minPrice > 50},
+  ],
+};
 
 export const SORT_OPTIONS = [
   {value: 'featured', label: 'Featured'},

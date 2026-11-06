@@ -20,7 +20,8 @@ import {CatalogProvider} from '~/hooks/useProducts';
 import HeroSection from '~/components/HeroSection';
 import TwoUpFeature from '~/components/TwoUpFeature';
 import CollectionRow from '~/components/CollectionRow';
-import DesignWall from '~/components/DesignWall';
+import GiftGuideTeaser from '~/components/GiftGuideTeaser';
+import {loadRecipients} from '~/lib/gift-guide';
 import TrendingPopular from '~/components/TrendingPopular';
 import Marquee from '~/components/Marquee';
 import ShopByProductType from '~/components/ShopByProductType';
@@ -51,31 +52,6 @@ export const meta: Route.MetaFunction = () => {
     {name: 'twitter:image', content: ogImage},
   ];
 };
-
-// "Shop by Interest" genre circles — label + real Shopify collection handle.
-const INTERESTS = [
-  {label: 'Floral', handle: 'floral'},
-  {label: 'Monograms', handle: 'monogram-styles'},
-  {label: 'Seaside', handle: 'seaside'},
-  {label: 'Dogs & Cats', handle: 'dogs'},
-  {label: 'Sports', handle: 'sports-1'},
-  {label: 'Affinity & Hobbies', handle: 'affinity-hobbies'},
-  {label: 'Travel', handle: 'travel'},
-  {label: 'Christian', handle: 'christian-1'},
-  {label: 'Business & Professional', handle: 'business-professional'},
-  {label: 'Greek Life', handle: 'greek-life-sorority-fraternity'},
-];
-
-// Aliased query: one round trip for all genre collections' representative image.
-const INTEREST_QUERY = `
-  query InterestCollections($country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    ${INTERESTS.map(
-      (it, i) =>
-        `c${i}: collection(handle: "${it.handle}") { handle image { url } products(first: 1) { nodes { featuredImage { url } } } }`,
-    ).join('\n')}
-  }
-`;
 
 // "Shop by Product Type" square tiles — label + collection handle (icon added
 // client-side in the component).
@@ -108,7 +84,7 @@ export async function loader({context}: Route.LoaderArgs) {
     {products},
     {collection: military},
     {collection: holiday},
-    interestData,
+    recipients,
     productTypeData,
   ] = await Promise.all([
     context.storefront.query(HOME_PRODUCTS_QUERY, {
@@ -124,10 +100,8 @@ export async function loader({context}: Route.LoaderArgs) {
       variables: {handle: 'christmas-holiday'},
       cache: context.storefront.CacheShort(),
     }),
-    // "Shop by Interest" circle images.
-    context.storefront.query<Record<string, CollImg>>(INTEREST_QUERY, {
-      cache: context.storefront.CacheShort(),
-    }),
+    // Holiday Gift Guide teaser circles (replaced "Shop by Interest").
+    loadRecipients(context.storefront as never),
     // "Shop by Product Type" square-tile images.
     context.storefront.query<Record<string, CollImg>>(PRODUCT_TYPE_QUERY, {
       cache: context.storefront.CacheShort(),
@@ -138,16 +112,6 @@ export async function loader({context}: Route.LoaderArgs) {
     holiday?.products?.nodes?.[0]?.featuredImage?.url ??
     holiday?.products?.nodes?.[0]?.images?.nodes?.[0]?.url ??
     null;
-
-  const interests = INTERESTS.map((it, i) => {
-    const c = interestData?.[`c${i}`];
-    return {
-      label: it.label,
-      handle: it.handle,
-      image:
-        c?.image?.url ?? c?.products?.nodes?.[0]?.featuredImage?.url ?? null,
-    };
-  });
 
   const productTypes = PRODUCT_TYPES.map((it, i) => {
     const c = productTypeData?.[`t${i}`];
@@ -166,26 +130,26 @@ export async function loader({context}: Route.LoaderArgs) {
     militaryProducts: (military?.products?.nodes ?? []).map((p: GraphqlProduct) =>
       graphqlToAppProduct(p),
     ),
-    interests,
+    recipients,
     productTypes,
     holidayImage,
   };
 }
 
 export default function HomePage() {
-  const {products, militaryProducts, interests, productTypes, holidayImage} =
+  const {products, militaryProducts, recipients, productTypes, holidayImage} =
     useLoaderData<typeof loader>();
   return (
     <CatalogProvider products={products} collections={COLLECTIONS}>
       <main className="min-h-screen bg-[#FAF8F5]">
-        {/* Order per Sydney: Hero → Best Sellers/Holiday → reviews → Shop by
-            Interest → Founder's Welcome → value bar → Trending → Notes Worth
+        {/* Order per Sydney: Hero → Best Sellers/Holiday → reviews → Holiday
+            Gift Guide → Founder's Welcome → value bar → Trending → Notes Worth
             Saluting → Shop by Product Type. */}
         <HeroSection />
         <Marquee />
         <TwoUpFeature holidayImage={holidayImage} />
         <SocialProof />
-        <DesignWall interests={interests} />
+        <GiftGuideTeaser recipients={recipients} />
         <BrandStory />
         <ValueProps />
         <TrendingPopular />

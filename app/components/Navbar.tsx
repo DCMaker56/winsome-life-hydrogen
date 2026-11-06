@@ -87,6 +87,7 @@ function CartBadge({count, onClick}: {count: number | null; onClick: () => void}
 // Shop All tab was folded into the Shop dropdown (Nov 2026).
 const navLinks = [
   { label: "Best Sellers", href: "/collections/bestsellers" },
+  { label: "Gift Guide", href: "/gift-guide" },
   { label: "Notecards", href: "/collections/notecards" },
   { label: "Notepads", href: "/collections/notepads" },
   { label: "Gift Tags & Stickers", href: "/collections/gift-tags-stickers" },
