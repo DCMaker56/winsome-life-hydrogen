@@ -19,6 +19,7 @@ import ellieBingLogo from '~/assets/partners/ellie-bing.png';
 import ellieBingShare from '~/assets/partners/ellie-bing-share.jpg';
 import carmonWeedenLogo from '~/assets/partners/carmon-weeden.png';
 import carmonWeedenShare from '~/assets/partners/carmon-weeden-share.jpg';
+import boxwoodCottageShare from '~/assets/partners/boxwood-cottage-share.jpg';
 
 export type Partner = {
   handle: string;
@@ -83,6 +84,23 @@ export const PARTNERS: Record<string, Partner> = {
     shareImage: carmonWeedenShare,
     // Texas burnt orange (Sydney) to set off the purple Events logo.
     colors: {background: '#BF5700', text: '#FFFFFF', accent: '#FFE3C8'},
+  },
+  'boxwood-cottage': {
+    handle: 'boxwood-cottage',
+    name: 'Boxwood Cottage',
+    collection: 'partner-boxwood-cottage',
+    // Shopify code discount Boxwood35: 35% off (most collections), no end date.
+    discountCode: 'Boxwood35',
+    discountPercent: 35,
+    intro:
+      'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Boxwood Cottage customers.',
+    // Name as a wordmark until we have their logo file (Asheville, NC store).
+    logo: null,
+    viewToggle: true,
+    shareImage: boxwoodCottageShare,
+    website: 'https://boxwoodcottageavl.com',
+    // Soft sage green (Sydney) with deep green text.
+    colors: {background: '#B9C6A6', text: '#26331F', accent: '#4E6343'},
   },
 };
 
