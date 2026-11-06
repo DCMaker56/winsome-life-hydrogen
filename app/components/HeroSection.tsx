@@ -8,26 +8,43 @@
  */
 import { useEffect, useState } from "react";
 import { HoneyBee } from "./HoneyBee";
+import christmasDesktop from "~/assets/hero/christmas-plaid-desktop.webp";
 
 const CDN = "https://caatee-kr.myshopify.com/cdn/shop/files";
 
 // Slide order + which side the tagline sits on for each.
-const SLIDES = [
+// desktopImage: shown on computers (768px+) instead of `image` (phones keep
+// `image` until a phone version exists). desktopLight: white tagline and no
+// light haze on computers — for dark/solid backgrounds like the red plaid.
+type Slide = {
+  image: string;
+  alt: string;
+  side: "left" | "right";
+  desktopImage?: string;
+  desktopAlt?: string;
+  desktopLight?: boolean;
+};
+const SLIDES: Slide[] = [
   {
+    // Christmas plaid (Sydney, Nov 2026): solid red left half for the text.
     image: `${CDN}/Winsome_Banner_01_13972622-0426-4773-b922-928098ab2bda.png?width=2400`,
     alt: "Personalized autumn plaid Thanksgiving cards and fall stationery on a writing desk",
-    side: "left" as const,
+    desktopImage: christmasDesktop,
+    desktopAlt:
+      "Personalized red tartan plaid Christmas photo card, notepad, gift tag and wine tag on a red background",
+    desktopLight: true,
+    side: "left",
   },
   {
     image: `${CDN}/03.png?v=1758893929&width=2400`,
     alt: "Personalized floral notecards arranged on an elegant writing desk",
-    side: "left" as const,
+    side: "left",
   },
   {
     image: `${CDN}/04.png?v=1758894113&width=2400`,
     alt: "Personalized seaside notecards with a gold pen on a writing desk",
     // Seaside sits on a warm yellow ground — tagline reads best on the right.
-    side: "right" as const,
+    side: "right",
   },
 ];
 
@@ -42,6 +59,7 @@ export default function HeroSection() {
   }, []);
 
   const side = SLIDES[active].side;
+  const light = !!SLIDES[active].desktopLight;
 
   return (
     <section className="relative w-full overflow-hidden">
@@ -50,21 +68,23 @@ export default function HeroSection() {
         {/* Backdrop — cross-fading slides */}
         <div className="absolute inset-0 overflow-hidden bg-[#F3ECDD]">
           {SLIDES.map((s, i) => (
-            <img
-              key={s.image}
-              src={s.image}
-              alt={s.alt}
-              className="wl-kenburns absolute inset-0 w-full h-full object-cover transition-opacity duration-[1400ms] ease-in-out"
-              style={{opacity: i === active ? 1 : 0}}
-              loading={i === 0 ? "eager" : "lazy"}
-            />
+            <picture key={s.image}>
+              {s.desktopImage && <source media="(min-width: 768px)" srcSet={s.desktopImage} />}
+              <img
+                src={s.image}
+                alt={s.desktopAlt ?? s.alt}
+                className="wl-kenburns absolute inset-0 w-full h-full object-cover transition-opacity duration-[1400ms] ease-in-out"
+                style={{opacity: i === active ? 1 : 0}}
+                loading={i === 0 ? "eager" : "lazy"}
+              />
+            </picture>
           ))}
         </div>
 
         {/* Soft light wash behind the tagline — flips to the active side so the
             black type always reads without darkening the product photo. */}
         <div
-          className="absolute inset-0 transition-[background] duration-700"
+          className={`absolute inset-0 transition-[background,opacity] duration-700 ${light ? "md:opacity-0" : ""}`}
           style={{
             background:
               side === "right"
@@ -80,7 +100,7 @@ export default function HeroSection() {
             side === "right" ? "justify-end" : "justify-start"
           }`}
         >
-          <div className="max-w-xl text-left">
+          <div className={`max-w-xl text-left ${light ? "wl-light" : ""}`}>
             <p className="wl-word wl-eyebrow font-sans font-medium text-[11px] md:text-xs tracking-[0.32em] uppercase text-[#2D2D2D] mb-8 md:mb-9">
               Personalized Stationery
             </p>
@@ -138,6 +158,10 @@ export default function HeroSection() {
 }
 
 const HERO_CSS = `
+/* White tagline on dark slides (computers only; phones show a light photo). */
+@media (min-width: 768px) {
+  .wl-light, .wl-light * { color: #fff !important; transition: color 0.7s; }
+}
 @keyframes wl-kenburns { 0% { transform: scale(1.05); } 100% { transform: scale(1.12); } }
 .wl-kenburns { animation: wl-kenburns 20s ease-in-out infinite alternate; will-change: transform; }
 
