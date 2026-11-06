@@ -576,9 +576,15 @@ export function ProductView({
       '',
     10,
   );
+  // Without a "Number of Addresses" question, every envelope is addressed:
+  // one address per card.
   const addressCount =
-    recipientAddressing && wantsAddressing && addressesTyped > 0 && cardsPerSet > 0
-      ? Math.min(addressesTyped, cardsPerSet * quantity)
+    recipientAddressing && wantsAddressing && cardsPerSet > 0
+      ? addressCountField
+        ? addressesTyped > 0
+          ? Math.min(addressesTyped, cardsPerSet * quantity)
+          : 0
+        : cardsPerSet * quantity
       : 0;
   // Each of these takes 2 more business days to make.
   const extraDays = (wantsLiners ? 2 : 0) + (wantsAddressing ? 2 : 0);
