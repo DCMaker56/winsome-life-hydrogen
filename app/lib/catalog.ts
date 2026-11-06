@@ -85,7 +85,6 @@ export const CATALOG_OPTION_PAGES: CatalogOptionPage[] = [
     title: 'Flower Options',
     images: [
       'https://cdn.shopify.com/s/files/1/0938/6203/5753/files/il_fullxfull.5048179830_532p.jpg?v=1758645255',
-      'https://cdn.shopify.com/s/files/1/0938/6203/5753/files/il_fullxfull.5021894420_mdj6_5ae993bd-22f0-4985-95a5-4109ce1ebc3b.jpg?v=1758645254',
     ],
     candidates: [
       'gid://shopify/Product/9871822356777', // Watercolor Flower Notepad
@@ -107,6 +106,10 @@ export const CATALOG_OPTION_PAGES: CatalogOptionPage[] = [
     key: 'meal',
     title: 'Meal Options',
     note: 'For wedding and event place cards.',
+    // Sydney's pick: flower photo #15 (Floral Place Cards), which shows the meal icons.
+    images: [
+      'https://cdn.shopify.com/s/files/1/0938/6203/5753/files/il_fullxfull.5021894420_mdj6_5ae993bd-22f0-4985-95a5-4109ce1ebc3b.jpg?v=1758645254',
+    ],
     candidates: [
       'gid://shopify/Product/10036082901289', // Elegant Place Cards with Border
       'gid://shopify/Product/9826593440041', // Floral Place Cards
