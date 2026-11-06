@@ -33,7 +33,7 @@ import {
   productJsonLd,
 } from '~/lib/seo';
 
-import {CompleteTheSet, type PersonalizationPrefill} from '~/components/CompleteTheSet';
+import {AddedPopup, CompleteTheSet, type PersonalizationPrefill} from '~/components/CompleteTheSet';
 
 /**
  * Per-product personalization overrides, keyed by product handle. Default (see
@@ -173,7 +173,13 @@ export function ProductView({
   // Complete the set appears only once this item is in the cart, so the
   // page never shows two competing calls to action (Sydney).
   const [addedToCart, setAddedToCart] = useState(false);
-  const markAdded = useCallback(() => setAddedToCart(true), []);
+  // Pop-up right after Add to Cart: "Added to your cart" + Complete the set.
+  const [showAddedPopup, setShowAddedPopup] = useState(false);
+  const markAdded = useCallback(() => {
+    setAddedToCart(true);
+    setShowAddedPopup(true);
+  }, []);
+  const closeAddedPopup = useCallback(() => setShowAddedPopup(false), []);
   // Rifle-style checkpoint: made-to-order + final sale means the customer
   // must explicitly approve their personalization before it can be purchased.
   // The customer either approves the personalization details, or pays for a full
@@ -1270,6 +1276,20 @@ export function ProductView({
 
             {/* Complete the set — matching pieces (same artwork), added from a
                 slide-in panel pre-filled with this item's personalization. */}
+            {!embedded && showAddedPopup && (
+              <AddedPopup
+                title={appProduct.title}
+                image={appProduct.images[selectedImage] ?? appProduct.images[0]}
+                matches={setMatches}
+                fromLabel={setLabel}
+                prefill={{
+                  text: personalization.fields.text ?? '',
+                  fontLabel: activeSchema?.fonts.find((f) => f.key === personalization.fontKey)?.label,
+                  inkLabel: activeSchema?.inkColors.find((c) => c.key === personalization.inkKey)?.label,
+                }}
+                onClose={closeAddedPopup}
+              />
+            )}
             {!embedded && addedToCart && (
               <CompleteTheSet
                 matches={setMatches}

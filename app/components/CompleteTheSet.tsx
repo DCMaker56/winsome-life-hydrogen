@@ -13,6 +13,7 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
 import {Check, X} from 'lucide-react';
 import {ProductView, type ProductViewData} from '~/components/ProductView';
+import {useAside} from '~/components/Aside';
 import {SET_DISCOUNT_PERCENT, findSet, type SetCardProduct} from '~/lib/matching-sets';
 
 /** Personalization carried over from the item being completed. */
@@ -352,6 +353,169 @@ export function CartCompleteTheSet({
           onClose={() => setOpen(false)}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * Pop-up shown right after Add to Cart on a product page (Sydney, Nov 2026):
+ * "Added to your cart", then — when the product is part of a matching set —
+ * "Complete the set" front and center. Slides up from the bottom on phones,
+ * centered on larger screens. "Add the Notecards" opens the same quick-add
+ * sheet (pre-filled) as the Complete the Set box under Add to Cart.
+ */
+export function AddedPopup({
+  title,
+  image,
+  matches,
+  fromLabel,
+  prefill,
+  onClose,
+}: {
+  title: string;
+  image?: string | null;
+  matches: SetCardProduct[];
+  fromLabel: string;
+  prefill: PersonalizationPrefill;
+  onClose: () => void;
+}) {
+  const {open: openAside} = useAside();
+  const [quickAdd, setQuickAdd] = useState<SetCardProduct | null>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (quickAdd) return;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose, quickAdd]);
+
+  // "Add the Notecards" swaps this pop-up for the quick-add sheet.
+  if (quickAdd) {
+    return <QuickAddSheet product={quickAdd} prefill={prefill} onClose={onClose} />;
+  }
+
+  const summary = [prefill.text?.trim(), prefill.fontLabel, prefill.inkLabel && `${prefill.inkLabel} ink`]
+    .filter(Boolean)
+    .join(' · ');
+  const from = fromLabel.toLowerCase() || 'item';
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="added-popup-title">
+      <button
+        type="button"
+        aria-label="Close"
+        tabIndex={-1}
+        onClick={onClose}
+        className="absolute inset-0 bg-[#2D2D2D]/45 cursor-default wl-fade-in"
+      />
+      <div className="relative w-full sm:max-w-[460px] max-h-[92vh] overflow-y-auto bg-white shadow-[0_-20px_50px_-20px_rgba(0,0,0,0.4)] sm:shadow-[0_30px_70px_-25px_rgba(0,0,0,0.5)] wl-pop-in">
+        {/* Added */}
+        <div className="flex items-start gap-4 p-5 pr-14 border-b border-[#C9A96E]/20">
+          <div className="w-16 h-16 shrink-0 bg-[#FAF8F5] border border-[#C9A96E]/20 overflow-hidden">
+            {image && (
+              <img src={`${image}${image.includes('?') ? '&' : '?'}width=200`} alt="" className="w-full h-full object-contain" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <p id="added-popup-title" role="status" className="flex items-center gap-1.5 font-sans font-medium text-[13px] tracking-[0.08em] uppercase text-[#1B5E3A]">
+              <Check size={16} strokeWidth={2.5} aria-hidden />
+              Added to your cart
+            </p>
+            <p className="font-serif text-[1.1rem] text-[#2D2D2D] leading-snug mt-1 line-clamp-2">{shortTitle(title)}</p>
+          </div>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center text-[#2D2D2D]/70 hover:text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Complete the set */}
+        {matches.length > 0 && (
+          <section aria-labelledby="added-popup-set" className="p-5 bg-[#FAF8F5]">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h2 id="added-popup-set" className="font-serif text-[1.6rem] text-[#1B294E] leading-tight">
+                Complete the{' '}
+                <span
+                  className="inline-block align-[-0.08em] ml-[0.06em]"
+                  style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive", fontSize: '1.3em', lineHeight: 1}}
+                >
+                  set
+                </span>
+              </h2>
+              <span className="shrink-0 px-2.5 py-1 bg-[#1B294E] text-white font-sans font-semibold text-[10px] tracking-[0.12em] uppercase">
+                Save {SET_DISCOUNT_PERCENT}%
+              </span>
+            </div>
+            <ul className="space-y-4">
+              {matches.map((m) => (
+                <li key={m.handle} className="space-y-3">
+                  <div className="flex gap-4 items-center">
+                    <div className="w-24 h-24 shrink-0 bg-white border border-[#C9A96E]/25 overflow-hidden">
+                      {m.image && (
+                        <img src={`${m.image}${m.image.includes('?') ? '&' : '?'}width=240`} alt="" className="w-full h-full object-contain" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-sans font-medium text-[15px] text-[#2D2D2D] leading-snug">{shortTitle(m.title)}</p>
+                      <p className="font-sans text-[13px] text-[#2D2D2D]/60 mt-0.5">
+                        The same artwork as your {from} · from ${m.price.toFixed(2)}
+                      </p>
+                      {summary && (
+                        <p className="font-sans text-[12px] text-[#2D2D2D]/55 mt-0.5">
+                          Personalized like your {from}: {summary}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setQuickAdd(m)}
+                    className="w-full h-12 bg-[#1B294E] text-white font-sans font-medium text-[12px] tracking-[0.14em] uppercase hover:bg-[#2D2D2D] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C9A96E]"
+                  >
+                    Add the {m.label} · from ${m.price.toFixed(2)}
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <p className="font-sans text-[12px] text-[#2D2D2D]/60 text-center mt-4">
+              Buy two or more pieces of a matching set and save {SET_DISCOUNT_PERCENT}% at checkout.
+            </p>
+          </section>
+        )}
+
+        {/* Next steps */}
+        <div className="grid grid-cols-2 gap-3 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              openAside('cart');
+            }}
+            className="h-12 border border-[#2D2D2D] bg-white text-[#2D2D2D] font-sans font-medium text-[12px] tracking-[0.14em] uppercase hover:bg-[#2D2D2D] hover:text-white transition-colors"
+          >
+            View Cart
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-12 bg-[#2D2D2D] text-white font-sans font-medium text-[12px] tracking-[0.14em] uppercase hover:bg-[#C9A96E] transition-colors"
+          >
+            Keep Shopping
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
