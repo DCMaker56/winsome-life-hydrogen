@@ -37,6 +37,8 @@ type Slide = {
   desktopPosition?: string;
   /** Button under the tagline, e.g. "Shop Christmas / Holiday". */
   cta?: {label: string; href: string};
+  /** Short seasonal line above the button. */
+  subline?: string;
 };
 const AUTUMN = `${CDN}/Winsome_Banner_01_13972622-0426-4773-b922-928098ab2bda.png?width=2400`;
 const SLIDES: Slide[] = [
@@ -48,23 +50,23 @@ const SLIDES: Slide[] = [
     desktopOnly: true,
     desktopLight: true,
     // Keep the products (right side) when narrower screens trim the image.
-    desktopPosition: "right center",
+    desktopPosition: "70% center",
+    subline: "Make the season beautifully personal.",
     cta: {label: "Shop Christmas / Holiday", href: "/collections/christmas-holiday"},
     side: "left",
   },
   {
-    // Fall plaid on tan (Sydney, Nov 2026); products on the left, so the
-    // tagline sits on the right on computers. Phones show the earlier autumn
-    // photo.
+    // Fall plaid on tan (Sydney, Nov 2026); products on the right, tagline on
+    // the left. Phones show the earlier autumn photo for now.
     image: AUTUMN,
     alt: "Personalized autumn plaid Thanksgiving cards and fall stationery on a writing desk",
     desktopImage: fallDesktop,
     desktopAlt:
       "Personalized fall plaid Thanksgiving photo card, pumpkin notepad, gift tags and notecards on a tan background",
-    desktopSide: "right",
     desktopNoHaze: true,
-    // Keep the products (left side) when narrower screens trim the image.
-    desktopPosition: "left center",
+    // Keep the products (right side) when narrower screens trim the image.
+    desktopPosition: "70% center",
+    subline: "Gather, give thanks, and make it personal.",
     cta: {label: "Shop Thanksgiving / Fall", href: "/collections/fall-autumn"},
     side: "left",
   },
@@ -194,11 +196,19 @@ export default function HeroSection() {
               <span className="wl-word wl-w3 inline-block">On</span>{" "}
               <span className="wl-word wl-w4 inline-block">Paper.</span>
             </h1>
+            {slide.subline && (
+              <p
+                key={slide.subline}
+                className="wl-sub mt-6 md:mt-7 font-serif italic text-[1.35rem] md:text-[1.6rem] leading-snug text-[#2D2D2D]"
+              >
+                {slide.subline}
+              </p>
+            )}
             {slide.cta && (
               <Link
                 key={slide.cta.href}
                 to={slide.cta.href}
-                className={`wl-cta mt-8 md:mt-10 inline-flex items-center gap-2 px-8 py-3.5 font-sans font-medium text-[13px] tracking-[0.15em] uppercase transition-colors duration-300 bg-[#2D2D2D] text-white hover:bg-[#C9A96E] ${
+                className={`wl-cta ${slide.subline ? "mt-6" : "mt-8 md:mt-10"} inline-flex items-center gap-2 px-8 py-3.5 font-sans font-medium text-[13px] tracking-[0.15em] uppercase transition-colors duration-300 bg-[#2D2D2D] text-white hover:bg-[#C9A96E] ${
                   light ? "md:bg-white md:hover:bg-[#FAF8F5]" : ""
                 }`}
               >
@@ -244,7 +254,7 @@ const HERO_CSS = `
 
 /* Word-by-word entrance — quick sequence, all four words. */
 @keyframes wl-cta-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.wl-cta { animation: wl-cta-in 0.6s ease-out both; }
+.wl-cta, .wl-sub { animation: wl-cta-in 0.6s ease-out both; }
 @keyframes wl-word-in {
   0%   { opacity: 0; transform: translateY(14px); }
   100% { opacity: 1; transform: translateY(0); }
