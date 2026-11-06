@@ -13,11 +13,7 @@ import { ResponsiveImg } from "~/components/ResponsiveImg";
 import holidayCardShop from "~/assets/home/holiday-card-shop.webp";
 import holidayTable from "~/assets/home/holiday-table.webp";
 
-export default function TwoUpFeature({
-  holidayImage,
-}: {
-  holidayImage?: string | null;
-}) {
+export default function TwoUpFeature() {
   const tiles = [
     {
       // Holiday cards are the big-ticket item for the season (Sydney, Nov

@@ -22,7 +22,7 @@ import TwoUpFeature from '~/components/TwoUpFeature';
 import CollectionRow from '~/components/CollectionRow';
 import GiftGuideTeaser from '~/components/GiftGuideTeaser';
 import {loadRecipients} from '~/lib/gift-guide';
-import TrendingPopular from '~/components/TrendingPopular';
+import PetsSection, {type PetProduct} from '~/components/PetsSection';
 import Marquee from '~/components/Marquee';
 import ShopByProductType from '~/components/ShopByProductType';
 import BrandStory from '~/components/BrandStory';
@@ -83,7 +83,7 @@ export async function loader({context}: Route.LoaderArgs) {
   const [
     {products},
     {collection: military},
-    {collection: holiday},
+    {collection: pets},
     recipients,
     productTypeData,
   ] = await Promise.all([
@@ -95,9 +95,9 @@ export async function loader({context}: Route.LoaderArgs) {
       variables: {handle: 'military'},
       cache: context.storefront.CacheShort(),
     }),
-    // Holiday Essentials tile image — a real product from the Christmas collection.
+    // "For the Love of Dogs & Cats" section — the Dogs & Cats collection.
     context.storefront.query(HOME_COLLECTION_QUERY, {
-      variables: {handle: 'christmas-holiday'},
+      variables: {handle: 'dogs'},
       cache: context.storefront.CacheShort(),
     }),
     // Holiday Gift Guide teaser circles (replaced "Shop by Interest").
@@ -108,10 +108,17 @@ export async function loader({context}: Route.LoaderArgs) {
     }),
   ]);
 
-  const holidayImage =
-    holiday?.products?.nodes?.[0]?.featuredImage?.url ??
-    holiday?.products?.nodes?.[0]?.images?.nodes?.[0]?.url ??
-    null;
+  const petProducts: PetProduct[] = (pets?.products?.nodes ?? []).map((p) => {
+    const prices = (p.variants?.nodes ?? [])
+      .map((v) => Number(v.price?.amount))
+      .filter((n) => n > 0);
+    return {
+      handle: p.handle,
+      title: p.title,
+      image: p.featuredImage?.url ?? p.images?.nodes?.[0]?.url ?? null,
+      price: prices.length ? Math.min(...prices) : null,
+    };
+  });
 
   const productTypes = PRODUCT_TYPES.map((it, i) => {
     const c = productTypeData?.[`t${i}`];
@@ -132,27 +139,27 @@ export async function loader({context}: Route.LoaderArgs) {
     ),
     recipients,
     productTypes,
-    holidayImage,
+    petProducts,
   };
 }
 
 export default function HomePage() {
-  const {products, militaryProducts, recipients, productTypes, holidayImage} =
+  const {products, militaryProducts, recipients, productTypes, petProducts} =
     useLoaderData<typeof loader>();
   return (
     <CatalogProvider products={products} collections={COLLECTIONS}>
       <main className="min-h-screen bg-[#FAF8F5]">
         {/* Order per Sydney: Hero → Best Sellers/Holiday → reviews → Holiday
             Gift Guide → Founder's Welcome → value bar → Trending → Notes Worth
-            Saluting → Shop by Product Type. */}
+            Saluting → Shop by Product Type. Trending was replaced by Dogs & Cats. */}
         <HeroSection />
         <Marquee />
-        <TwoUpFeature holidayImage={holidayImage} />
+        <TwoUpFeature />
         <SocialProof />
         <GiftGuideTeaser recipients={recipients} />
         <BrandStory />
         <ValueProps />
-        <TrendingPopular />
+        <PetsSection products={petProducts} />
         <CollectionRow
           title="Notes Worth"
           scriptWord="Saluting"
