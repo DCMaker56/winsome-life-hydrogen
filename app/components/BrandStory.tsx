@@ -16,13 +16,13 @@ const script = {
   lineHeight: '0.9',
 } as const;
 
-const copy = 'font-sans font-light text-base lg:text-[17px] text-[#2D2D2D]/75 leading-relaxed';
+const copy = 'font-sans font-light text-base lg:text-[17px] text-[#2D2D2D]/85 leading-relaxed';
 
 export default function BrandStory() {
   return (
     <section
       id="brand-story"
-      className="relative py-20 lg:py-28 overflow-hidden bg-[#F6F0E7]"
+      className="relative py-20 lg:py-28 overflow-hidden bg-[#CADEEA]"
       aria-label="Founder's Welcome"
     >
       <div className="container relative z-10 max-w-6xl">
@@ -30,7 +30,7 @@ export default function BrandStory() {
           {/* Layered photos: the painting behind, Sydney's photo in front */}
           <div className="relative mx-auto w-full max-w-[440px] lg:max-w-[520px] aspect-[1/1.08]">
             {/* Painting, like a watercolor sheet laid on the table */}
-            <div className="absolute top-0 left-0 w-[72%] aspect-square -rotate-[4deg] bg-white p-2 sm:p-3 shadow-[0_18px_40px_-18px_rgba(45,45,45,0.35)] ring-1 ring-[#C9A96E]/20">
+            <div className="absolute top-0 left-0 w-[72%] aspect-square -rotate-[4deg] bg-white p-2 sm:p-3 shadow-[0_18px_40px_-18px_rgba(45,45,45,0.35)] ring-1 ring-[#2D2D2D]/10">
               <ResponsiveImg
                 src={birdOfParadise}
                 sizes="(min-width: 1024px) 360px, 70vw"
@@ -46,7 +46,7 @@ export default function BrandStory() {
             {/* Thin gold frame offset behind the portrait */}
             <div
               aria-hidden
-              className="absolute bottom-[-14px] right-[-14px] w-[54%] aspect-[4/5] border border-[#C9A96E]/60 rotate-[2deg]"
+              className="absolute bottom-[-14px] right-[-14px] w-[54%] aspect-[4/5] border border-[#2D2D2D]/25 rotate-[2deg]"
             />
             {/* Portrait, matted like a print */}
             <div className="absolute bottom-0 right-0 w-[54%] aspect-[4/5] rotate-[2deg] bg-white p-2 sm:p-3 shadow-[0_24px_50px_-20px_rgba(45,45,45,0.45)]">
@@ -62,7 +62,7 @@ export default function BrandStory() {
             </div>
             {/* Gold script tag on the photo corner */}
             <p
-              className="absolute left-[4%] bottom-[4%] text-[#C9A96E] text-[2.1rem] sm:text-[2.4rem] -rotate-[6deg] drop-shadow-[0_1px_0_rgba(255,255,255,0.9)]"
+              className="absolute left-[4%] bottom-[4%] text-[#2D2D2D] text-[2.1rem] sm:text-[2.4rem] -rotate-[6deg]"
               style={script}
               aria-hidden
             >
@@ -72,23 +72,20 @@ export default function BrandStory() {
 
           {/* Welcome copy */}
           <div className="text-center lg:text-left max-w-xl mx-auto lg:mx-0">
-            <p className="font-sans font-medium text-[11px] tracking-[0.3em] uppercase text-[#C9A96E] mb-4">
+            <p className="font-sans font-medium text-[11px] tracking-[0.3em] uppercase text-[#2D2D2D]/60 mb-7">
               From Our Founder
             </p>
-            <h2 className="font-serif font-medium text-[#2D2D2D] text-3xl md:text-4xl lg:text-[2.9rem] tracking-wide mb-7 uppercase leading-tight">
-              <span className="text-[#C9A96E]" style={{...script, fontSize: '1.5em'}}>
+            {/* Script "F", the rest in print; one line on larger screens */}
+            <h2 className="font-serif font-medium text-[#2D2D2D] text-[2.4rem] md:text-5xl lg:text-[3.1rem] leading-[1.15] mb-7 lg:whitespace-nowrap">
+              <span
+                className="inline-block -mr-[0.2em] align-[-0.04em]"
+                style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive", fontSize: '1.2em', lineHeight: 1}}
+              >
                 F
               </span>
-              ounder&rsquo;s{' '}
-              <span className="text-[#C9A96E]" style={{...script, fontSize: '1.5em'}}>
-                W
-              </span>
-              elcome
+              ounder&rsquo;s Welcome
             </h2>
-            <div
-              aria-hidden
-              className="mx-auto lg:mx-0 mb-7 h-px w-20 bg-gradient-to-r from-[#C9A96E] to-[#C9A96E]/0"
-            />
+            <div aria-hidden className="mx-auto lg:mx-0 mb-7 h-px w-20 bg-[#2D2D2D]/30" />
 
             <div className="space-y-5">
               <p className={copy}>Welcome. We are so happy you&rsquo;re here.</p>
@@ -106,8 +103,11 @@ export default function BrandStory() {
             </div>
 
             <div className="mt-8">
-              <p className={`${copy} mb-1`}>Welcome again,</p>
-              <p className="text-[2.8rem] text-[#2D2D2D] leading-none" style={script}>
+              <p className={copy}>Welcome again,</p>
+              <p
+                className="mt-4 text-[2.8rem] text-[#2D2D2D]"
+                style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive", lineHeight: 1.2}}
+              >
                 Sydney
               </p>
             </div>
@@ -115,7 +115,7 @@ export default function BrandStory() {
             <div className="mt-9">
               <Link
                 to="/about"
-                className="font-sans font-medium inline-flex items-center text-sm tracking-[0.15em] uppercase text-white bg-[#2D2D2D] px-9 py-3.5 hover:bg-[#C9A96E] transition-colors duration-300"
+                className="font-sans font-medium inline-flex items-center text-sm tracking-[0.15em] uppercase text-white bg-[#2D2D2D] px-9 py-3.5 hover:bg-[#1B294E] transition-colors duration-300"
               >
                 Learn More
               </Link>
