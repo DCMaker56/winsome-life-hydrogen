@@ -45,22 +45,38 @@ function EtsyRating() {
 
 type Review = {name: string; text: string; rating: number};
 
+/** Real Etsy reviews picked with Sydney for the Retail Partners page. */
+export const retailReviews: Review[] = [
+  {name: "Georgina", text: "Gold standard for personalized notecards.", rating: 5},
+  {name: "Robin", text: "Just gorgeous! Paper is perfect!", rating: 5},
+  {name: "Diane", text: "Absolutely stunning! The seller is amazing and so helpful!", rating: 5},
+  {name: "Roxanne", text: "Excellent in every way. Will shop again soon.", rating: 5},
+  {name: "Noelle", text: "10/10 would buy again! Love them.", rating: 5},
+];
+
+/** Home page: the live site's reviews woven together with the Retail
+ *  Partners ones (Sydney, Nov 2026). */
 const homeReviews: Review[] = [
   {
     name: "Lissa",
     text: "This is my only source for personalized stationery cards. Love their product!",
     rating: 5,
   },
+  retailReviews[0],
   {
     name: "Kalli",
     text: "Absolutely obsessed with these — so, so impressed with the quality.",
     rating: 5,
   },
+  retailReviews[1],
   {
     name: "Spenser",
     text: "The paper was heavy weight stock & printing was perfect. Will definitely reorder.",
     rating: 5,
   },
+  retailReviews[2],
+  retailReviews[3],
+  retailReviews[4],
   {
     name: "Diane",
     text: "I'm a repeat buyer… for life! Heavy stock, crisp printing. The quality is obvious.",

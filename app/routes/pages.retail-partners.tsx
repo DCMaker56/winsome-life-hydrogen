@@ -18,7 +18,7 @@ import {Image, Money} from '@shopify/hydrogen';
 import {BookOpen, ChevronDown, Frame, Layers, Signpost} from 'lucide-react';
 import type {Route} from './+types/pages.retail-partners';
 import {SITE_URL} from '~/lib/seo';
-import SocialProof from '~/components/SocialProof';
+import SocialProof, {retailReviews} from '~/components/SocialProof';
 import {STORE_TYPES, type RetailInquiryResult} from '~/lib/retail-inquiry';
 import {parseRetailInquiry, saveRetailInquiry} from '~/lib/retail-inquiry.server';
 import signageCounter from '~/assets/retail/signage-counter.webp';
@@ -252,7 +252,7 @@ export default function RetailPartnersPage() {
   return (
     <main id="main" className="bg-[#FAF8F5] text-[#2D2D2D]">
       <Hero />
-      <SocialProof reviews={RETAIL_REVIEWS} />
+      <SocialProof reviews={retailReviews} />
       <Promises />
       <PartnerKit />
       <HowItWorks />
@@ -1029,21 +1029,7 @@ const FAQS = [
   },
 ];
 
-/* ----------------------------- Reviews ---------------------------- */
-
-/** Real Etsy reviews (picked with Sydney, Nov 2026), shown in the homepage
- *  review carousel format. Update the count and quotes here. */
-const RETAIL_REVIEWS = [
-  {
-    name: 'Georgina',
-    text: 'Gold standard for personalized notecards.',
-    rating: 5,
-  },
-  {name: 'Robin', text: 'Just gorgeous! Paper is perfect!', rating: 5},
-  {name: 'Diane', text: 'Absolutely stunning! The seller is amazing and so helpful!', rating: 5},
-  {name: 'Roxanne', text: 'Excellent in every way. Will shop again soon.', rating: 5},
-  {name: 'Noelle', text: '10/10 would buy again! Love them.', rating: 5},
-];
+/* Reviews: retailReviews in ~/components/SocialProof (shared with the home page). */
 
 function Faq() {
   return (
