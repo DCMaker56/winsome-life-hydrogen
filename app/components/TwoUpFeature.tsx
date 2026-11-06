@@ -30,6 +30,8 @@ export default function TwoUpFeature({
       image: holidayCardShop,
       contain: false,
       cta: "Shop Holiday Cards",
+      // Deep-green fade (instead of charcoal) keeps the green rich.
+      fade: "3,62,37",
     },
     {
       title: "Holiday Essentials",
@@ -39,6 +41,7 @@ export default function TwoUpFeature({
       image: holidayImage ?? HOLIDAY_FALLBACK,
       contain: !!holidayImage,
       cta: "Shop Now",
+      fade: "45,45,45",
     },
   ];
   return (
@@ -64,7 +67,7 @@ export default function TwoUpFeature({
                 className="absolute inset-0"
                 style={{
                   background:
-                    "linear-gradient(to top, rgba(45,45,45,0.55) 0%, rgba(45,45,45,0.12) 45%, rgba(45,45,45,0) 72%)",
+                    `linear-gradient(to top, rgba(${tile.fade},0.6) 0%, rgba(${tile.fade},0.15) 45%, rgba(${tile.fade},0) 72%)`,
                 }}
                 aria-hidden
               />
