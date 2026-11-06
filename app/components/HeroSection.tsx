@@ -3,8 +3,8 @@
  * (matches thewinsomelife.com). Slides cross-fade; the tagline "Uniquely You.
  * On Paper." sits on whichever side reads best against each slide — LEFT for
  * the blue floral/seaside scenes, RIGHT for the warm autumn scene (per Sydney).
- * The tagline animates in word-by-word and the honeybee flies the path Sydney
- * drew around "You." before settling. All motion respects reduced-motion.
+ * The tagline animates in word-by-word; the honeybee rests beside "YOU."
+ * (its flight animation is off for now). All motion respects reduced-motion.
  */
 import { useEffect, useState } from "react";
 import { HoneyBee } from "./HoneyBee";
@@ -87,21 +87,13 @@ export default function HeroSection() {
             <h1 className="font-serif font-medium text-[#2D2D2D] leading-[1.05] text-5xl md:text-6xl lg:text-[4.5rem]">
               <span className="wl-word wl-w1 inline-block">Uniquely</span>{" "}
               <span className="relative inline-block">
-                <span
-                  className="wl-word wl-w2 inline-block text-[#2D2D2D]"
-                  style={{
-                    fontFamily: "'Parisian Script', 'Great Vibes', cursive",
-                    fontSize: "1.4em",
-                    lineHeight: "1",
-                    verticalAlign: "-0.06em",
-                    paddingRight: "0.08em",
-                  }}
-                >
+                {/* "YOU." in the same print font, capitalized (Sydney, Nov 2026). */}
+                <span className="wl-word wl-w2 inline-block text-[#2D2D2D] uppercase pr-[0.08em]">
                   You.
                 </span>
-                {/* Honeybee — flies Sydney's drawn path around "You." (see
-                    HERO_CSS), slanted ~20° left. */}
-                <span className="wl-bee absolute -right-4 -top-9 md:-right-6 md:-top-12">
+                {/* Honeybee — rests beside "YOU." (flight animation off for now,
+                    per Sydney; the path is kept in HERO_CSS), slanted ~20° left. */}
+                <span className="wl-bee absolute -right-9 -top-8 md:-right-12 md:-top-10">
                   <HoneyBee size={58} slant={-20} />
                 </span>
               </span>
@@ -239,16 +231,14 @@ const HERO_CSS = `
   98.76% { transform: translate(0.014em, 0.556em); }
   100% { transform: translate(0.014em, 0.556em); }
 }
-.wl-bee {
-  opacity: 0;
-  animation:
-    wl-bee-in 0.5s ease-out 1.15s both,
-    wl-bee-flight 4099ms linear 1.15s 1 both;
-}
+/* Flight turned off for now (Sydney, Nov 2026): the bee simply rests
+   above the end of "YOU.". To bring the flight back, restore:
+   opacity: 0; animation: wl-bee-in 0.5s ease-out 1.15s both,
+   wl-bee-flight 4099ms linear 1.15s 1 both; */
+.wl-bee { transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .wl-kenburns { animation: none; }
   .wl-word, .wl-bee { animation: none; opacity: 1; }
-  .wl-bee { transform: translate(0.014em, 0.556em); }
 }
 `;
