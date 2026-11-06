@@ -3,7 +3,7 @@
  * (matches thewinsomelife.com). Slides cross-fade; the tagline "Uniquely You.
  * On Paper." sits on whichever side reads best against each slide — LEFT for
  * the blue floral/seaside scenes, RIGHT for the warm autumn scene (per Sydney).
- * The tagline animates in word-by-word; the honeybee rests beside "YOU."
+ * The tagline animates in word-by-word; the honeybee rests beside "You."
  * (its flight animation is off for now). All motion respects reduced-motion.
  */
 import { useEffect, useState } from "react";
@@ -81,17 +81,24 @@ export default function HeroSection() {
           }`}
         >
           <div className="max-w-xl text-left">
-            <p className="wl-word wl-eyebrow font-sans font-medium text-[11px] md:text-xs tracking-[0.32em] uppercase text-[#2D2D2D] mb-5">
+            <p className="wl-word wl-eyebrow font-sans font-medium text-[11px] md:text-xs tracking-[0.32em] uppercase text-[#2D2D2D] mb-8 md:mb-9">
               Personalized Stationery
             </p>
             <h1 className="font-serif font-medium text-[#2D2D2D] leading-[1.05] text-5xl md:text-6xl lg:text-[4.5rem]">
               <span className="wl-word wl-w1 inline-block">Uniquely</span>{" "}
               <span className="relative inline-block">
-                {/* "YOU." in the same print font, capitalized (Sydney, Nov 2026). */}
-                <span className="wl-word wl-w2 inline-block text-[#2D2D2D] uppercase pr-[0.08em]">
-                  You.
+                {/* Script "Y" + print "ou." (Sydney, Nov 2026) — echoes the
+                    script "F" in Founder's Welcome. */}
+                <span className="wl-word wl-w2 inline-block text-[#2D2D2D] pr-[0.08em]">
+                  <span
+                    className="inline-block -mr-[0.3em] align-[-0.02em]"
+                    style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive", fontSize: '1.02em', lineHeight: 1}}
+                  >
+                    Y
+                  </span>
+                  ou.
                 </span>
-                {/* Honeybee — rests beside "YOU." (flight animation off for now,
+                {/* Honeybee — rests beside "You." (flight animation off for now,
                     per Sydney; the path is kept in HERO_CSS), slanted ~20° left. */}
                 <span className="wl-bee absolute -right-9 -top-8 md:-right-12 md:-top-10">
                   <HoneyBee size={58} slant={-20} />
@@ -232,7 +239,7 @@ const HERO_CSS = `
   100% { transform: translate(0.014em, 0.556em); }
 }
 /* Flight turned off for now (Sydney, Nov 2026): the bee simply rests
-   above the end of "YOU.". To bring the flight back, restore:
+   above the end of "You.". To bring the flight back, restore:
    opacity: 0; animation: wl-bee-in 0.5s ease-out 1.15s both,
    wl-bee-flight 4099ms linear 1.15s 1 both; */
 .wl-bee { transform: none; }
