@@ -252,7 +252,7 @@ export default function RetailPartnersPage() {
   return (
     <main id="main" className="bg-[#FAF8F5] text-[#2D2D2D]">
       <Hero />
-      <SocialProof reviews={RETAIL_REVIEWS} note={RETAIL_REVIEWS_NOTE} />
+      <SocialProof reviews={RETAIL_REVIEWS} />
       <Promises />
       <PartnerKit />
       <HowItWorks />
@@ -1044,7 +1044,6 @@ const RETAIL_REVIEWS = [
   {name: 'Roxanne', text: 'Excellent in every way. Will shop again soon.', rating: 5},
   {name: 'Noelle', text: '10/10 would buy again! Love them.', rating: 5},
 ];
-const RETAIL_REVIEWS_NOTE = '5.0 stars · 660 reviews on our Etsy shop';
 
 function Faq() {
   return (

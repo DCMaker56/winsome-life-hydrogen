@@ -14,6 +14,35 @@ import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 const ADVANCE_MS = 4500;
 
+/** Etsy shop rating — a key selling point, shown large under the reviews.
+ *  Update the count here as it grows. */
+const ETSY_RATING = {stars: '5.0', reviews: 660, url: 'https://www.etsy.com/shop/TheWinsomeLifeCo'};
+
+function EtsyRating() {
+  return (
+    <a
+      href={ETSY_RATING.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group mt-10 mx-auto flex w-fit max-w-full flex-col sm:flex-row items-center gap-2 sm:gap-5 rounded-full bg-white/75 ring-1 ring-[#C9A96E]/35 px-7 py-4 sm:py-3.5 shadow-sm hover:bg-white transition-colors"
+      aria-label={`Rated ${ETSY_RATING.stars} out of 5 stars from ${ETSY_RATING.reviews} reviews on our Etsy shop`}
+    >
+      <span className="flex gap-1" aria-hidden>
+        {Array.from({length: 5}).map((_, i) => (
+          <Star key={i} size={24} className="fill-[#C9A96E] text-[#C9A96E]" />
+        ))}
+      </span>
+      <span className="font-serif text-[1.65rem] md:text-[1.9rem] leading-none text-[#2D2D2D]" aria-hidden>
+        <strong className="font-semibold">{ETSY_RATING.stars}</strong> stars
+      </span>
+      <span aria-hidden className="hidden sm:block h-7 w-px bg-[#C9A96E]/50" />
+      <span className="font-sans text-base md:text-lg text-[#2D2D2D]/80 group-hover:text-[#2D2D2D]" aria-hidden>
+        <strong className="font-semibold text-[#2D2D2D]">{ETSY_RATING.reviews}</strong> reviews on Etsy
+      </span>
+    </a>
+  );
+}
+
 type Review = {name: string; text: string; rating: number};
 
 const homeReviews: Review[] = [
@@ -89,13 +118,11 @@ function ReviewSlide({
 }
 
 /** Homepage reviews by default; other pages (e.g. Retail Partners) pass
- *  their own, plus an optional line under the dots like a rating summary. */
+ *  their own. The Etsy rating shows under the dots on every page. */
 export default function SocialProof({
   reviews = homeReviews,
-  note,
 }: {
   reviews?: Review[];
-  note?: string;
 } = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -208,11 +235,7 @@ export default function SocialProof({
             />
           ))}
         </div>
-        {note && (
-          <p className="mt-6 text-center font-sans text-[12px] tracking-[0.2em] uppercase text-[#2D2D2D]/60">
-            {note}
-          </p>
-        )}
+        <EtsyRating />
       </div>
     </section>
   );
