@@ -11,7 +11,7 @@
  */
 import { useState, useEffect, useRef, Suspense } from "react";
 import { Link, useLocation, Await } from "react-router";
-import { Menu, X, Search, ShoppingBag, Heart, Sparkles, ChevronDown } from "lucide-react";
+import { Menu, X, Search, ShoppingBag, Heart, Sparkles, ChevronDown, ArrowRight } from "lucide-react";
 import { STUDIO_OPEN } from "~/lib/features";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAnalytics, useOptimisticCart} from "@shopify/hydrogen";
@@ -98,8 +98,8 @@ const navLinks = [
 ];
 
 /**
- * "Shop" dropdown: Shop All first, then theme collections A–Z,
- * product types and seasons. Built live from Shopify (root loader), so new
+ * "Shop" dropdown: Shop All first, then theme collections, product types
+ * and seasons, each A–Z. Built live from Shopify (root loader), so new
  * collections appear on their own; MENU_HIDDEN and partner-only collections
  * are left out.
  */
@@ -121,15 +121,16 @@ function useCollectionMenu() {
     handles
       .map((h) => clean.find((c) => c.handle === h))
       .filter((c): c is MenuCollection => !!c);
-  const productTypes = pick(PRODUCT_TYPE_COLLECTIONS);
-  const seasons = pick(SEASON_COLLECTIONS);
+  const az = (a: MenuCollection, b: MenuCollection) => a.title.localeCompare(b.title);
+  const productTypes = pick(PRODUCT_TYPE_COLLECTIONS).sort(az);
+  const seasons = pick(SEASON_COLLECTIONS).sort(az);
   const themes = clean
     .filter(
       (c) =>
         !SEASON_COLLECTIONS.includes(c.handle) &&
         !PRODUCT_TYPE_COLLECTIONS.includes(c.handle),
     )
-    .sort((a, b) => a.title.localeCompare(b.title));
+    .sort(az);
   return { themes, productTypes, seasons };
 }
 
@@ -179,15 +180,16 @@ function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolea
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((o) => !o)}
-        className={`font-sans font-medium text-[11.5px] xl:text-[13px] tracking-[0.02em] whitespace-nowrap inline-flex items-center gap-1 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
+        className={`font-sans font-medium text-[11.5px] xl:text-[13px] leading-[inherit] tracking-[0.02em] whitespace-nowrap inline-flex items-baseline gap-0.5 p-0 bg-transparent border-0 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
           active || open ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
         }`}
       >
         Shop
         <ChevronDown
-          size={13}
+          size={12}
           strokeWidth={1.75}
-          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          aria-hidden
+          className={`self-center transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
@@ -196,9 +198,17 @@ function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolea
             <Link
               to="/collections/all"
               onClick={() => setOpen(false)}
-              className="block font-serif text-[19px] text-[#2D2D2D] hover:text-[#C9A96E] transition-colors pb-3 mb-4 border-b border-[#C9A96E]/20"
+              className="group/all flex items-center justify-between gap-4 mb-5 px-4 py-3 bg-[#FAF8F5] ring-1 ring-[#C9A96E]/30 hover:bg-[#2D2D2D] hover:ring-[#2D2D2D] transition-colors"
             >
-              Shop All
+              <span>
+                <span className="block font-serif text-[19px] leading-tight text-[#2D2D2D] group-hover/all:text-white underline decoration-[#C9A96E] underline-offset-4">
+                  Shop All
+                </span>
+                <span className="block font-sans text-[12px] text-[#2D2D2D]/55 group-hover/all:text-white/75 mt-0.5">
+                  Browse every design
+                </span>
+              </span>
+              <ArrowRight size={18} className="text-[#2D2D2D] group-hover/all:text-white group-hover/all:translate-x-0.5 transition-transform" />
             </Link>
             <div className="grid grid-cols-[2fr_1.1fr_0.9fr] gap-8">
               <div>
@@ -242,7 +252,14 @@ function MobileCollectionMenu({ close, isActive }: { close: () => void; isActive
         <ChevronDown size={15} className="transition-transform group-open:rotate-180" />
       </summary>
       <div className="pb-3">
-        {link("/collections/all", "Shop All")}
+        <Link
+          to="/collections/all"
+          onClick={close}
+          className="flex items-center justify-between font-sans font-semibold text-sm text-[#2D2D2D] underline decoration-[#C9A96E] underline-offset-4 py-2 pl-3 pr-1"
+        >
+          Shop All
+          <ArrowRight size={15} />
+        </Link>
         <p className="font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-3 pb-1 pl-3">Collections</p>
         {themes.map((c) => link(`/collections/${c.handle}`, c.title))}
         <p className="font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-3 pb-1 pl-3">Product Types</p>
@@ -300,15 +317,16 @@ function BusinessMenu({ isActive }: { isActive: (href: string) => boolean }) {
         aria-expanded={open}
         aria-haspopup="true"
         onClick={() => setOpen((o) => !o)}
-        className={`font-sans font-medium text-[11.5px] xl:text-[13px] tracking-[0.02em] whitespace-nowrap inline-flex items-center gap-1 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
+        className={`font-sans font-medium text-[11.5px] xl:text-[13px] leading-[inherit] tracking-[0.02em] whitespace-nowrap inline-flex items-baseline gap-0.5 p-0 bg-transparent border-0 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
           active || open ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
         }`}
       >
         Corporate &amp; Retail
         <ChevronDown
-          size={13}
+          size={12}
           strokeWidth={1.75}
-          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          aria-hidden
+          className={`self-center transition-transform duration-200 ${open ? "rotate-180" : ""}`}
         />
       </button>
       {open && (
