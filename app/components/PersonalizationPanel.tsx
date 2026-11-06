@@ -82,7 +82,13 @@ export function PersonalizationPanel({
     f.group === "upgrades" && f.type === "choice" && f.options?.length === 2;
   useEffect(() => {
     const unset = schema.fields.filter(
-      (f) => isUpgradeCheckbox(f) && !f.options!.includes(value.fields[f.key] ?? ""),
+      // Every upgrade choice starts on its first answer ("No liners"), also
+      // ones with more than two answers (No / Red / Green liners).
+      (f) =>
+        f.group === "upgrades" &&
+        f.type === "choice" &&
+        !!f.options?.length &&
+        !f.options.includes(value.fields[f.key] ?? ""),
     );
     if (unset.length) {
       onChange({
