@@ -2,7 +2,8 @@
  * TwoUpFeature — the two large feature squares directly under the hero,
  * matching thewinsomelife.com (currently "Summer Camp Days" / "Best Sellers").
  *
- * Per Sydney: left = Best Sellers, right = Holiday Essentials. Images are
+ * Per Sydney: left = Holiday Card Shop (was Best Sellers until Nov 2026),
+ * right = Holiday Essentials. Images are
  * placeholders pulled from the brand's own CDN for now (she'll supply final
  * art — a dog + floral notecard for Best Sellers, holiday products for the
  * other).
@@ -19,12 +20,16 @@ export default function TwoUpFeature({
 }) {
   const tiles = [
     {
-      title: "Best Sellers",
-      subtitle: "Our most-loved notecards",
-      href: "/collections/bestsellers",
+      // Holiday cards are the big-ticket item for the season (Sydney, Nov
+      // 2026). Placeholder image: the Red & Green Tartan Plaid photo card,
+      // until Sydney's 1600x1200 artwork is ready.
+      title: "Holiday Card Shop",
+      subtitle: "Personalized Christmas photo cards",
+      href: "/collections/holiday-photo-cards",
       image:
-        "https://caatee-kr.myshopify.com/cdn/shop/files/Best_Sellers_0773c555-e720-4eaa-b52b-9a31ddbcae9b.png?v=1757693053&width=1300",
+        "https://cdn.shopify.com/s/files/1/0938/6203/5753/files/il_fullxfull.7120336134_t18n.jpg?v=1762824480&width=1300",
       contain: false,
+      cta: "Shop Holiday Cards",
     },
     {
       title: "Holiday Essentials",
@@ -33,6 +38,7 @@ export default function TwoUpFeature({
       // A real product image from the Christmas/Holiday collection.
       image: holidayImage ?? HOLIDAY_FALLBACK,
       contain: !!holidayImage,
+      cta: "Shop Now",
     },
   ];
   return (
@@ -69,7 +75,7 @@ export default function TwoUpFeature({
                   {tile.subtitle}
                 </span>
                 <span className="font-sans font-medium inline-block mt-4 px-7 py-2.5 bg-white text-[#2D2D2D] text-[11px] tracking-[0.18em] uppercase group-hover:bg-[#C9A96E] group-hover:text-white transition-colors">
-                  Shop Now
+                  {tile.cta}
                 </span>
               </span>
             </Link>
