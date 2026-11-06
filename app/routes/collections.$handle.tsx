@@ -102,8 +102,16 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 }
 
 export default function CollectionRoute() {
-  const {collection, cards, facets, sort, q, sections, typeView} = useLoaderData<typeof loader>();
+  const {collection, cards, facets, sort, q, sections, typeView, total} =
+    useLoaderData<typeof loader>();
   const [params] = useSearchParams();
+  // Product-type choices with counts (from the Product Type filter), shown
+  // as tabs on theme/season pages — they stay visible after one is chosen.
+  const typeFacet = facets.find((f) => f.key === 'type');
+  const typeChoices =
+    !sections && typeFacet && typeFacet.options.length >= 2 ? typeFacet.options : null;
+  const anyTypeSelected = !!typeChoices?.some((o) => o.selected);
+  const allCount = typeView ? typeView.cards.length : total;
   const typeHref = (h: string | null) => {
     const next = new URLSearchParams(params);
     if (h) next.set('type', h);
@@ -174,30 +182,47 @@ export default function CollectionRoute() {
             <SectionJumpNav sections={sections} />
             <SectionList sections={sections} />
           </>
-        ) : typeView ? (
+        ) : typeView || typeChoices ? (
           <>
-            {/* Product types in this collection, with counts — shows at a
-                glance how much there is; one tap narrows to that type. */}
-            <nav aria-label="Product types in this collection" className="mb-8 -mt-2">
-              <p className="font-sans font-medium text-[11px] tracking-[0.2em] uppercase text-[#2D2D2D]/55 mb-2.5">
-                {typeView.cards.length} pieces in {typeView.types.length} product types
+            {/* Product-type tabs: "All" plus each type with its count. The
+                chosen one is filled dark; tap again (or All) to show all. */}
+            <nav aria-label="Filter by product type" className="mb-8 -mt-2">
+              <p className="font-sans font-medium text-[11px] tracking-[0.2em] uppercase text-[#2D2D2D]/60 mb-3">
+                Tap a product type to filter
               </p>
               <ul className="flex flex-wrap gap-2">
-                {typeView.types.map((t) => (
-                  <li key={t.handle}>
-                    <Link
-                      to={typeHref(t.handle)}
-                      preventScrollReset
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#C9A96E]/40 bg-white font-sans text-[13px] text-[#2D2D2D] hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors"
-                    >
-                      {t.title}
-                      <span className="text-[11px] text-[#2D2D2D]/45">{t.count}</span>
-                    </Link>
-                  </li>
-                ))}
+                {[{value: '', label: 'All', count: allCount, selected: !anyTypeSelected}, ...(typeChoices ?? [])].map(
+                  (t) => (
+                    <li key={t.value || 'all'}>
+                      <Link
+                        to={typeHref(t.value && !t.selected ? t.value : null)}
+                        preventScrollReset
+                        aria-current={t.selected ? 'true' : undefined}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-sans font-medium text-[13.5px] shadow-sm transition-all duration-200 hover:-translate-y-px hover:shadow ${
+                          t.selected
+                            ? 'bg-[#2D2D2D] text-white ring-1 ring-[#2D2D2D]'
+                            : 'bg-white text-[#2D2D2D] ring-1 ring-[#2D2D2D]/20 hover:ring-[#2D2D2D]/50'
+                        }`}
+                      >
+                        {t.label}
+                        <span
+                          className={`min-w-[1.4rem] px-1.5 rounded-full text-[11px] leading-5 text-center ${
+                            t.selected ? 'bg-white/20 text-white' : 'bg-[#2D2D2D]/[0.07] text-[#2D2D2D]/70'
+                          }`}
+                        >
+                          {t.count}
+                        </span>
+                      </Link>
+                    </li>
+                  ),
+                )}
               </ul>
             </nav>
-            <FilteredProductGrid cards={typeView.cards} labels={typeView.labels} />
+            {typeView ? (
+              <FilteredProductGrid cards={typeView.cards} labels={typeView.labels} />
+            ) : (
+              <FilteredProductGrid cards={cards} />
+            )}
           </>
         ) : (
           <FilteredProductGrid cards={cards} />
