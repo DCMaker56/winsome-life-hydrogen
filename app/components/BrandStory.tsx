@@ -28,7 +28,7 @@ export default function BrandStory() {
       <div className="container relative z-10 max-w-6xl">
         <div className="grid lg:grid-cols-[1fr_1.05fr] gap-14 lg:gap-20 items-center">
           {/* Layered photos: the painting behind, Sydney's photo in front */}
-          <div className="relative mx-auto w-full max-w-[440px] lg:max-w-[520px] aspect-[1/1.02]">
+          <div className="relative mx-auto w-full max-w-[440px] lg:max-w-[520px] aspect-[1/1.1]">
             {/* Painting behind, smaller */}
             <div className="absolute top-0 left-0 w-[56%] aspect-square bg-white p-2 sm:p-3 shadow-[0_18px_40px_-18px_rgba(45,45,45,0.35)] ring-1 ring-[#2D2D2D]/10">
               <ResponsiveImg
@@ -43,11 +43,6 @@ export default function BrandStory() {
                 className="w-full h-full object-cover select-none"
               />
             </div>
-            {/* Thin gold frame offset behind the portrait */}
-            <div
-              aria-hidden
-              className="absolute bottom-[-14px] right-[-14px] w-[64%] aspect-[4/5] border border-[#2D2D2D]/25"
-            />
             {/* Portrait in front, the larger of the two */}
             <div className="absolute bottom-0 right-0 w-[64%] aspect-[4/5] bg-white p-2 sm:p-3 shadow-[0_24px_50px_-20px_rgba(45,45,45,0.45)]">
               <ResponsiveImg
@@ -60,13 +55,15 @@ export default function BrandStory() {
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* Gold script tag on the photo corner */}
+            {/* The brand's script tagline (from the store signage) */}
             <p
-              className="absolute left-[2%] bottom-[8%] text-[#2D2D2D] text-[1.55rem] sm:text-[2.4rem]"
-              style={script}
+              className="absolute left-[1%] bottom-[5%] w-[34%] text-[#2D2D2D] text-[1.35rem] sm:text-[1.9rem] lg:text-[2.1rem] leading-[1.1]"
+              style={{fontFamily: script.fontFamily}}
               aria-hidden
             >
-              with love
+              sweeter
+              <br />
+              than honey
             </p>
           </div>
 
