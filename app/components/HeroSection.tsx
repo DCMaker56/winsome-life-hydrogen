@@ -11,6 +11,8 @@ import { Link } from "react-router";
 import { HoneyBee } from "./HoneyBee";
 import christmasDesktop from "~/assets/hero/christmas-plaid-desktop.webp";
 import fallDesktop from "~/assets/hero/fall-plaid-desktop.webp";
+import christmasPhone from "~/assets/hero/christmas-plaid-phone.webp";
+import fallPhone from "~/assets/hero/fall-plaid-phone.webp";
 
 const CDN = "https://caatee-kr.myshopify.com/cdn/shop/files";
 
@@ -19,6 +21,9 @@ const CDN = "https://caatee-kr.myshopify.com/cdn/shop/files";
 //   `image` until a phone version exists (2400x1100 desktop / 1200x1800 phone
 //   templates in design/hero-templates).
 // desktopOnly: skipped on phones (no phone version yet).
+// phoneDesigned: `image` is a 1200x1800 phone design with a plain top, so on
+//   phones the tagline moves to the top and the desktop look (white text,
+//   no haze) applies there too.
 // desktopSide: tagline side on computers, if different from `side`.
 // desktopLight: white tagline and no haze on computers (dark backgrounds).
 // desktopNoHaze: no light haze behind the tagline on computers (the image
@@ -30,6 +35,7 @@ type Slide = {
   desktopImage?: string;
   desktopAlt?: string;
   desktopOnly?: boolean;
+  phoneDesigned?: boolean;
   desktopSide?: "left" | "right";
   desktopLight?: boolean;
   desktopNoHaze?: boolean;
@@ -40,14 +46,13 @@ type Slide = {
   /** Short seasonal line above the button. */
   subline?: string;
 };
-const AUTUMN = `${CDN}/Winsome_Banner_01_13972622-0426-4773-b922-928098ab2bda.png?width=2400`;
 const SLIDES: Slide[] = [
   {
     // Christmas plaid on solid red (Sydney, Nov 2026) — computers only for now.
-    image: AUTUMN,
+    image: christmasPhone,
     alt: "Personalized red tartan plaid Christmas photo card, notepad, gift tag and wine tag on a red background",
     desktopImage: christmasDesktop,
-    desktopOnly: true,
+    phoneDesigned: true,
     desktopLight: true,
     // Keep the products (right side) when narrower screens trim the image.
     desktopPosition: "70% center",
@@ -57,12 +62,11 @@ const SLIDES: Slide[] = [
   },
   {
     // Fall plaid on tan (Sydney, Nov 2026); products on the right, tagline on
-    // the left. Phones show the earlier autumn photo for now.
-    image: AUTUMN,
-    alt: "Personalized autumn plaid Thanksgiving cards and fall stationery on a writing desk",
+    // the left (phones: products below, tagline on top).
+    image: fallPhone,
+    alt: "Personalized fall plaid Thanksgiving photo card, pumpkin notepad, gift tags, place card and notecards on a tan background",
     desktopImage: fallDesktop,
-    desktopAlt:
-      "Personalized fall plaid Thanksgiving photo card, pumpkin notepad, gift tags and notecards on a tan background",
+    phoneDesigned: true,
     desktopNoHaze: true,
     // Keep the products (right side) when narrower screens trim the image.
     desktopPosition: "70% center",
@@ -122,11 +126,13 @@ export default function HeroSection() {
   const side = isDesktop ? (slide.desktopSide ?? slide.side) : slide.side;
   const light = !!slide.desktopLight;
   const noHaze = light || !!slide.desktopNoHaze;
+  // On phones, designed slides get the same look as on computers.
+  const phone = !!slide.phoneDesigned;
 
   return (
     <section className="relative w-full overflow-hidden">
       <style>{HERO_CSS}</style>
-      <div className="relative w-full min-h-[72vh] lg:min-h-[80vh] flex flex-col">
+      <div className="relative w-full min-h-[84vh] md:min-h-[72vh] lg:min-h-[80vh] flex flex-col">
         {/* Backdrop — cross-fading slides */}
         <div className="absolute inset-0 overflow-hidden bg-[#F3ECDD]">
           {SLIDES.map((s, i) => (
@@ -138,7 +144,11 @@ export default function HeroSection() {
                 className="wl-kenburns absolute inset-0 w-full h-full object-cover transition-opacity duration-[1400ms] ease-in-out"
                 style={{
                   opacity: i === active ? 1 : 0,
-                  objectPosition: isDesktop && s.desktopPosition ? s.desktopPosition : undefined,
+                  objectPosition: isDesktop
+                    ? s.desktopPosition
+                    : s.phoneDesigned
+                      ? "center top"
+                      : undefined,
                 }}
                 loading={i === 0 ? "eager" : "lazy"}
               />
@@ -149,7 +159,7 @@ export default function HeroSection() {
         {/* Soft light wash behind the tagline — flips to the active side so the
             black type always reads without darkening the product photo. */}
         <div
-          className={`absolute inset-0 transition-[background,opacity] duration-700 ${noHaze ? "md:opacity-0" : ""}`}
+          className={`absolute inset-0 transition-[background,opacity] duration-700 ${noHaze ? (phone ? "opacity-0" : "md:opacity-0") : ""}`}
           style={{
             background:
               side === "right"
@@ -161,11 +171,11 @@ export default function HeroSection() {
 
         {/* Content */}
         <div
-          className={`relative z-10 flex-1 flex items-center container py-14 lg:py-16 transition-all duration-700 ${
+          className={`relative z-10 flex-1 flex ${phone ? "items-start md:items-center pt-10 pb-14" : "items-center py-14"} container lg:py-16 transition-all duration-700 ${
             side === "right" ? "justify-end" : "justify-start"
           }`}
         >
-          <div className={`max-w-xl text-left ${light ? "wl-light" : ""}`}>
+          <div className={`max-w-xl text-left ${light ? "wl-light" : ""} ${light && phone ? "wl-light-phone" : ""}`}>
             <p className="wl-word wl-eyebrow font-sans font-medium text-[11px] md:text-xs tracking-[0.32em] uppercase text-[#2D2D2D] mb-8 md:mb-9">
               Personalized Stationery
             </p>
@@ -209,7 +219,7 @@ export default function HeroSection() {
                 key={slide.cta.href}
                 to={slide.cta.href}
                 className={`wl-cta ${slide.subline ? "mt-6" : "mt-8 md:mt-10"} inline-flex items-center gap-2 px-8 py-3.5 font-sans font-medium text-[13px] tracking-[0.15em] uppercase transition-colors duration-300 bg-[#2D2D2D] text-white hover:bg-[#C9A96E] ${
-                  light ? "md:bg-white md:hover:bg-[#FAF8F5]" : ""
+                  light ? (phone ? "bg-white hover:bg-[#FAF8F5]" : "md:bg-white md:hover:bg-[#FAF8F5]") : ""
                 }`}
               >
                 {slide.cta.label}
@@ -244,11 +254,14 @@ export default function HeroSection() {
 }
 
 const HERO_CSS = `
-/* White tagline on dark slides (computers only; phones show a light photo). */
+/* White tagline on dark slides — computers, and phones when the slide has a
+   phone design (wl-light-phone). */
 @media (min-width: 768px) {
   .wl-light, .wl-light *:not(.wl-cta):not(.wl-cta *) { color: #fff !important; transition: color 0.7s; }
   .wl-light .wl-cta, .wl-light .wl-cta * { color: #2D2D2D !important; }
 }
+.wl-light-phone, .wl-light-phone *:not(.wl-cta):not(.wl-cta *) { color: #fff !important; }
+.wl-light-phone .wl-cta, .wl-light-phone .wl-cta * { color: #2D2D2D !important; }
 @keyframes wl-kenburns { 0% { transform: scale(1.05); } 100% { transform: scale(1.12); } }
 .wl-kenburns { animation: wl-kenburns 20s ease-in-out infinite alternate; will-change: transform; }
 
