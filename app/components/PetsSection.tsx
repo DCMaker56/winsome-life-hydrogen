@@ -43,6 +43,28 @@ const NAMES: Record<string, string> = {
   [EVERYDAY[5]]: 'Dog Bookmark',
 };
 
+/** Hand-drawn style red ribbon bow (holiday accent). */
+function Bow({className = ''}: {className?: string}) {
+  return (
+    <svg viewBox="0 0 120 84" className={className} aria-hidden focusable="false">
+      {/* tails */}
+      <path d="M55 44 C50 56 44 66 37 78 L46 75 L50 83 C56 70 60 57 61 46 Z" fill="#8E2824" />
+      <path d="M65 44 C70 56 76 66 83 78 L74 75 L70 83 C64 70 60 57 59 46 Z" fill="#8E2824" />
+      {/* loops */}
+      <path d="M60 40 C48 20 24 8 13 18 C3 28 14 46 34 47 C44 47.5 53 45 60 40 Z" fill="#A8322D" />
+      <path d="M60 40 C72 20 96 8 107 18 C117 28 106 46 86 47 C76 47.5 67 45 60 40 Z" fill="#A8322D" />
+      {/* loop folds */}
+      <path d="M58 39 C46 28 30 21 22 25 C30 24 44 31 56 41 Z" fill="#7A211E" opacity=".55" />
+      <path d="M62 39 C74 28 90 21 98 25 C90 24 76 31 64 41 Z" fill="#7A211E" opacity=".55" />
+      <path d="M22 22 C30 16 44 22 52 30" stroke="#fff" strokeOpacity=".35" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      <path d="M98 22 C90 16 76 22 68 30" stroke="#fff" strokeOpacity=".35" strokeWidth="1.6" fill="none" strokeLinecap="round" />
+      {/* knot */}
+      <rect x="52" y="33" width="16" height="15" rx="5" fill="#962C28" />
+      <path d="M55 37 C58 35 62 35 65 37" stroke="#fff" strokeOpacity=".35" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const name = (p: PetProduct) => NAMES[p.handle] ?? p.title.split('|')[0].trim();
 const script = {fontFamily: "'Parisian Script', 'Great Vibes', cursive", lineHeight: 0.9} as const;
 
@@ -58,9 +80,10 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
   if (!holiday.length && !everyday.length) return null;
 
   return (
-    <section className="py-20 lg:py-24 bg-[#F7E9E5]" aria-labelledby="pets-title">
+    <section className="py-20 lg:py-24 bg-[#E4EBDF]" aria-labelledby="pets-title">
       <div className="container max-w-6xl">
         <div className="text-center mb-12">
+          <Bow className="mx-auto mb-4 w-[72px] md:w-[84px] h-auto drop-shadow-[0_4px_6px_rgba(122,33,30,0.18)]" />
           <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#A8322D] mb-4">
             For the Love of Dogs &amp; Cats
           </p>
@@ -102,7 +125,8 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     )}
-                    <span className="absolute top-4 left-4 bg-[#A8322D] text-white font-sans font-medium text-[10px] tracking-[0.22em] uppercase px-3 py-1.5">
+                    <span className="absolute top-4 left-4 bg-[#A8322D] text-white font-sans font-medium text-[10px] tracking-[0.22em] uppercase pl-2 pr-3 py-1.5 inline-flex items-center gap-1.5">
+                      <Bow className="w-[18px] h-auto [&_path]:fill-white [&_rect]:fill-white [&_path[stroke]]:hidden" />
                       Holiday
                     </span>
                   </div>
@@ -126,11 +150,11 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
         {everyday.length > 0 && (
           <>
             <div className="flex items-center gap-4 mt-16 mb-8">
-              <span aria-hidden className="h-px flex-1 bg-[#A8322D]/20" />
+              <span aria-hidden className="h-px flex-1 bg-[#2D2D2D]/15" />
               <p className="font-sans font-medium text-[11px] tracking-[0.25em] uppercase text-[#2D2D2D]/60">
                 Year-round favorites
               </p>
-              <span aria-hidden className="h-px flex-1 bg-[#A8322D]/20" />
+              <span aria-hidden className="h-px flex-1 bg-[#2D2D2D]/15" />
             </div>
             <ul className="flex gap-5 overflow-x-auto snap-x pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-6 lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {everyday.map((p) => (
