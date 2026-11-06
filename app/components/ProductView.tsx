@@ -534,7 +534,8 @@ export function ProductView({
   // times how many sets are in the cart.
   const wantsLiners = shownFields.some(
     (f) =>
-      /envelope liner/i.test(f.label) && /^yes\b/i.test(personalization.fields[f.key] ?? ''),
+      /envelope liner/i.test(f.label) &&
+      /^(yes|add)\b/i.test(personalization.fields[f.key] ?? ''),
   );
   const cardsPerSet = parseInt(
     Object.entries(selOptions).find(([name]) => /quantity|number of cards/i.test(name))?.[1] ??
@@ -566,7 +567,8 @@ export function ProductView({
   // more than the envelopes in the order.
   const wantsAddressing = shownFields.some(
     (f) =>
-      /recipient address/i.test(f.label) && /^yes\b/i.test(personalization.fields[f.key] ?? ''),
+      /recipient address/i.test(f.label) &&
+      /^(yes|address)\b/i.test(personalization.fields[f.key] ?? ''),
   );
   const addressCountField = shownFields.find((f) => /number of addresses/i.test(f.label));
   const addressesTyped = parseInt(

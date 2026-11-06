@@ -32,6 +32,8 @@ const SECTION_TO_GROUP: Record<string, FieldGroup> = {
   Icon: 'icon',
   'Icon placement': 'placement',
   'Return address': 'return-address',
+  // Optional paid extras, shown last as checkboxes.
+  Upgrades: 'upgrades',
 };
 
 function parseList(value?: string | null): string[] {

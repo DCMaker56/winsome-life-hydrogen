@@ -142,9 +142,11 @@ export interface PersonalizationField {
 
 // "under-text": right under the main text box, before font and ink (e.g. a
 // bag tag's phone numbers under the name).
-export type FieldGroup = "monogram" | "under-text" | "text" | "border" | "icon" | "placement" | "notes" | "return-address";
+// "upgrades": optional paid extras (cardstock, envelopes, addressing), last,
+// each a checkbox that starts unticked.
+export type FieldGroup = "monogram" | "under-text" | "text" | "border" | "icon" | "placement" | "notes" | "return-address" | "upgrades";
 
-const FIELD_GROUP_ORDER: FieldGroup[] = ["monogram", "under-text", "text", "border", "icon", "placement", "notes", "return-address"];
+const FIELD_GROUP_ORDER: FieldGroup[] = ["monogram", "under-text", "text", "border", "icon", "placement", "notes", "return-address", "upgrades"];
 
 /** Sort extra personalization questions into Sydney's order (stable within a group). */
 export function sortByFieldGroup<T extends { group?: FieldGroup }>(fields: T[]): T[] {

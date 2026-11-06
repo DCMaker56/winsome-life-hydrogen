@@ -74,6 +74,28 @@ export function PersonalizationPanel({
   const ink = schema.inkColors.find((c) => c.key === value.inkKey) ?? schema.inkColors[0];
   const activeFont = schema.fonts.find((f) => f.key === value.fontKey) ?? schema.fonts[0];
 
+  // An upgrade is a two-answer question shown as one checkbox: unticked is
+  // the first answer ("130 lb Cardstock"), ticked the second ("240 lb Double
+  // Thick Cardstock (+$1.50 per card)"). Unticked is already chosen, so
+  // nobody has to stop at upgrades they don't want.
+  const isUpgradeCheckbox = (f: (typeof schema.fields)[number]) =>
+    f.group === "upgrades" && f.type === "choice" && f.options?.length === 2;
+  useEffect(() => {
+    const unset = schema.fields.filter(
+      (f) => isUpgradeCheckbox(f) && !f.options!.includes(value.fields[f.key] ?? ""),
+    );
+    if (unset.length) {
+      onChange({
+        ...value,
+        fields: {
+          ...value.fields,
+          ...Object.fromEntries(unset.map((f) => [f.key, f.options![0]])),
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schema.fields, value.fields]);
+
   // Ensure fontKey/inkKey stay valid
   useEffect(() => {
     if (requireChoices) return;
@@ -164,6 +186,45 @@ export function PersonalizationPanel({
     );
   const renderExtraFieldOnly = (field: (typeof extraFields)[number]) => {
     const current = value.fields[field.key] ?? "";
+    if (isUpgradeCheckbox(field)) {
+      const [off, on] = field.options!;
+      const checked = current === on;
+      const img = field.optionImages?.[1] ?? field.optionImages?.[0];
+      return (
+        <label
+          key={field.key}
+          className={cn(
+            "flex items-start gap-3 p-3 bg-white cursor-pointer transition-all",
+            checked
+              ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5"
+              : "border border-[#C9A96E]/25 hover:border-[#C9A96E]/60",
+          )}
+        >
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => setField(field.key, e.target.checked ? on : off)}
+            className="mt-1 h-4 w-4 shrink-0 accent-[#C9A96E]"
+          />
+          <span className="flex-1 min-w-0">
+            <span className="block font-sans text-sm text-[#2D2D2D]">{on}</span>
+            {field.helpText && (
+              <span className="block mt-0.5 font-sans font-light text-xs text-[#2D2D2D]/60 leading-relaxed">
+                {withLinks(field.helpText)}
+              </span>
+            )}
+          </span>
+          {img ? (
+            <img
+              src={`${img}${img.includes("?") ? "&" : "?"}width=160`}
+              alt=""
+              loading="lazy"
+              className="w-16 h-16 shrink-0 object-contain"
+            />
+          ) : null}
+        </label>
+      );
+    }
     // Second of an either/or pair (e.g. a photo upload instead of a breed):
     // an "OR" divider, and no asterisk, so it doesn't read as a second
     // required question.
@@ -640,11 +701,27 @@ export function PersonalizationPanel({
 
         {/* ── Extra questions, after text/font/ink: border → icon → placement →
              return address (sortByFieldGroup); monogram ones are at the top ── */}
-        {extraFields.length > monogramFields.length + underTextFields.length && (
+        {extraFields.some(
+          (f) => f.group !== "monogram" && f.group !== "under-text" && f.group !== "upgrades",
+        ) && (
           <div className="space-y-4">
             {extraFields
-              .filter((f) => f.group !== "monogram" && f.group !== "under-text")
+              .filter(
+                (f) => f.group !== "monogram" && f.group !== "under-text" && f.group !== "upgrades",
+              )
               .map(renderExtraField)}
+          </div>
+        )}
+
+        {/* ── Optional upgrades: unticked unless the customer wants one ── */}
+        {extraFields.some((f) => f.group === "upgrades") && (
+          <div className="space-y-2">
+            <p className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
+              Optional upgrades
+            </p>
+            <div className="space-y-2">
+              {extraFields.filter((f) => f.group === "upgrades").map(renderExtraField)}
+            </div>
           </div>
         )}
 
