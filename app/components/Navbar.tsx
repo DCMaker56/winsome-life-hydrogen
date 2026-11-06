@@ -82,9 +82,9 @@ function CartBadge({count, onClick}: {count: number | null; onClick: () => void}
   );
 }
 
-// Order per Sydney: Shop by Collection (far left, a dropdown — rendered
-// separately), Best Sellers, then the current-site tabs, and Shop All pinned
-// to the far right (rendered separately).
+// Order per Sydney: Shop (far left, a dropdown with Shop All first —
+// rendered separately), Best Sellers, then the current-site tabs. The separate
+// Shop All tab was folded into the Shop dropdown (Nov 2026).
 const navLinks = [
   { label: "Best Sellers", href: "/collections/bestsellers" },
   { label: "Notecards", href: "/collections/notecards" },
@@ -98,7 +98,7 @@ const navLinks = [
 ];
 
 /**
- * "Shop by Collection" dropdown: Shop All first, then theme collections A–Z,
+ * "Shop" dropdown: Shop All first, then theme collections A–Z,
  * product types and seasons. Built live from Shopify (root loader), so new
  * collections appear on their own; MENU_HIDDEN and partner-only collections
  * are left out.
@@ -183,7 +183,7 @@ function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolea
           active || open ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
         }`}
       >
-        Shop by Collection
+        Shop
         <ChevronDown
           size={13}
           strokeWidth={1.75}
@@ -221,7 +221,7 @@ function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolea
   );
 }
 
-/** Phone menu: "Shop by Collection" opens to the same list. */
+/** Phone menu: "Shop" opens to the same list. */
 function MobileCollectionMenu({ close, isActive }: { close: () => void; isActive: (href: string) => boolean }) {
   const { themes, productTypes, seasons } = useCollectionMenu();
   const link = (href: string, label: string) => (
@@ -238,7 +238,7 @@ function MobileCollectionMenu({ close, isActive }: { close: () => void; isActive
   return (
     <details className="group border-b border-[#C9A96E]/10">
       <summary className="flex items-center justify-between cursor-pointer list-none font-sans font-medium text-sm tracking-[0.02em] text-[#2D2D2D] py-2 [&::-webkit-details-marker]:hidden">
-        Shop by Collection
+        Shop
         <ChevronDown size={15} className="transition-transform group-open:rotate-180" />
       </summary>
       <div className="pb-3">
@@ -485,20 +485,6 @@ export default function Navbar() {
 
             <BusinessMenu isActive={isActive} />
 
-            {/* Separator */}
-            <div className="h-3.5 w-px bg-[#C9A96E]/25" />
-
-            {/* Shop All — pinned to the far right of the tab list */}
-            <Link
-              to="/collections/all"
-              aria-current={isActive("/collections/all") ? "page" : undefined}
-              className={`font-sans font-medium text-[11.5px] xl:text-[13px] tracking-[0.02em] whitespace-nowrap transition-colors duration-300 relative group focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
-                isActive("/collections/all") ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
-              }`}
-            >
-              Shop All
-              <span className="absolute -bottom-1 left-0 h-[1px] bg-[#C9A96E] transition-all duration-300 w-0 group-hover:w-full" />
-            </Link>
           </div>
         </nav>
 
@@ -578,13 +564,6 @@ export default function Navbar() {
                     {l.label}
                   </Link>
                 ))}
-                <Link
-                  to={INTERNAL_URLS.collections}
-                  onClick={() => setMobileOpen(false)}
-                  className="font-sans font-semibold text-sm tracking-[0.02em] text-[#C9A96E] py-2"
-                >
-                  Shop All
-                </Link>
               </div>
             </motion.nav>
           )}
