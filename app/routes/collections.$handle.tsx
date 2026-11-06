@@ -3,7 +3,7 @@
  *
  * Hero image + scrollable product sampler on top, full filterable grid below.
  */
-import {useLoaderData, Link} from 'react-router';
+import {useLoaderData, useSearchParams, Link} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import {Analytics} from '@shopify/hydrogen';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
@@ -70,20 +70,47 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       rules: PRODUCT_TYPE_SECTION_RULES,
     });
     if (sections.length < 2) sections = null;
-  } else if (!PRODUCT_TYPE_COLLECTIONS.includes(handle) && rest.total >= 6) {
-    // Theme and season pages (Floral, Sports, Christmas, …) group their
-    // products by product type: Notecards, Notepads, Gift Tags, … (Sydney).
-    sections = groupIntoSections(rest.cards, collectionsById, {
+  }
+
+  // Theme and season pages (Floral, Sports, Fall, …): one full grid in
+  // product-type order, each product labeled with its type, plus a row of
+  // product-type buttons with counts. Separate headings left small types
+  // with one or two products and lots of empty space (Sydney, Nov 2026).
+  let typeView: {
+    cards: typeof rest.cards;
+    labels: Record<string, string>;
+    types: Array<{handle: string; title: string; count: number}>;
+  } | null = null;
+  if (!sections && !PRODUCT_TYPE_COLLECTIONS.includes(handle) && rest.total >= 6) {
+    const byType = groupIntoSections(rest.cards, collectionsById, {
       order: PRODUCT_TYPE_COLLECTIONS,
       moreTitle: 'More Designs',
     });
-    if (sections.length < 2) sections = null;
+    if (byType.length >= 2) {
+      const labels: Record<string, string> = {};
+      for (const t of byType) for (const c of t.cards) if (t.handle !== 'more') labels[c.id] = t.title;
+      typeView = {
+        cards: byType.flatMap((t) => t.cards),
+        labels,
+        types: byType
+          .filter((t) => t.handle !== 'more')
+          .map((t) => ({handle: t.handle, title: t.title, count: t.cards.length})),
+      };
+    }
   }
-  return {collection, ...rest, sections};
+  return {collection, ...rest, sections, typeView};
 }
 
 export default function CollectionRoute() {
-  const {collection, cards, facets, sort, q, sections} = useLoaderData<typeof loader>();
+  const {collection, cards, facets, sort, q, sections, typeView} = useLoaderData<typeof loader>();
+  const [params] = useSearchParams();
+  const typeHref = (h: string | null) => {
+    const next = new URLSearchParams(params);
+    if (h) next.set('type', h);
+    else next.delete('type');
+    const qs = next.toString();
+    return qs ? `?${qs}` : '?';
+  };
   const count = cards.length;
 
   const listProducts = cards.slice(0, 24).map((p) => ({
@@ -146,6 +173,31 @@ export default function CollectionRoute() {
           <>
             <SectionJumpNav sections={sections} />
             <SectionList sections={sections} />
+          </>
+        ) : typeView ? (
+          <>
+            {/* Product types in this collection, with counts — shows at a
+                glance how much there is; one tap narrows to that type. */}
+            <nav aria-label="Product types in this collection" className="mb-8 -mt-2">
+              <p className="font-sans font-medium text-[11px] tracking-[0.2em] uppercase text-[#2D2D2D]/55 mb-2.5">
+                {typeView.cards.length} pieces in {typeView.types.length} product types
+              </p>
+              <ul className="flex flex-wrap gap-2">
+                {typeView.types.map((t) => (
+                  <li key={t.handle}>
+                    <Link
+                      to={typeHref(t.handle)}
+                      preventScrollReset
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#C9A96E]/40 bg-white font-sans text-[13px] text-[#2D2D2D] hover:border-[#C9A96E] hover:text-[#C9A96E] transition-colors"
+                    >
+                      {t.title}
+                      <span className="text-[11px] text-[#2D2D2D]/45">{t.count}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            <FilteredProductGrid cards={typeView.cards} labels={typeView.labels} />
           </>
         ) : (
           <FilteredProductGrid cards={cards} />

@@ -353,8 +353,11 @@ export function FilteredProductGrid({
   hideEnd = false,
   discountPercent,
   hidePrices = false,
+  labels,
 }: {
   cards: CardData[];
+  /** Small label above each product's name (e.g. its product type). */
+  labels?: Record<string, string>;
   /** Sections on one page: no "You've reached the end" under each. */
   hideEnd?: boolean;
   /** Partner pages: show the regular price crossed out next to the discounted one. */
@@ -403,9 +406,10 @@ export function FilteredProductGrid({
                 )}
               </div>
               <div className="p-3 sm:p-4">
-                {p.onSale && (
-                  <span className="inline-block font-sans font-medium text-[9px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
-                    Sale
+                {(p.onSale || labels?.[p.id]) && (
+                  <span className="flex flex-wrap gap-x-2 mb-1.5 font-sans font-medium text-[9.5px] tracking-[0.18em] uppercase">
+                    {labels?.[p.id] && <span className="text-[#2D2D2D]/50">{labels[p.id]}</span>}
+                    {p.onSale && <span className="text-[#C9A96E]">Sale</span>}
                   </span>
                 )}
                 <h3 className="font-serif font-medium text-[15px] sm:text-base text-[#2D2D2D] leading-tight mb-1 group-hover:text-[#C9A96E] transition-colors line-clamp-2 min-h-[2.6rem]">
