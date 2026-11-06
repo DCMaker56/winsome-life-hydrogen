@@ -111,6 +111,15 @@ export default function PartnerPage() {
             The Winsome Life <span aria-hidden>×</span>
             <span className="sr-only">and</span> {partner.name}
           </p>
+          {partner.photo && (
+            <div className="mt-6 mx-auto w-56 md:w-64 bg-white p-2 shadow-[0_14px_30px_-14px_rgba(0,0,0,0.35)]">
+              <img
+                src={partner.photo}
+                alt={`${partner.name} storefront`}
+                className="w-full aspect-[360/292] object-cover"
+              />
+            </div>
+          )}
           <h1 className="mt-5 flex flex-col items-center gap-3">
             {partner.logo ? (
               <img

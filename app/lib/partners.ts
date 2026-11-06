@@ -20,6 +20,7 @@ import ellieBingShare from '~/assets/partners/ellie-bing-share.jpg';
 import carmonWeedenLogo from '~/assets/partners/carmon-weeden.png';
 import carmonWeedenShare from '~/assets/partners/carmon-weeden-share.jpg';
 import boxwoodCottageShare from '~/assets/partners/boxwood-cottage-share.jpg';
+import boxwoodCottageStorefront from '~/assets/partners/boxwood-cottage-storefront.jpg';
 
 export type Partner = {
   handle: string;
@@ -34,6 +35,8 @@ export type Partner = {
   intro: string;
   /** Partner logo (image URL); null shows their name as a wordmark. */
   logo: string | null;
+  /** Optional photo (e.g. their storefront), shown framed above the name. */
+  photo?: string;
   /** Round logo (shown with a soft white ring). */
   logoRound?: boolean;
   /**
@@ -96,6 +99,7 @@ export const PARTNERS: Record<string, Partner> = {
       'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Boxwood Cottage customers.',
     // Name as a wordmark until we have their logo file (Asheville, NC store).
     logo: null,
+    photo: boxwoodCottageStorefront,
     viewToggle: true,
     shareImage: boxwoodCottageShare,
     website: 'https://boxwoodcottageavl.com',
