@@ -57,12 +57,13 @@ export const retailReviews: Review[] = [
 /** Home page: the live site's reviews woven together with the Retail
  *  Partners ones (Sydney, Nov 2026). */
 const homeReviews: Review[] = [
+  // Leads with Georgina's "Gold standard…" (Sydney's pick, Nov 2026).
+  retailReviews[0],
   {
     name: "Lissa",
     text: "This is my only source for personalized stationery cards. Love their product!",
     rating: 5,
   },
-  retailReviews[0],
   {
     name: "Kalli",
     text: "Absolutely obsessed with these — so, so impressed with the quality.",
