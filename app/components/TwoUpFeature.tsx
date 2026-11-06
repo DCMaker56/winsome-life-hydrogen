@@ -3,7 +3,7 @@
  * matching thewinsomelife.com (currently "Summer Camp Days" / "Best Sellers").
  *
  * Per Sydney: left = Holiday Card Shop (was Best Sellers until Nov 2026),
- * right = Holiday Essentials. Images are
+ * right = The Holiday Table (was Holiday Essentials). Images are
  * placeholders pulled from the brand's own CDN for now (she'll supply final
  * art — a dog + floral notecard for Best Sellers, holiday products for the
  * other).
@@ -11,9 +11,7 @@
 import { Link } from "react-router";
 import { ResponsiveImg } from "~/components/ResponsiveImg";
 import holidayCardShop from "~/assets/home/holiday-card-shop.webp";
-
-const HOLIDAY_FALLBACK =
-  "https://caatee-kr.myshopify.com/cdn/shop/files/Red_Christmas_More_Stripes_421ce7fa-ba02-4a17-8d6d-bc69cd220c5b.png?v=1763493159&width=2400";
+import holidayTable from "~/assets/home/holiday-table.webp";
 
 export default function TwoUpFeature({
   holidayImage,
@@ -34,14 +32,14 @@ export default function TwoUpFeature({
       fade: "3,62,37",
     },
     {
-      title: "Holiday Essentials",
-      subtitle: "Cards & gifts for the season",
-      href: "/collections/christmas-holiday",
-      // A real product image from the Christmas/Holiday collection.
-      image: holidayImage ?? HOLIDAY_FALLBACK,
-      contain: !!holidayImage,
-      cta: "Shop Now",
-      fade: "45,45,45",
+      // Hosting: place cards, wine tags & coasters (Sydney, Nov 2026).
+      title: "The Holiday Table",
+      subtitle: "Place cards, wine tags & coasters for hosting",
+      href: "/collections/holiday-table",
+      image: holidayTable,
+      contain: false,
+      cta: "Shop the Table",
+      fade: "3,62,37",
     },
   ];
   return (
