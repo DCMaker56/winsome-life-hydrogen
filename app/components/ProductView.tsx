@@ -294,7 +294,10 @@ export function ProductView({
   );
   // Same for a picture choice that's one of the product photos (e.g. the
   // Après Ski notepad's pink or green combo): the newest pick comes up.
+  // Upgrades are left out: they start already answered ("No liners"), and
+  // their pictures are envelope photos, so the page would open on one.
   const pickedPhotos = productQuestions
+    .filter((f) => f.group !== 'upgrades')
     .flatMap((f) => {
       const i = f.options?.indexOf(personalization.fields[f.key] ?? '') ?? -1;
       const url = i >= 0 ? f.optionImages?.[i] : null;
