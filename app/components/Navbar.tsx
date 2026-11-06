@@ -22,6 +22,8 @@ import { HoneyBee } from "~/components/HoneyBee";
 import { useAside } from "~/components/Aside";
 import { INTERNAL_URLS } from "~/lib/config";
 import { useWishlistCount } from "~/hooks/useWishlist";
+import { PRODUCT_TYPE_COLLECTIONS, SEASON_COLLECTIONS } from "~/lib/collection-filters";
+import { PRODUCT_TYPE_SECTION_ORDER } from "~/lib/collection-sections";
 
 /** Compact cart button — opens the Hydrogen cart aside and shows live count. */
 function CartButton() {
@@ -81,10 +83,10 @@ function CartBadge({count, onClick}: {count: number | null; onClick: () => void}
   );
 }
 
-// Order per Sydney: Shop by Collection (far left), Best Sellers, then the
-// current-site tabs, and Shop All pinned to the far right (rendered separately).
+// Order per Sydney: Shop by Collection (far left, a dropdown — rendered
+// separately), Best Sellers, then the current-site tabs, and Shop All pinned
+// to the far right (rendered separately).
 const navLinks = [
-  { label: "Shop by Collection", href: "/collections" },
   { label: "Best Sellers", href: "/collections/bestsellers" },
   { label: "Notecards", href: "/collections/notecards" },
   { label: "Notepads", href: "/collections/notepads" },
@@ -95,6 +97,153 @@ const navLinks = [
   { label: "About Us", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
+
+/**
+ * "Shop by Collection" dropdown: Shop All first, then theme collections (in
+ * the same order as the headings on product pages, then any new ones A–Z),
+ * then seasons. Built live from Shopify (root loader), leaving out product
+ * types (they have their own tabs), Best Sellers and partner-only collections.
+ */
+type MenuCollection = { handle: string; title: string };
+function useCollectionMenu() {
+  const rootData = useRouteLoaderData<RootLoader>("root");
+  const all = (rootData?.menuCollections ?? []) as MenuCollection[];
+  const clean = all
+    .filter(
+      (c) =>
+        !c.handle.startsWith("partner-") &&
+        !PRODUCT_TYPE_COLLECTIONS.includes(c.handle) &&
+        c.handle !== "bestsellers" &&
+        c.handle !== "all",
+    )
+    .map((c) => ({ ...c, title: c.title.replace(/ Collection$/i, "") }));
+  const rank = (h: string) => {
+    const i = PRODUCT_TYPE_SECTION_ORDER.indexOf(h);
+    return i === -1 ? 999 : i;
+  };
+  const seasons = SEASON_COLLECTIONS.map((h) => clean.find((c) => c.handle === h)).filter(
+    (c): c is MenuCollection => !!c,
+  );
+  const themes = clean
+    .filter((c) => !SEASON_COLLECTIONS.includes(c.handle))
+    .sort((a, b) => rank(a.handle) - rank(b.handle) || a.title.localeCompare(b.title));
+  return { themes, seasons };
+}
+
+function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolean }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const { themes, seasons } = useCollectionMenu();
+  const active = isActive("/collections") && !isActive("/collections/all");
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const item = (href: string, label: string) => (
+    <li key={href}>
+      <Link
+        to={href}
+        onClick={() => setOpen(false)}
+        aria-current={isActive(href) ? "page" : undefined}
+        className="block py-1.5 font-sans text-[13.5px] text-[#2D2D2D] hover:text-[#C9A96E] focus-visible:text-[#C9A96E] focus-visible:outline-none transition-colors"
+      >
+        {label}
+      </Link>
+    </li>
+  );
+  const heading = "font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 mb-2";
+
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="true"
+        onClick={() => setOpen((o) => !o)}
+        className={`font-sans font-medium text-[11.5px] xl:text-[13px] tracking-[0.02em] whitespace-nowrap inline-flex items-center gap-1 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded ${
+          active || open ? "text-[#C9A96E]" : "text-[#2D2D2D] hover:text-[#C9A96E]"
+        }`}
+      >
+        Shop by Collection
+        <ChevronDown
+          size={13}
+          strokeWidth={1.75}
+          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full pt-3 z-50">
+          <div className="w-[min(640px,90vw)] bg-white ring-1 ring-[#C9A96E]/25 shadow-[0_18px_40px_-20px_rgba(45,45,45,0.35)] p-6">
+            <Link
+              to="/collections/all"
+              onClick={() => setOpen(false)}
+              className="block font-serif text-[19px] text-[#2D2D2D] hover:text-[#C9A96E] transition-colors pb-3 mb-4 border-b border-[#C9A96E]/20"
+            >
+              Shop All
+            </Link>
+            <div className="grid grid-cols-[2fr_1fr] gap-8">
+              <div>
+                <p className={heading}>Collections</p>
+                <ul className="columns-2 gap-6">{themes.map((c) => item(`/collections/${c.handle}`, c.title))}</ul>
+              </div>
+              <div>
+                <p className={heading}>Seasons</p>
+                <ul>{seasons.map((c) => item(`/collections/${c.handle}`, c.title))}</ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Phone menu: "Shop by Collection" opens to the same list. */
+function MobileCollectionMenu({ close, isActive }: { close: () => void; isActive: (href: string) => boolean }) {
+  const { themes, seasons } = useCollectionMenu();
+  const link = (href: string, label: string) => (
+    <Link
+      key={href}
+      to={href}
+      onClick={close}
+      aria-current={isActive(href) ? "page" : undefined}
+      className="block font-sans text-sm text-[#2D2D2D] hover:text-[#C9A96E] py-1.5 pl-3"
+    >
+      {label}
+    </Link>
+  );
+  return (
+    <details className="group border-b border-[#C9A96E]/10">
+      <summary className="flex items-center justify-between cursor-pointer list-none font-sans font-medium text-sm tracking-[0.02em] text-[#2D2D2D] py-2 [&::-webkit-details-marker]:hidden">
+        Shop by Collection
+        <ChevronDown size={15} className="transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="pb-3">
+        {link("/collections/all", "Shop All")}
+        <p className="font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-3 pb-1 pl-3">Collections</p>
+        {themes.map((c) => link(`/collections/${c.handle}`, c.title))}
+        <p className="font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-3 pb-1 pl-3">Seasons</p>
+        {seasons.map((c) => link(`/collections/${c.handle}`, c.title))}
+      </div>
+    </details>
+  );
+}
 
 // "Corporate & Retail" menu: the two business pages, shown as a small
 // dropdown on desktop and a short section in the mobile menu.
@@ -306,6 +455,7 @@ export default function Navbar() {
         {/* Desktop Nav Links */}
         <nav className="hidden lg:block border-t border-[#C9A96E]/20" aria-label="Primary">
           <div className="container flex items-center justify-center gap-x-2 xl:gap-x-4 py-2.5">
+            <ShopByCollectionMenu isActive={isActive} />
             {navLinks.map((link) => (
               <Link
                 key={link.label}
@@ -389,6 +539,7 @@ export default function Navbar() {
                     </span>
                   </p>
                 )}
+                <MobileCollectionMenu close={() => setMobileOpen(false)} isActive={isActive} />
                 {navLinks.map((link) => (
                   <Link
                     key={link.label}

@@ -118,17 +118,25 @@ export async function loader(args: Route.LoaderArgs) {
 async function loadCriticalData({context}: Route.LoaderArgs) {
   const {storefront} = context;
 
-  const [header] = await Promise.all([
+  const [header, menuCollections] = await Promise.all([
     storefront.query(HEADER_QUERY, {
       cache: storefront.CacheLong(),
       variables: {
         headerMenuHandle: 'main-menu', // Adjust to your header menu handle
       },
     }),
-    // Add other queries here, so that they are loaded in parallel
+    // Collections for the "Shop by Collection" dropdown (live from Shopify,
+    // so new collections appear on their own). Never fails the page.
+    storefront
+      .query<{collections: {nodes: Array<{handle: string; title: string}>}}>(
+        MENU_COLLECTIONS_QUERY,
+        {cache: storefront.CacheLong()},
+      )
+      .then((d) => d.collections.nodes)
+      .catch(() => [] as Array<{handle: string; title: string}>),
   ]);
 
-  return {header};
+  return {header, menuCollections};
 }
 
 /**
@@ -244,3 +252,12 @@ export function ErrorBoundary() {
     </div>
   );
 }
+
+const MENU_COLLECTIONS_QUERY = `
+  query MenuCollections($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    collections(first: 100, sortKey: TITLE) {
+      nodes { handle title }
+    }
+  }
+`;

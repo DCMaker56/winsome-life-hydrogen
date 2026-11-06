@@ -18,6 +18,7 @@ import {
 } from '~/lib/collection-sections';
 import {JsonLd} from '~/components/JsonLd';
 import {isPartnerCollection} from '~/lib/partners';
+import {PRODUCT_TYPE_COLLECTIONS} from '~/lib/collection-filters';
 import {SectionJumpNav, SectionList} from '~/components/CollectionSections';
 import {
   absoluteUrl,
@@ -54,7 +55,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       variables: {handle, first: 1},
     }),
     loadFilteredProducts(context.storefront as never, request, handle, {
-      withCollections: GROUPED_PAGES.has(handle),
+      withCollections: true,
     }),
   ]);
   if (!collection) throw new Response(null, {status: 404});
@@ -67,6 +68,14 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     sections = groupIntoSections(rest.cards, collectionsById, {
       order: PRODUCT_TYPE_SECTION_ORDER,
       rules: PRODUCT_TYPE_SECTION_RULES,
+    });
+    if (sections.length < 2) sections = null;
+  } else if (!PRODUCT_TYPE_COLLECTIONS.includes(handle) && rest.total >= 6) {
+    // Theme and season pages (Floral, Sports, Christmas, …) group their
+    // products by product type: Notecards, Notepads, Gift Tags, … (Sydney).
+    sections = groupIntoSections(rest.cards, collectionsById, {
+      order: PRODUCT_TYPE_COLLECTIONS,
+      moreTitle: 'More Designs',
     });
     if (sections.length < 2) sections = null;
   }
