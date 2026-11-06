@@ -231,6 +231,78 @@ export function PersonalizationPanel({
         </label>
       );
     }
+    // An upgrade with a choice inside it (No / Red / Green liners): the same
+    // box and checkbox as the others ("Add Envelope Liners"); once ticked,
+    // the choices show inside the box, starting on the first one.
+    if (field.group === "upgrades" && field.type === "choice" && (field.options?.length ?? 0) > 2) {
+      const [off, ...ons] = field.options!;
+      const checked = current !== "" && current !== off;
+      const picked = ons.indexOf(current);
+      const img =
+        (picked >= 0 ? field.optionImages?.[picked + 1] : null) ??
+        field.optionImages?.slice(1).find(Boolean) ??
+        null;
+      return (
+        <div
+          key={field.key}
+          className={cn(
+            "flex items-start gap-3 p-3 bg-white transition-all",
+            checked
+              ? "border-2 border-[#C9A96E] bg-[#C9A96E]/5"
+              : "border border-[#C9A96E]/25 hover:border-[#C9A96E]/60",
+          )}
+        >
+          <input
+            id={`upgrade-${field.key}`}
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => setField(field.key, e.target.checked ? ons[0] : off)}
+            className="mt-1 h-4 w-4 shrink-0 accent-[#C9A96E] cursor-pointer"
+          />
+          <span className="flex-1 min-w-0">
+            <label
+              htmlFor={`upgrade-${field.key}`}
+              className="block font-sans text-sm text-[#2D2D2D] cursor-pointer"
+            >
+              Add {field.label}
+            </label>
+            {field.helpText && (
+              <span className="block mt-0.5 font-sans font-light text-xs text-[#2D2D2D]/60 leading-relaxed">
+                {withLinks(field.helpText)}
+              </span>
+            )}
+            {checked && (
+              <span className="flex flex-wrap gap-2 mt-2">
+                {ons.map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => setField(field.key, opt)}
+                    aria-pressed={current === opt}
+                    className={cn(
+                      "font-sans px-3 py-1.5 text-xs transition-all",
+                      current === opt
+                        ? "bg-[#2D2D2D] text-white"
+                        : "bg-white border border-[#C9A96E]/40 text-[#2D2D2D] hover:border-[#C9A96E]",
+                    )}
+                  >
+                    {opt.replace(/^add\s+/i, "")}
+                  </button>
+                ))}
+              </span>
+            )}
+          </span>
+          {img ? (
+            <img
+              src={`${img}${img.includes("?") ? "&" : "?"}width=160`}
+              alt=""
+              loading="lazy"
+              className="w-16 h-16 shrink-0 object-contain"
+            />
+          ) : null}
+        </div>
+      );
+    }
     // Second of an either/or pair (e.g. a photo upload instead of a breed):
     // an "OR" divider, and no asterisk, so it doesn't read as a second
     // required question.
