@@ -9,6 +9,8 @@
  * other).
  */
 import { Link } from "react-router";
+import { ResponsiveImg } from "~/components/ResponsiveImg";
+import holidayCardShop from "~/assets/home/holiday-card-shop.webp";
 
 const HOLIDAY_FALLBACK =
   "https://caatee-kr.myshopify.com/cdn/shop/files/Red_Christmas_More_Stripes_421ce7fa-ba02-4a17-8d6d-bc69cd220c5b.png?v=1763493159&width=2400";
@@ -21,13 +23,11 @@ export default function TwoUpFeature({
   const tiles = [
     {
       // Holiday cards are the big-ticket item for the season (Sydney, Nov
-      // 2026). Placeholder image: the Red & Green Tartan Plaid photo card,
-      // until Sydney's 1600x1200 artwork is ready.
+      // 2026). Sydney's green tartan photo card artwork (1600x1200).
       title: "Holiday Card Shop",
       subtitle: "Personalized Christmas photo cards",
       href: "/collections/holiday-photo-cards",
-      image:
-        "https://cdn.shopify.com/s/files/1/0938/6203/5753/files/il_fullxfull.7120336134_t18n.jpg?v=1762824480&width=1300",
+      image: holidayCardShop,
       contain: false,
       cta: "Shop Holiday Cards",
     },
@@ -51,8 +51,9 @@ export default function TwoUpFeature({
               to={tile.href}
               className="group relative block overflow-hidden aspect-[4/3] bg-[#FAF8F5] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
             >
-              <img
+              <ResponsiveImg
                 src={tile.image}
+                sizes="(min-width: 1280px) 620px, (min-width: 768px) 50vw, 100vw"
                 alt={tile.title}
                 loading="lazy"
                 className={`absolute inset-0 w-full h-full ${
