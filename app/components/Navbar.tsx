@@ -23,7 +23,6 @@ import { useAside } from "~/components/Aside";
 import { INTERNAL_URLS } from "~/lib/config";
 import { useWishlistCount } from "~/hooks/useWishlist";
 import { PRODUCT_TYPE_COLLECTIONS, SEASON_COLLECTIONS } from "~/lib/collection-filters";
-import { PRODUCT_TYPE_SECTION_ORDER } from "~/lib/collection-sections";
 
 /** Compact cart button — opens the Hydrogen cart aside and shows live count. */
 function CartButton() {
@@ -99,12 +98,15 @@ const navLinks = [
 ];
 
 /**
- * "Shop by Collection" dropdown: Shop All first, then theme collections (in
- * the same order as the headings on product pages, then any new ones A–Z),
- * then seasons. Built live from Shopify (root loader), leaving out product
- * types (they have their own tabs), Best Sellers and partner-only collections.
+ * "Shop by Collection" dropdown: Shop All first, then theme collections A–Z,
+ * product types and seasons. Built live from Shopify (root loader), so new
+ * collections appear on their own; MENU_HIDDEN and partner-only collections
+ * are left out.
  */
 type MenuCollection = { handle: string; title: string };
+/** Never listed in the dropdown: Best Sellers has its own tab; Hands Up For
+ *  History (and Apparel, which only holds its shirts and hat) is private. */
+const MENU_HIDDEN = ["bestsellers", "all", "hands-up-for-history", "apparel"];
 function useCollectionMenu() {
   const rootData = useRouteLoaderData<RootLoader>("root");
   const all = (rootData?.menuCollections ?? []) as MenuCollection[];
@@ -112,28 +114,29 @@ function useCollectionMenu() {
     .filter(
       (c) =>
         !c.handle.startsWith("partner-") &&
-        !PRODUCT_TYPE_COLLECTIONS.includes(c.handle) &&
-        c.handle !== "bestsellers" &&
-        c.handle !== "all",
+        !MENU_HIDDEN.includes(c.handle),
     )
     .map((c) => ({ ...c, title: c.title.replace(/ Collection$/i, "") }));
-  const rank = (h: string) => {
-    const i = PRODUCT_TYPE_SECTION_ORDER.indexOf(h);
-    return i === -1 ? 999 : i;
-  };
-  const seasons = SEASON_COLLECTIONS.map((h) => clean.find((c) => c.handle === h)).filter(
-    (c): c is MenuCollection => !!c,
-  );
+  const pick = (handles: string[]) =>
+    handles
+      .map((h) => clean.find((c) => c.handle === h))
+      .filter((c): c is MenuCollection => !!c);
+  const productTypes = pick(PRODUCT_TYPE_COLLECTIONS);
+  const seasons = pick(SEASON_COLLECTIONS);
   const themes = clean
-    .filter((c) => !SEASON_COLLECTIONS.includes(c.handle))
-    .sort((a, b) => rank(a.handle) - rank(b.handle) || a.title.localeCompare(b.title));
-  return { themes, seasons };
+    .filter(
+      (c) =>
+        !SEASON_COLLECTIONS.includes(c.handle) &&
+        !PRODUCT_TYPE_COLLECTIONS.includes(c.handle),
+    )
+    .sort((a, b) => a.title.localeCompare(b.title));
+  return { themes, productTypes, seasons };
 }
 
 function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolean }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const { themes, seasons } = useCollectionMenu();
+  const { themes, productTypes, seasons } = useCollectionMenu();
   const active = isActive("/collections") && !isActive("/collections/all");
 
   useEffect(() => {
@@ -189,7 +192,7 @@ function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolea
       </button>
       {open && (
         <div className="absolute left-0 top-full pt-3 z-50">
-          <div className="w-[min(640px,90vw)] bg-white ring-1 ring-[#C9A96E]/25 shadow-[0_18px_40px_-20px_rgba(45,45,45,0.35)] p-6">
+          <div className="w-[min(860px,94vw)] bg-white ring-1 ring-[#C9A96E]/25 shadow-[0_18px_40px_-20px_rgba(45,45,45,0.35)] p-6">
             <Link
               to="/collections/all"
               onClick={() => setOpen(false)}
@@ -197,10 +200,14 @@ function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolea
             >
               Shop All
             </Link>
-            <div className="grid grid-cols-[2fr_1fr] gap-8">
+            <div className="grid grid-cols-[2fr_1.1fr_0.9fr] gap-8">
               <div>
                 <p className={heading}>Collections</p>
                 <ul className="columns-2 gap-6">{themes.map((c) => item(`/collections/${c.handle}`, c.title))}</ul>
+              </div>
+              <div>
+                <p className={heading}>Product Types</p>
+                <ul>{productTypes.map((c) => item(`/collections/${c.handle}`, c.title))}</ul>
               </div>
               <div>
                 <p className={heading}>Seasons</p>
@@ -216,7 +223,7 @@ function ShopByCollectionMenu({ isActive }: { isActive: (href: string) => boolea
 
 /** Phone menu: "Shop by Collection" opens to the same list. */
 function MobileCollectionMenu({ close, isActive }: { close: () => void; isActive: (href: string) => boolean }) {
-  const { themes, seasons } = useCollectionMenu();
+  const { themes, productTypes, seasons } = useCollectionMenu();
   const link = (href: string, label: string) => (
     <Link
       key={href}
@@ -238,6 +245,8 @@ function MobileCollectionMenu({ close, isActive }: { close: () => void; isActive
         {link("/collections/all", "Shop All")}
         <p className="font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-3 pb-1 pl-3">Collections</p>
         {themes.map((c) => link(`/collections/${c.handle}`, c.title))}
+        <p className="font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-3 pb-1 pl-3">Product Types</p>
+        {productTypes.map((c) => link(`/collections/${c.handle}`, c.title))}
         <p className="font-sans font-semibold text-[10.5px] tracking-[0.2em] uppercase text-[#2D2D2D]/50 pt-3 pb-1 pl-3">Seasons</p>
         {seasons.map((c) => link(`/collections/${c.handle}`, c.title))}
       </div>
