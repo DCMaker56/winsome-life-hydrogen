@@ -7,32 +7,65 @@
  * (its flight animation is off for now). All motion respects reduced-motion.
  */
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import { HoneyBee } from "./HoneyBee";
 import christmasDesktop from "~/assets/hero/christmas-plaid-desktop.webp";
+import fallDesktop from "~/assets/hero/fall-plaid-desktop.webp";
 
 const CDN = "https://caatee-kr.myshopify.com/cdn/shop/files";
 
 // Slide order + which side the tagline sits on for each.
-// desktopImage: shown on computers (768px+) instead of `image` (phones keep
-// `image` until a phone version exists). desktopLight: white tagline and no
-// light haze on computers — for dark/solid backgrounds like the red plaid.
+// desktopImage: shown on computers (768px+) instead of `image`; phones keep
+//   `image` until a phone version exists (2400x1100 desktop / 1200x1800 phone
+//   templates in design/hero-templates).
+// desktopOnly: skipped on phones (no phone version yet).
+// desktopSide: tagline side on computers, if different from `side`.
+// desktopLight: white tagline and no haze on computers (dark backgrounds).
+// desktopNoHaze: no light haze behind the tagline on computers (the image
+//   already has a plain area for it).
 type Slide = {
   image: string;
   alt: string;
   side: "left" | "right";
   desktopImage?: string;
   desktopAlt?: string;
+  desktopOnly?: boolean;
+  desktopSide?: "left" | "right";
   desktopLight?: boolean;
+  desktopNoHaze?: boolean;
+  /** Which part of the desktop image to keep when the screen trims it. */
+  desktopPosition?: string;
+  /** Button under the tagline, e.g. "Shop Christmas / Holiday". */
+  cta?: {label: string; href: string};
 };
+const AUTUMN = `${CDN}/Winsome_Banner_01_13972622-0426-4773-b922-928098ab2bda.png?width=2400`;
 const SLIDES: Slide[] = [
   {
-    // Christmas plaid (Sydney, Nov 2026): solid red left half for the text.
-    image: `${CDN}/Winsome_Banner_01_13972622-0426-4773-b922-928098ab2bda.png?width=2400`,
-    alt: "Personalized autumn plaid Thanksgiving cards and fall stationery on a writing desk",
+    // Christmas plaid on solid red (Sydney, Nov 2026) — computers only for now.
+    image: AUTUMN,
+    alt: "Personalized red tartan plaid Christmas photo card, notepad, gift tag and wine tag on a red background",
     desktopImage: christmasDesktop,
-    desktopAlt:
-      "Personalized red tartan plaid Christmas photo card, notepad, gift tag and wine tag on a red background",
+    desktopOnly: true,
     desktopLight: true,
+    // Keep the products (right side) when narrower screens trim the image.
+    desktopPosition: "right center",
+    cta: {label: "Shop Christmas / Holiday", href: "/collections/christmas-holiday"},
+    side: "left",
+  },
+  {
+    // Fall plaid on tan (Sydney, Nov 2026); products on the left, so the
+    // tagline sits on the right on computers. Phones show the earlier autumn
+    // photo.
+    image: AUTUMN,
+    alt: "Personalized autumn plaid Thanksgiving cards and fall stationery on a writing desk",
+    desktopImage: fallDesktop,
+    desktopAlt:
+      "Personalized fall plaid Thanksgiving photo card, pumpkin notepad, gift tags and notecards on a tan background",
+    desktopSide: "right",
+    desktopNoHaze: true,
+    // Keep the products (left side) when narrower screens trim the image.
+    desktopPosition: "left center",
+    cta: {label: "Shop Thanksgiving / Fall", href: "/collections/fall-autumn"},
     side: "left",
   },
   {
@@ -50,16 +83,43 @@ const SLIDES: Slide[] = [
 
 export default function HeroSection() {
   const [active, setActive] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  // Computers vs phones: phones skip desktop-only slides.
+  useEffect(() => {
+    const mq = window.matchMedia?.("(min-width: 768px)");
+    if (!mq) return;
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
+  const shows = (i: number) => isDesktop || !SLIDES[i].desktopOnly;
+  const next = (a: number) => {
+    for (let k = 1; k <= SLIDES.length; k++) {
+      const i = (a + k) % SLIDES.length;
+      if (shows(i)) return i;
+    }
+    return a;
+  };
+
+  // On phones, start on the first slide that has a phone photo.
+  useEffect(() => {
+    if (!shows(active)) setActive((a) => next(a));
+  }, [isDesktop]);
 
   useEffect(() => {
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reduce) return;
-    const t = setInterval(() => setActive((a) => (a + 1) % SLIDES.length), 6500);
+    const t = setInterval(() => setActive((a) => next(a)), 6500);
     return () => clearInterval(t);
-  }, []);
+  }, [isDesktop]);
 
-  const side = SLIDES[active].side;
-  const light = !!SLIDES[active].desktopLight;
+  const slide = SLIDES[active];
+  const side = isDesktop ? (slide.desktopSide ?? slide.side) : slide.side;
+  const light = !!slide.desktopLight;
+  const noHaze = light || !!slide.desktopNoHaze;
 
   return (
     <section className="relative w-full overflow-hidden">
@@ -68,13 +128,16 @@ export default function HeroSection() {
         {/* Backdrop — cross-fading slides */}
         <div className="absolute inset-0 overflow-hidden bg-[#F3ECDD]">
           {SLIDES.map((s, i) => (
-            <picture key={s.image}>
+            <picture key={i}>
               {s.desktopImage && <source media="(min-width: 768px)" srcSet={s.desktopImage} />}
               <img
                 src={s.image}
                 alt={s.desktopAlt ?? s.alt}
                 className="wl-kenburns absolute inset-0 w-full h-full object-cover transition-opacity duration-[1400ms] ease-in-out"
-                style={{opacity: i === active ? 1 : 0}}
+                style={{
+                  opacity: i === active ? 1 : 0,
+                  objectPosition: isDesktop && s.desktopPosition ? s.desktopPosition : undefined,
+                }}
                 loading={i === 0 ? "eager" : "lazy"}
               />
             </picture>
@@ -84,7 +147,7 @@ export default function HeroSection() {
         {/* Soft light wash behind the tagline — flips to the active side so the
             black type always reads without darkening the product photo. */}
         <div
-          className={`absolute inset-0 transition-[background,opacity] duration-700 ${light ? "md:opacity-0" : ""}`}
+          className={`absolute inset-0 transition-[background,opacity] duration-700 ${noHaze ? "md:opacity-0" : ""}`}
           style={{
             background:
               side === "right"
@@ -131,6 +194,18 @@ export default function HeroSection() {
               <span className="wl-word wl-w3 inline-block">On</span>{" "}
               <span className="wl-word wl-w4 inline-block">Paper.</span>
             </h1>
+            {slide.cta && (
+              <Link
+                key={slide.cta.href}
+                to={slide.cta.href}
+                className={`wl-cta mt-8 md:mt-10 inline-flex items-center gap-2 px-8 py-3.5 font-sans font-medium text-[13px] tracking-[0.15em] uppercase transition-colors duration-300 bg-[#2D2D2D] text-white hover:bg-[#C9A96E] ${
+                  light ? "md:bg-white md:hover:bg-[#FAF8F5]" : ""
+                }`}
+              >
+                {slide.cta.label}
+                <span aria-hidden>&rarr;</span>
+              </Link>
+            )}
           </div>
         </div>
 
@@ -138,7 +213,8 @@ export default function HeroSection() {
         <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex gap-2.5">
           {SLIDES.map((s, i) => (
             <button
-              key={s.image}
+              key={i}
+              hidden={!shows(i)}
               type="button"
               onClick={() => setActive(i)}
               aria-label={`Show slide ${i + 1}`}
@@ -160,12 +236,15 @@ export default function HeroSection() {
 const HERO_CSS = `
 /* White tagline on dark slides (computers only; phones show a light photo). */
 @media (min-width: 768px) {
-  .wl-light, .wl-light * { color: #fff !important; transition: color 0.7s; }
+  .wl-light, .wl-light *:not(.wl-cta):not(.wl-cta *) { color: #fff !important; transition: color 0.7s; }
+  .wl-light .wl-cta, .wl-light .wl-cta * { color: #2D2D2D !important; }
 }
 @keyframes wl-kenburns { 0% { transform: scale(1.05); } 100% { transform: scale(1.12); } }
 .wl-kenburns { animation: wl-kenburns 20s ease-in-out infinite alternate; will-change: transform; }
 
 /* Word-by-word entrance — quick sequence, all four words. */
+@keyframes wl-cta-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.wl-cta { animation: wl-cta-in 0.6s ease-out both; }
 @keyframes wl-word-in {
   0%   { opacity: 0; transform: translateY(14px); }
   100% { opacity: 1; transform: translateY(0); }
