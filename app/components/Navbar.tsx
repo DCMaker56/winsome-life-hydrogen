@@ -392,15 +392,33 @@ export default function Navbar() {
             of the left/right group widths. */}
         <div className="container grid grid-cols-[1fr_auto_1fr] items-center gap-3 py-3 lg:py-3.5">
           {/* Mobile menu toggle (left zone; hidden on desktop) */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden justify-self-start text-[#2D2D2D] hover:text-[#C9A96E] transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded"
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-          <span className="hidden lg:block" aria-hidden />
+          {/* Left zone: menu + search on phones/tablets; a visible search
+              bar on desktop (Sydney: make search obvious). */}
+          <div className="justify-self-start flex items-center gap-4">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden text-[#2D2D2D] hover:text-[#C9A96E] transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="lg:hidden text-[#2D2D2D] hover:text-[#C9A96E] transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded"
+              aria-label="Search products"
+            >
+              <Search size={22} />
+            </button>
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hidden lg:flex items-center gap-2.5 w-[230px] xl:w-[270px] h-10 px-3.5 bg-white ring-1 ring-[#C9A96E]/40 hover:ring-[#C9A96E] text-left transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
+              aria-label="Search products"
+            >
+              <Search size={17} className="text-[#C9A96E] shrink-0" aria-hidden />
+              <span className="font-sans text-[13px] text-[#2D2D2D]/50 truncate">Search stationery &amp; gifts</span>
+            </button>
+          </div>
 
           {/* Brand Lockup (center zone) */}
           <Link
@@ -454,14 +472,6 @@ export default function Navbar() {
                 </span>
               </span>
             )}
-            {/* Search icon — triggers overlay */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="text-[#2D2D2D] hover:text-[#C9A96E] transition-colors hidden sm:block focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded"
-              aria-label="Search products"
-            >
-              <Search size={20} />
-            </button>
             {/* Wishlist */}
             <Link
               to="/wishlist"
@@ -529,9 +539,6 @@ export default function Navbar() {
                 >
                   <Search size={16} />
                   Search products...
-                  <kbd className="ml-auto text-[10px] tracking-wider text-[#2D2D2D]/30 border border-[#C9A96E]/15 rounded px-1.5 py-0.5">
-                    ⌘K
-                  </kbd>
                 </button>
 
                 {/* Design Your Own — prominent at top of mobile menu */}

@@ -1,8 +1,8 @@
-import {useLoaderData} from 'react-router';
+import {Form, Link, useLoaderData} from 'react-router';
+import {Search as SearchIcon} from 'lucide-react';
 import type {Route} from './+types/search';
-import {getPaginationVariables, Analytics} from '@shopify/hydrogen';
-import {SearchForm} from '~/components/SearchForm';
-import {SearchResults} from '~/components/SearchResults';
+import {getPaginationVariables, Analytics, Image, Pagination} from '@shopify/hydrogen';
+import {urlWithTrackingParams} from '~/lib/search';
 import {
   type RegularSearchReturn,
   type PredictiveSearchReturn,
@@ -15,7 +15,7 @@ import type {
 import {isAddOnHandle} from '~/lib/addons';
 
 export const meta: Route.MetaFunction = () => {
-  return [{title: `Hydrogen | Search`}];
+  return [{title: 'Search | The Winsome Life'}, {name: 'robots', content: 'noindex'}];
 };
 
 export async function loader({request, context}: Route.LoaderArgs) {
@@ -35,46 +35,117 @@ export async function loader({request, context}: Route.LoaderArgs) {
 }
 
 /**
- * Renders the /search route
+ * The search results page (/search?q=…), styled like the collection pages:
+ * a search box, then a grid of matching products with "Load more".
  */
 export default function SearchPage() {
   const {type, term, result, error} = useLoaderData<typeof loader>();
   if (type === 'predictive') return null;
+  const products = result?.items?.products;
+  const count = products?.nodes.length ?? 0;
 
   return (
-    <div className="search">
-      <h1>Search</h1>
-      <SearchForm>
-        {({inputRef}) => (
-          <>
-            <input
-              defaultValue={term}
-              name="q"
-              placeholder="Search…"
-              ref={inputRef}
-              type="search"
-            />
-            &nbsp;
-            <button type="submit">Search</button>
-          </>
-        )}
-      </SearchForm>
-      {error && <p style={{color: 'red'}}>{error}</p>}
-      {!term || !result?.total ? (
-        <SearchResults.Empty />
-      ) : (
-        <SearchResults result={result} term={term}>
-          {({articles, pages, products, term}) => (
-            <div>
-              <SearchResults.Products products={products} term={term} />
-              <SearchResults.Pages pages={pages} term={term} />
-              <SearchResults.Articles articles={articles} term={term} />
-            </div>
+    <main className="bg-[#FAF8F5] min-h-[60vh]">
+      <section className="container max-w-6xl py-12 lg:py-16">
+        <h1 className="text-center font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D]">
+          {term ? (
+            <>Results for &ldquo;{term}&rdquo;</>
+          ) : (
+            'Search'
           )}
-        </SearchResults>
-      )}
+        </h1>
+        <Form
+          method="get"
+          action="/search"
+          role="search"
+          className="mt-6 mx-auto max-w-xl flex items-center gap-3 bg-white ring-1 ring-[#C9A96E]/40 focus-within:ring-[#C9A96E] px-4 h-12"
+        >
+          <SearchIcon size={18} className="text-[#C9A96E] shrink-0" aria-hidden />
+          <input
+            key={term}
+            defaultValue={term}
+            name="q"
+            type="search"
+            placeholder="Search notecards, notepads, gifts…"
+            aria-label="Search products"
+            enterKeyHint="search"
+            className="flex-1 min-w-0 bg-transparent font-sans text-[16px] text-[#2D2D2D] placeholder:text-[#2D2D2D]/40 outline-none"
+          />
+          <button
+            type="submit"
+            className="font-sans font-medium text-[11px] tracking-[0.15em] uppercase text-[#2D2D2D] hover:text-[#C9A96E]"
+          >
+            Search
+          </button>
+        </Form>
+
+        {error && <p className="mt-6 text-center font-sans text-sm text-[#B23A3A]">{error}</p>}
+
+        {term && !count ? (
+          <div className="mt-12 text-center">
+            <p className="font-sans text-[15px] text-[#2D2D2D]">
+              Nothing matched &ldquo;{term}&rdquo;.
+            </p>
+            <p className="font-sans text-[13px] text-[#2D2D2D]/55 mt-1">
+              Try a simpler word, or{' '}
+              <Link to="/collections/all" className="underline hover:text-[#C9A96E]">
+                browse everything
+              </Link>
+              .
+            </p>
+          </div>
+        ) : null}
+
+        {products && count > 0 && (
+          <Pagination connection={products}>
+            {({nodes, isLoading, NextLink}) => (
+              <>
+                <ul className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 lg:gap-x-6">
+                  {nodes.map((product) => {
+                    const v = product.selectedOrFirstAvailableVariant;
+                    const url = urlWithTrackingParams({
+                      baseUrl: `/products/${product.handle}`,
+                      trackingParams: product.trackingParameters,
+                      term,
+                    });
+                    return (
+                      <li key={product.id}>
+                        <Link to={url} prefetch="intent" className="group block">
+                          <div className="aspect-square bg-white overflow-hidden ring-1 ring-[#C9A96E]/15">
+                            {v?.image && (
+                              <Image
+                                data={v.image}
+                                alt={product.title}
+                                sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                              />
+                            )}
+                          </div>
+                          <p className="mt-3 font-serif text-[15px] md:text-[16px] text-[#2D2D2D] leading-snug line-clamp-2 group-hover:text-[#C9A96E] transition-colors">
+                            {product.title.split('|')[0].trim()}
+                          </p>
+                          {v?.price && (
+                            <p className="font-sans text-[13px] text-[#2D2D2D]/60 mt-1">
+                              From ${Number(v.price.amount).toFixed(2)}
+                            </p>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                <div className="mt-10 text-center">
+                  <NextLink className="inline-flex items-center justify-center h-12 px-10 bg-[#2D2D2D] text-white font-sans font-medium text-[12px] tracking-[0.15em] uppercase hover:bg-[#C9A96E] transition-colors">
+                    {isLoading ? 'Loading…' : 'Load more'}
+                  </NextLink>
+                </div>
+              </>
+            )}
+          </Pagination>
+        )}
+      </section>
       <Analytics.SearchView data={{searchTerm: term, searchResults: result}} />
-    </div>
+    </main>
   );
 }
 
@@ -223,7 +294,7 @@ async function regularSearch({
 >): Promise<RegularSearchReturn> {
   const {storefront} = context;
   const url = new URL(request.url);
-  const variables = getPaginationVariables(request, {pageBy: 8});
+  const variables = getPaginationVariables(request, {pageBy: 24});
   const term = String(url.searchParams.get('q') || '');
 
   // Search articles, pages, and products for the `q` term

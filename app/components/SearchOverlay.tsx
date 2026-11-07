@@ -1,535 +1,264 @@
 /*
- * Design: The Stationery Atelier
- * SearchOverlay: Full-screen command-palette style search overlay.
- * Searches across products and gift sets with instant filtering.
- * Triggered from the navbar search icon. Keyboard shortcut: Cmd/Ctrl + K.
- * Uses the existing cmdk-based Command primitives from shadcn/ui.
+ * SearchOverlay — the site search (Sydney, Nov 2026).
+ *
+ * Opens from the header search bar / icon (or Cmd/Ctrl + K). As the customer
+ * types, it asks Shopify's predictive search for matching products and
+ * collections across the whole catalog (not just what the page loaded).
+ * Enter, or "See all results", opens the full results page (/search?q=…).
  */
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router";
-import {
-  Command,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandSeparator,
-} from "@/components/ui/command";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useAllProducts, useCollections } from "@/hooks/useProducts";
-import { formatPrice, type Product } from "@/lib/products";
-import { giftSets, type GiftSet } from "@/lib/bundles";
-import {
-  Search,
-  Package,
-  Gift,
-  Tag,
-  ArrowRight,
-  Sparkles,
-  TrendingUp,
-  Clock,
-} from "lucide-react";
-import { BUILD_YOUR_OWN_OPEN, GIFT_SETS_OPEN } from "~/lib/features";
+import {useEffect, useRef, useState} from 'react';
+import {Link, useFetcher, useNavigate} from 'react-router';
+import {ArrowRight, Search, X} from 'lucide-react';
 
 interface SearchOverlayProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-// Popular searches for quick access
-const popularSearches = [
-  { label: "Monogram Notecards", slug: "/collections/monogram-styles" },
-  { label: "Monogram Sets", slug: "/collections/monogram" },
-  ...(GIFT_SETS_OPEN ? [{ label: "Gift Sets", slug: "/gift-sets" }] : []),
-  { label: "Wedding Stationery", slug: "/collections/weddings-events" },
-  ...(BUILD_YOUR_OWN_OPEN ? [{ label: "Build Your Own", slug: "/build-your-own" }] : []),
-];
+type PredictiveProduct = {
+  id: string;
+  handle: string;
+  title: string;
+  selectedOrFirstAvailableVariant?: {
+    image?: {url: string} | null;
+    price?: {amount: string} | null;
+  } | null;
+};
+type PredictiveCollection = {id: string; handle: string; title: string; image?: {url: string} | null};
+type PredictiveData = {
+  term?: string;
+  result?: {items?: {products?: PredictiveProduct[]; collections?: PredictiveCollection[]}};
+};
 
-const quickLinks = [
-  { label: "All Collections", href: "/collections/all", icon: Package },
-  ...(GIFT_SETS_OPEN ? [{ label: "Gift Sets", href: "/gift-sets", icon: Gift }] : []),
-  { label: "Bestsellers", href: "/collections/bestsellers", icon: TrendingUp },
-  ...(BUILD_YOUR_OWN_OPEN
-    ? [{ label: "Build Your Own", href: "/build-your-own", icon: Sparkles }]
-    : []),
-];
+/** Quick picks shown before the customer types. */
+const POPULAR = ['Notecards', 'Notepads', 'Monogram', 'Dog', 'Christmas gift tags', 'Holiday photo cards', 'Place cards', 'Tennis'];
 
-export default function SearchOverlay({ open, onOpenChange }: SearchOverlayProps) {
+const shortTitle = (t: string) => t.split('|')[0].trim();
+const sized = (url: string, w: number) => `${url}${url.includes('?') ? '&' : '?'}width=${w}`;
+
+export default function SearchOverlay({open, onOpenChange}: SearchOverlayProps) {
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
-  const { data: products = [] } = useAllProducts();
-  const { data: collections = [] } = useCollections();
+  const fetcher = useFetcher<PredictiveData>({key: 'site-search'});
+  const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const term = query.trim();
 
-  // Reset query when overlay closes
+  // Cmd/Ctrl + K toggles the search.
   useEffect(() => {
-    if (!open) {
-      // Small delay so the animation finishes before clearing
-      const timer = setTimeout(() => setQuery(""), 200);
-      return () => clearTimeout(timer);
-    }
-  }, [open]);
-
-  // Keyboard shortcut: Cmd/Ctrl + K
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         onOpenChange(!open);
       }
     };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
   }, [open, onOpenChange]);
 
-  // Filter products
-  const filteredProducts = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return products.filter(
-      (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.categories.some((c) => c.toLowerCase().includes(q))
-    );
-  }, [query]);
+  // While open: focus the box, lock page scroll, Esc closes.
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => inputRef.current?.focus(), 30);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onOpenChange(false);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKey);
+    return () => {
+      clearTimeout(t);
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, onOpenChange]);
 
-  // Filter gift sets
-  const filteredGiftSets = useMemo(() => {
-    if (!GIFT_SETS_OPEN || !query.trim()) return [];
-    const q = query.toLowerCase();
-    return giftSets.filter(
-      (gs) =>
-        gs.name.toLowerCase().includes(q) ||
-        gs.tagline.toLowerCase().includes(q) ||
-        gs.categoryLabel.toLowerCase().includes(q) ||
-        gs.category.toLowerCase().includes(q)
-    );
-  }, [query]);
+  // Live results, a moment after typing stops.
+  useEffect(() => {
+    if (term.length < 2) return;
+    const t = setTimeout(() => {
+      fetcher.load(`/search?predictive&limit=8&q=${encodeURIComponent(term)}`);
+    }, 220);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [term]);
 
-  // Filter collections
-  const filteredCollections = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.toLowerCase();
-    return collections.filter(
-      (c) =>
-        c.slug !== "all" &&
-        (c.title.toLowerCase().includes(q) ||
-          c.description.toLowerCase().includes(q))
-    );
-  }, [query]);
+  if (!open) return null;
 
-  const hasResults = filteredProducts.length > 0 || filteredGiftSets.length > 0 || filteredCollections.length > 0;
-  const isSearching = query.trim().length > 0;
+  const close = () => onOpenChange(false);
+  const goToResults = (q = term) => {
+    if (!q) return;
+    close();
+    navigate(`/search?q=${encodeURIComponent(q)}`);
+  };
 
-  const handleSelect = useCallback(
-    (path: string) => {
-      onOpenChange(false);
-      navigate(path);
-    },
-    [navigate, onOpenChange]
-  );
+  const fresh = fetcher.data?.term === term;
+  const products = fresh ? fetcher.data?.result?.items?.products ?? [] : [];
+  const collections = fresh ? fetcher.data?.result?.items?.collections ?? [] : [];
+  const loading = term.length >= 2 && (!fresh || fetcher.state !== 'idle');
+  const nothing = term.length >= 2 && fresh && fetcher.state === 'idle' && !products.length && !collections.length;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>Search</DialogTitle>
-        <DialogDescription>Search products, gift sets, and collections</DialogDescription>
-      </DialogHeader>
-      <DialogContent
-        className="overflow-hidden p-0 sm:max-w-[600px] bg-[#FAF8F5] border-[#C9A96E]/20"
-        showCloseButton={false}
-      >
-        <Command
-          className="bg-[#FAF8F5]"
-          shouldFilter={false}
+    <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Search">
+      <button
+        type="button"
+        aria-label="Close search"
+        tabIndex={-1}
+        onClick={close}
+        className="absolute inset-0 bg-[#2D2D2D]/45 cursor-default wl-fade-in"
+      />
+      <div className="relative mx-auto w-full sm:max-w-[680px] sm:mt-[8vh] bg-[#FAF8F5] shadow-[0_30px_70px_-25px_rgba(0,0,0,0.5)] max-h-[100dvh] sm:max-h-[84vh] flex flex-col wl-fade-in">
+        {/* Search box */}
+        <form
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            goToResults();
+          }}
+          className="flex items-center gap-3 px-4 sm:px-5 py-3.5 border-b border-[#C9A96E]/30 bg-white"
         >
-          {/* Search Input */}
-          <div className="flex items-center gap-3 border-b border-[#C9A96E]/20 px-4 py-3">
-            <Search size={18} className="text-[#C9A96E] shrink-0" />
-            <CommandInput
-              placeholder="Search products, gift sets, collections..."
-              value={query}
-              onValueChange={setQuery}
-              className="font-sans text-[#2D2D2D] placeholder:text-[#2D2D2D]/40 text-base"
-
-            />
-            <kbd
-              className="font-sans hidden sm:inline-flex items-center gap-1 px-2 py-0.5 text-[10px] tracking-wider uppercase text-[#2D2D2D]/40 border border-[#C9A96E]/20 rounded bg-white/50"
-
+          <Search size={20} className="text-[#C9A96E] shrink-0" aria-hidden />
+          <input
+            ref={inputRef}
+            type="search"
+            name="q"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search notecards, notepads, gifts…"
+            autoComplete="off"
+            enterKeyHint="search"
+            aria-label="Search products"
+            className="flex-1 min-w-0 bg-transparent font-sans text-[17px] text-[#2D2D2D] placeholder:text-[#2D2D2D]/40 outline-none [&::-webkit-search-cancel-button]:hidden"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                inputRef.current?.focus();
+              }}
+              className="font-sans text-[12px] text-[#2D2D2D]/50 hover:text-[#2D2D2D] px-1"
             >
-              ESC
-            </kbd>
-          </div>
+              Clear
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={close}
+            aria-label="Close search"
+            className="w-9 h-9 -mr-1 flex items-center justify-center text-[#2D2D2D]/70 hover:text-[#2D2D2D]"
+          >
+            <X size={20} />
+          </button>
+        </form>
 
-          <CommandList className="max-h-[400px] overflow-y-auto">
-            {/* No results */}
-            {isSearching && !hasResults && (
-              <CommandEmpty>
-                <div className="flex flex-col items-center gap-3 py-8">
-                  <Search size={32} className="text-[#C9A96E]/40" />
-                  <p
-                    className="font-sans text-sm text-[#2D2D2D]/60"
-
+        <div className="flex-1 overflow-y-auto px-4 sm:px-5 py-5">
+          {/* Before typing: popular searches */}
+          {term.length < 2 && (
+            <div>
+              <p className="font-sans font-semibold text-[11px] tracking-[0.2em] uppercase text-[#C9A96E] mb-3">
+                Popular searches
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {POPULAR.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => goToResults(p)}
+                    className="font-sans text-[13px] text-[#2D2D2D] bg-white ring-1 ring-[#C9A96E]/30 hover:ring-[#C9A96E] px-3.5 py-2 transition-colors"
                   >
-                    No results found for "{query}"
-                  </p>
-                  <p
-                    className="font-sans text-xs text-[#2D2D2D]/40"
-
-                  >
-                    Try searching for "peony," "monogram," or "lacrosse"
-                  </p>
-                </div>
-              </CommandEmpty>
-            )}
-
-            {/* Default state: Popular searches & quick links */}
-            {!isSearching && (
-              <>
-                <CommandGroup>
-                  <div
-                    className="font-sans px-2 py-2 text-xs tracking-[0.15em] uppercase text-[#C9A96E] font-semibold"
-
-                  >
-                    Popular Searches
-                  </div>
-                  {popularSearches.map((item) => (
-                    <CommandItem
-                      key={item.slug}
-                      value={item.label}
-                      onSelect={() => handleSelect(item.slug)}
-                      className="flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-md hover:bg-[#C9A96E]/5 data-[selected=true]:bg-[#C9A96E]/10"
-                    >
-                      <TrendingUp size={14} className="text-[#C9A96E]/60 shrink-0" />
-                      <span
-                        className="font-sans text-sm text-[#2D2D2D]"
-
-                      >
-                        {item.label}
-                      </span>
-                      <ArrowRight size={12} className="ml-auto text-[#2D2D2D]/30" />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-
-                <CommandSeparator className="bg-[#C9A96E]/10" />
-
-                <CommandGroup>
-                  <div
-                    className="font-sans px-2 py-2 text-xs tracking-[0.15em] uppercase text-[#C9A96E] font-semibold"
-
-                  >
-                    Quick Links
-                  </div>
-                  {quickLinks.map((item) => (
-                    <CommandItem
-                      key={item.href}
-                      value={item.label}
-                      onSelect={() => handleSelect(item.href)}
-                      className="flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-md hover:bg-[#C9A96E]/5 data-[selected=true]:bg-[#C9A96E]/10"
-                    >
-                      <item.icon size={14} className="text-[#C9A96E]/60 shrink-0" />
-                      <span
-                        className="font-sans text-sm text-[#2D2D2D]"
-
-                      >
-                        {item.label}
-                      </span>
-                      <ArrowRight size={12} className="ml-auto text-[#2D2D2D]/30" />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </>
-            )}
-
-            {/* Products results */}
-            {filteredProducts.length > 0 && (
-              <CommandGroup>
-                <div
-                  className="font-sans px-2 py-2 text-xs tracking-[0.15em] uppercase text-[#C9A96E] font-semibold flex items-center gap-2"
-
-                >
-                  <Package size={12} />
-                  Products
-                  <span className="text-[#2D2D2D]/30 font-normal">
-                    ({filteredProducts.length})
-                  </span>
-                </div>
-                {filteredProducts.slice(0, 5).map((product) => (
-                  <ProductResult
-                    key={product.id}
-                    product={product}
-                    onSelect={() => handleSelect(`/products/${product.slug}`)}
-                  />
+                    {p}
+                  </button>
                 ))}
-                {filteredProducts.length > 5 && (
-                  <CommandItem
-                    value="view-all-products"
-                    onSelect={() => handleSelect("/collections/all")}
-                    className="flex items-center justify-center gap-2 px-3 py-2 cursor-pointer text-[#C9A96E] hover:bg-[#C9A96E]/5 data-[selected=true]:bg-[#C9A96E]/10"
-                  >
-                    <span
-                      className="font-sans font-semibold text-xs tracking-wide uppercase"
-
-                    >
-                      View all {filteredProducts.length} products
-                    </span>
-                    <ArrowRight size={12} />
-                  </CommandItem>
-                )}
-              </CommandGroup>
-            )}
-
-            {/* Gift Sets results */}
-            {filteredGiftSets.length > 0 && (
-              <>
-                {filteredProducts.length > 0 && (
-                  <CommandSeparator className="bg-[#C9A96E]/10" />
-                )}
-                <CommandGroup>
-                  <div
-                    className="font-sans px-2 py-2 text-xs tracking-[0.15em] uppercase text-[#C9A96E] font-semibold flex items-center gap-2"
-
-                  >
-                    <Gift size={12} />
-                    Gift Sets
-                    <span className="text-[#2D2D2D]/30 font-normal">
-                      ({filteredGiftSets.length})
-                    </span>
-                  </div>
-                  {filteredGiftSets.slice(0, 4).map((giftSet) => (
-                    <GiftSetResult
-                      key={giftSet.slug}
-                      giftSet={giftSet}
-                      onSelect={() => handleSelect(`/gift-sets/${giftSet.slug}`)}
-                    />
-                  ))}
-                </CommandGroup>
-              </>
-            )}
-
-            {/* Collections results */}
-            {filteredCollections.length > 0 && (
-              <>
-                {(filteredProducts.length > 0 || filteredGiftSets.length > 0) && (
-                  <CommandSeparator className="bg-[#C9A96E]/10" />
-                )}
-                <CommandGroup>
-                  <div
-                    className="font-sans px-2 py-2 text-xs tracking-[0.15em] uppercase text-[#C9A96E] font-semibold flex items-center gap-2"
-
-                  >
-                    <Tag size={12} />
-                    Collections
-                    <span className="text-[#2D2D2D]/30 font-normal">
-                      ({filteredCollections.length})
-                    </span>
-                  </div>
-                  {filteredCollections.map((collection) => (
-                    <CommandItem
-                      key={collection.slug}
-                      value={collection.title}
-                      onSelect={() => handleSelect(`/collections/${collection.slug}`)}
-                      className="flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-md hover:bg-[#C9A96E]/5 data-[selected=true]:bg-[#C9A96E]/10"
-                    >
-                      <div className="w-8 h-8 rounded-full overflow-hidden bg-[#C9A96E]/10 shrink-0">
-                        <img
-                          src={collection.image}
-                          alt={collection.title}
-                          className="w-full h-full object-cover" loading="lazy"
-        />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span
-                          className="font-sans font-medium text-sm text-[#2D2D2D] truncate"
-
-                        >
-                          {collection.title}
-                        </span>
-                        <span
-                          className="font-sans text-xs text-[#2D2D2D]/50 truncate"
-
-                        >
-                          {collection.description}
-                        </span>
-                      </div>
-                      <ArrowRight size={12} className="ml-auto text-[#2D2D2D]/30 shrink-0" />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-
-          {/* Footer */}
-          <div className="border-t border-[#C9A96E]/15 px-4 py-2.5 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span
-                className="font-sans text-[10px] tracking-wider uppercase text-[#2D2D2D]/35 flex items-center gap-1.5"
-
-              >
-                <kbd className="px-1.5 py-0.5 border border-[#C9A96E]/15 rounded text-[9px] bg-white/50">↑↓</kbd>
-                Navigate
-              </span>
-              <span
-                className="font-sans text-[10px] tracking-wider uppercase text-[#2D2D2D]/35 flex items-center gap-1.5"
-
-              >
-                <kbd className="px-1.5 py-0.5 border border-[#C9A96E]/15 rounded text-[9px] bg-white/50">↵</kbd>
-                Select
-              </span>
-              <span
-                className="font-sans text-[10px] tracking-wider uppercase text-[#2D2D2D]/35 flex items-center gap-1.5"
-
-              >
-                <kbd className="px-1.5 py-0.5 border border-[#C9A96E]/15 rounded text-[9px] bg-white/50">Esc</kbd>
-                Close
-              </span>
+              </div>
             </div>
-            <span
-              className="font-sans text-[10px] tracking-wider text-[#C9A96E]/50"
+          )}
 
+          {loading && !products.length && (
+            <p className="font-sans text-sm text-[#2D2D2D]/55 py-6 text-center">Searching…</p>
+          )}
+
+          {nothing && (
+            <div className="py-8 text-center">
+              <p className="font-sans text-[15px] text-[#2D2D2D]">No results for &ldquo;{term}&rdquo;</p>
+              <p className="font-sans text-[13px] text-[#2D2D2D]/55 mt-1">
+                Try a simpler word, like &ldquo;dog&rdquo;, &ldquo;monogram&rdquo; or &ldquo;tennis&rdquo;.
+              </p>
+            </div>
+          )}
+
+          {/* Matching collections */}
+          {collections.length > 0 && (
+            <div className="mb-5">
+              <p className="font-sans font-semibold text-[11px] tracking-[0.2em] uppercase text-[#C9A96E] mb-2">
+                Collections
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {collections.slice(0, 6).map((c) => (
+                  <Link
+                    key={c.id}
+                    to={`/collections/${c.handle}`}
+                    onClick={close}
+                    className="inline-flex items-center gap-1.5 font-sans text-[13px] text-[#2D2D2D] bg-white ring-1 ring-[#C9A96E]/30 hover:ring-[#C9A96E] px-3.5 py-2"
+                  >
+                    {c.title} <ArrowRight size={12} className="text-[#2D2D2D]/40" aria-hidden />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Matching products */}
+          {products.length > 0 && (
+            <div>
+              <p className="font-sans font-semibold text-[11px] tracking-[0.2em] uppercase text-[#C9A96E] mb-2">
+                Products
+              </p>
+              <ul className="divide-y divide-[#C9A96E]/15">
+                {products.map((p) => {
+                  const v = p.selectedOrFirstAvailableVariant;
+                  return (
+                    <li key={p.id}>
+                      <Link
+                        to={`/products/${p.handle}`}
+                        onClick={close}
+                        className="flex items-center gap-4 py-3 group"
+                      >
+                        <span className="w-16 h-16 shrink-0 bg-white ring-1 ring-[#C9A96E]/20 overflow-hidden">
+                          {v?.image?.url && (
+                            <img src={sized(v.image.url, 160)} alt="" loading="lazy" className="w-full h-full object-cover" />
+                          )}
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block font-serif text-[16px] text-[#2D2D2D] leading-snug line-clamp-2 group-hover:text-[#C9A96E] transition-colors">
+                            {shortTitle(p.title)}
+                          </span>
+                          {v?.price && (
+                            <span className="block font-sans text-[13px] text-[#2D2D2D]/55 mt-0.5">
+                              From ${Number(v.price.amount).toFixed(2)}
+                            </span>
+                          )}
+                        </span>
+                        <ArrowRight size={14} className="shrink-0 text-[#2D2D2D]/30" aria-hidden />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
+
+        {/* See all */}
+        {term.length >= 2 && (
+          <div className="border-t border-[#C9A96E]/25 bg-white px-4 sm:px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <button
+              type="button"
+              onClick={() => goToResults()}
+              className="w-full h-12 bg-[#2D2D2D] text-white font-sans font-medium text-[12px] tracking-[0.15em] uppercase hover:bg-[#C9A96E] transition-colors"
             >
-              {products.length + (GIFT_SETS_OPEN ? giftSets.length : 0)} items
-            </span>
+              See all results for &ldquo;{term}&rdquo;
+            </button>
           </div>
-        </Command>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-/* ── Product Result Row ── */
-function ProductResult({
-  product,
-  onSelect,
-}: {
-  product: Product;
-  onSelect: () => void;
-}) {
-  return (
-    <CommandItem
-      value={product.title}
-      onSelect={onSelect}
-      className="flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-md hover:bg-[#C9A96E]/5 data-[selected=true]:bg-[#C9A96E]/10"
-    >
-      {/* Thumbnail */}
-      <div className="w-10 h-10 rounded overflow-hidden bg-[#C9A96E]/10 shrink-0">
-        <img
-          src={product.images[0]}
-          alt={product.title}
-          className="w-full h-full object-cover" loading="lazy"
-        />
+        )}
       </div>
-
-      {/* Info */}
-      <div className="flex flex-col min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span
-            className="font-sans font-medium text-sm text-[#2D2D2D] truncate"
-
-          >
-            {product.title}
-          </span>
-          {product.badge && (
-            <span
-              className="font-sans font-semibold text-[9px] tracking-wider uppercase px-1.5 py-0.5 rounded-full bg-[#C9A96E]/10 text-[#C9A96E] shrink-0"
-
-            >
-              {product.badge}
-            </span>
-          )}
-        </div>
-        <span
-          className="font-sans text-xs text-[#2D2D2D]/50 truncate"
-
-        >
-          {product.description}
-        </span>
-      </div>
-
-      {/* Price */}
-      <span
-        className="font-sans font-semibold text-sm text-[#2D2D2D] shrink-0"
-
-      >
-        {formatPrice(product.price)}
-      </span>
-    </CommandItem>
-  );
-}
-
-/* ── Gift Set Result Row ── */
-function GiftSetResult({
-  giftSet,
-  onSelect,
-}: {
-  giftSet: GiftSet;
-  onSelect: () => void;
-}) {
-  return (
-    <CommandItem
-      value={giftSet.name}
-      onSelect={onSelect}
-      className="flex items-center gap-3 px-3 py-2.5 cursor-pointer rounded-md hover:bg-[#C9A96E]/5 data-[selected=true]:bg-[#C9A96E]/10"
-    >
-      {/* Thumbnail */}
-      <div className="w-10 h-10 rounded overflow-hidden bg-[#C9A96E]/10 shrink-0">
-        <img
-          src={giftSet.image}
-          alt={giftSet.name}
-          className="w-full h-full object-cover" loading="lazy"
-        />
-      </div>
-
-      {/* Info */}
-      <div className="flex flex-col min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span
-            className="font-sans font-medium text-sm text-[#2D2D2D] truncate"
-
-          >
-            {giftSet.name}
-          </span>
-          <span
-            className="font-sans font-semibold text-[9px] tracking-wider uppercase px-1.5 py-0.5 rounded-full bg-[#f5b7c2]/20 text-[#2D2D2D]/60 shrink-0"
-
-          >
-            {giftSet.categoryLabel}
-          </span>
-          {giftSet.badge && (
-            <span
-              className="font-sans font-semibold text-[9px] tracking-wider uppercase px-1.5 py-0.5 rounded-full bg-[#C9A96E]/10 text-[#C9A96E] shrink-0"
-
-            >
-              {giftSet.badge}
-            </span>
-          )}
-        </div>
-        <span
-          className="font-sans text-xs text-[#2D2D2D]/50 truncate"
-
-        >
-          {giftSet.tagline} · 5-piece set
-        </span>
-      </div>
-
-      {/* Price */}
-      <div className="flex flex-col items-end shrink-0">
-        <span
-          className="font-sans font-semibold text-sm text-[#2D2D2D]"
-
-        >
-          ${giftSet.setPrice}
-        </span>
-        <span
-          className="font-sans text-[10px] text-green-600"
-
-        >
-          Save ${giftSet.savings}
-        </span>
-      </div>
-    </CommandItem>
+    </div>
   );
 }
