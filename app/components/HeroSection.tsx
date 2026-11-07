@@ -218,7 +218,7 @@ export default function HeroSection() {
               <Link
                 key={slide.cta.href}
                 to={slide.cta.href}
-                className={`wl-cta ${slide.subline ? "mt-6" : "mt-8 md:mt-10"} inline-flex items-center gap-2 px-8 py-3.5 font-sans font-medium text-[13px] tracking-[0.15em] uppercase transition-colors duration-300 bg-[#2D2D2D] text-white hover:bg-[#C9A96E] ${
+                className={`wl-cta ${slide.subline ? "mt-4 md:mt-6" : "mt-6 md:mt-10"} inline-flex items-center gap-1.5 md:gap-2 whitespace-nowrap px-4 py-2 md:px-8 md:py-3.5 font-sans font-medium text-[10.5px] md:text-[13px] tracking-[0.1em] md:tracking-[0.15em] uppercase transition-colors duration-300 bg-[#2D2D2D] text-white hover:bg-[#C9A96E] ${
                   light ? (phone ? "bg-white hover:bg-[#FAF8F5]" : "md:bg-white md:hover:bg-[#FAF8F5]") : ""
                 }`}
               >
