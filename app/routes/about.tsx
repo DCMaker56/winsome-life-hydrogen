@@ -309,19 +309,20 @@ function FounderSection() {
           <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
             <p className={sectionEyebrow}>Our Founder</p>
             <h2 className={sectionTitle}>Sydney Wilson</h2>
-            <p className={`${storyText} italic text-[#2D2D2D] mt-2 mb-6`}>
-              Wife, mother of three, stationery fan.
-            </p>
-            <div className="space-y-5">
+            <div className="space-y-5 mt-6">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                With three young kids and an intense corporate career, Sydney
-                knew it was time for a change. Rooted in her faith, she stepped
-                away from her job without knowing what came next, and soon
-                after, the idea for The Winsome Life arrived.
+                Wife, mother of three, and lifelong stationery enthusiast,
+                Sydney took an unexpected turn when she left a successful
+                corporate career to launch The Winsome Life. A rather
+                unconventional&mdash;or shall we say,{' '}
+                <em className="font-normal">winsome</em>&mdash;change of course.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                Today she oversees every collection with one goal: that each
-                note leaves the person who receives it feeling truly special.
+                Today, Sydney personally oversees every collection, with an eye
+                for timeless design, exceptional quality, and the little details
+                that make something feel truly special. Her hope is simple: that
+                every piece brings a little more beauty, joy, and thoughtfulness
+                to someone&rsquo;s day.
               </p>
             </div>
             <Link
