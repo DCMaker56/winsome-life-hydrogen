@@ -11,6 +11,8 @@ import {useEffect} from 'react';
 import {Heart, Palette, Sparkles, Gift} from 'lucide-react';
 import {useInView} from '~/hooks/useInView';
 import Newsletter from '~/components/Newsletter';
+import {ResponsiveImg} from '~/components/ResponsiveImg';
+import beeWatercolor from '~/assets/about/bee-watercolor.jpg';
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Our Story | The Winsome Life'},
@@ -124,47 +126,71 @@ function HeroBanner() {
   );
 }
 
+/** Our Story text: one size throughout (Sydney); emphasis by weight/italics only. */
+const storyText = 'font-sans text-[17px] lg:text-lg leading-relaxed';
+
 function BrandMission() {
   const {ref, inView} = useInView({threshold: 0.15});
 
   return (
     <section className="py-16 lg:py-24 bg-[#FAF8F5]" ref={ref}>
-      <div className="container">
+      <div className="container max-w-6xl">
         <motion.div
           initial={{opacity: 0, y: 25}}
           animate={inView ? {opacity: 1, y: 0} : {}}
           transition={{duration: 0.8, ease: 'easeOut'}}
-          className="max-w-2xl mx-auto text-center"
+          className="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-16 items-center"
         >
-          <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mx-auto mb-8" />
-          <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-4">
-            Welcome to The Winsome Life
-          </p>
-          <p className="font-serif text-xl lg:text-2xl text-[#2D2D2D]/80 leading-relaxed mb-8">
-            At The Winsome Life, we believe in the quiet beauty of putting pen
-            to paper&mdash;where a handwritten note becomes a gesture of grace,
-            connection, and intention.
-          </p>
-          <div className="space-y-5 mb-10">
-            <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed">
-              Inspired by the honeybee&mdash;symbol of community, sweetness,
-              and purpose&mdash;we craft luxury stationery that is gentle,
-              gracious, and beautifully intentional.
-            </p>
-            <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed">
-              From the texture of the paper to the richness of the print, each
-              detail reflects our commitment to quality and quiet
-              sophistication&mdash;and we aim to make every interaction as
-              personal and memorable as the note inside.
-            </p>
+          {/* Sydney's honeybee watercolor, framed like a print. Protected
+              from casual saving: no right-click / drag / long-press, and a
+              clear layer over the photo so it can't be grabbed directly. */}
+          <div className="mx-auto w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[460px]">
+            <div
+              className="relative bg-white p-3 sm:p-4 shadow-[0_24px_50px_-22px_rgba(45,45,45,0.4)] ring-1 ring-[#2D2D2D]/5 select-none [-webkit-touch-callout:none]"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <ResponsiveImg
+                src={beeWatercolor}
+                sizes="(min-width: 1024px) 440px, (min-width: 640px) 380px, 300px"
+                alt="Sydney's original watercolor painting of a honeybee with gold detailing"
+                width={1600}
+                height={1590}
+                loading="lazy"
+                draggable={false}
+                className="w-full h-auto pointer-events-none"
+              />
+              <span aria-hidden className="absolute inset-0" />
+            </div>
           </div>
-          <p
-            className="text-lg lg:text-xl text-[#2D2D2D] font-medium"
-            style={{fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic'}}
-          >
-            This is The Winsome Life&mdash;thoughtful, timeless, and sweet with
-            purpose.
-          </p>
+
+          <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+            <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mx-auto lg:mx-0 lg:from-[#C9A96E] mb-8" />
+            <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-6">
+              Welcome to The Winsome Life
+            </p>
+            <div className="space-y-5">
+              <p className={`${storyText} font-normal text-[#2D2D2D]`}>
+                At The Winsome Life, we believe in the quiet beauty of putting
+                pen to paper&mdash;where a handwritten note becomes a gesture of
+                grace, connection, and intention.
+              </p>
+              <p className={`${storyText} font-light text-[#2D2D2D]/80`}>
+                Inspired by the honeybee&mdash;symbol of community, sweetness,
+                and purpose&mdash;we craft luxury stationery that is gentle,
+                gracious, and beautifully intentional.
+              </p>
+              <p className={`${storyText} font-light text-[#2D2D2D]/80`}>
+                From the texture of the paper to the richness of the print,
+                each detail reflects our commitment to quality and quiet
+                sophistication&mdash;and we aim to make every interaction as
+                personal and memorable as the note inside.
+              </p>
+              <p className={`${storyText} font-normal italic text-[#2D2D2D]`}>
+                This is The Winsome Life&mdash;thoughtful, timeless, and sweet
+                with purpose.
+              </p>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
