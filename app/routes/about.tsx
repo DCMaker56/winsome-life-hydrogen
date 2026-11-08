@@ -2,8 +2,8 @@
  * Design: The Stationery Atelier
  * About Page: Authentic brand origin story with editorial layout.
  * Sections: Hero, Welcome, Why Winsome, Honeybee, Our Founder (Sydney's Story
- * page not linked yet, per Sydney), Artist in Residence, How your order is made, Our
- * Promises, reviews, CTA.
+ * page not linked yet, per Sydney), Artist in Residence (links to the Darlene Redfoot
+ * Originals collection), Our Promises, reviews, CTA.
  * Ported from winsome-life/client/src/pages/AboutPage.tsx to Hydrogen + React Router 7.
  */
 import type {Route} from './+types/about';
@@ -380,68 +380,14 @@ function ArtistSection() {
                 story.
               </p>
             </div>
+            <Link
+              to="/collections/darlene-redfoot-originals"
+              className="mt-8 inline-flex items-center gap-2 font-sans font-medium text-[12px] tracking-[0.18em] uppercase text-white bg-[#2D2D2D] px-8 py-3.5 hover:bg-[#1B294E] transition-colors"
+            >
+              Shop Darlene&rsquo;s Originals <span aria-hidden>&rarr;</span>
+            </Link>
           </div>
         </motion.div>
-      </div>
-    </section>
-  );
-}
-
-/** What happens after you order: made to order, so we take the worry out. */
-const ORDER_STEPS = [
-  {
-    title: 'Pick your design',
-    text: 'Choose from our signature watercolor designs, many painted by our artist-in-residence.',
-  },
-  {
-    title: 'Make it yours',
-    text: 'Add your name, choose from our 10 fonts and your ink color. For our pet designs, pick your breed or send a photo of your own.',
-  },
-  {
-    title: 'Approve it, or ask for a proof',
-    text: 'Everything is made to order, so you see and approve exactly what we will print before we print it.',
-  },
-  {
-    title: 'Printed and packed with care',
-    text: 'Heavy, premium paper and crisp printing, carefully packaged for its journey to you.',
-  },
-  {
-    title: 'On its way',
-    text: 'We email your tracking as soon as your order ships.',
-  },
-];
-
-function HowItsMade() {
-  const {ref, inView} = useInView({threshold: 0.1});
-  return (
-    <section className="py-16 lg:py-24 bg-white" ref={ref}>
-      <div className="container max-w-6xl">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <p className={sectionEyebrow}>From Our Studio to Your Door</p>
-          <h2 className={sectionTitle}>
-            How your order is{' '}
-            <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
-              made
-            </span>
-          </h2>
-        </div>
-        <ol className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
-          {ORDER_STEPS.map((step, i) => (
-            <motion.li
-              key={step.title}
-              initial={{opacity: 0, y: 20}}
-              animate={inView ? {opacity: 1, y: 0} : {}}
-              transition={{duration: 0.5, ease: 'easeOut', delay: 0.1 + i * 0.08}}
-              className="bg-[#FAF8F5] p-6 text-center lg:text-left"
-            >
-              <span className="inline-flex items-center justify-center w-9 h-9 rounded-full ring-1 ring-[#C9A96E] font-serif text-lg text-[#2D2D2D]">
-                {i + 1}
-              </span>
-              <h3 className="font-serif font-medium text-xl text-[#2D2D2D] mt-4 mb-2">{step.title}</h3>
-              <p className="font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]">{step.text}</p>
-            </motion.li>
-          ))}
-        </ol>
       </div>
     </section>
   );
@@ -571,7 +517,6 @@ export default function AboutRoute() {
       <HoneybeeStory />
       <FounderSection />
       <ArtistSection />
-      <HowItsMade />
       <PromisesSection />
       <SocialProof />
       <ShopCTA />
