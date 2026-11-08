@@ -8,7 +8,7 @@ import { Heart, Gem, Palette, Gift } from "lucide-react";
 const props = [
   { icon: Heart, title: "Exceptional", subtitle: "Customer Service" },
   { icon: Gem, title: "Fine Quality", subtitle: "Luxury Materials" },
-  { icon: Palette, title: "Original Art", subtitle: "Stunning Watercolors" },
+  { icon: Palette, title: "Signature Art", subtitle: "Stunning Watercolors" },
   { icon: Gift, title: "Personalized", subtitle: "Gifts for All Interests" },
 ];
 
