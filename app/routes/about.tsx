@@ -131,24 +131,16 @@ function BrandMission() {
             </h2>
             <div className="space-y-5">
               <p className={`${storyText} font-normal text-[#2D2D2D]`}>
-                At The Winsome Life, we believe in the quiet beauty of putting
-                pen to paper&mdash;where a handwritten note becomes a gesture of
-                grace, connection, and intention.
+                At The Winsome Life, we believe a handwritten note is a gesture
+                of grace, connection and intention.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                Inspired by the honeybee&mdash;symbol of community, sweetness,
-                and purpose&mdash;we craft luxury stationery that is gentle,
-                gracious, and beautifully intentional.
-              </p>
-              <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                From the texture of the paper to the richness of the print,
-                each detail reflects our commitment to quality and quiet
-                sophistication&mdash;and we aim to make every interaction as
-                personal and memorable as the note inside.
+                Inspired by the honeybee, a symbol of community, sweetness and
+                purpose, we craft luxury stationery that is beautifully made and
+                deeply personal.
               </p>
               <p className={`${storyText} font-normal italic text-[#2D2D2D]`}>
-                This is The Winsome Life&mdash;thoughtful, timeless, and sweet
-                with purpose.
+                Thoughtful, timeless, and sweet with purpose.
               </p>
             </div>
           </div>
@@ -180,36 +172,33 @@ function WinsomeDefinition() {
           </div>
 
           <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-            <p
-              className="text-4xl lg:text-5xl text-[#2D2D2D] mb-3"
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontWeight: 500,
-                fontStyle: 'italic',
-              }}
-            >
-              Winsome
-            </p>
-            <p className="font-sans font-medium text-xs tracking-[0.2em] uppercase text-[#2D2D2D] mb-6">
-              Adjective
-            </p>
+            <h2 className={`${sectionTitle} mb-6`}>
+              Why{' '}
+              <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+                Winsome?
+              </span>
+            </h2>
             <div className="space-y-5">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                <span className="font-medium text-[#2D2D2D]">Definition:</span>{' '}
-                Attractive or appealing in appearance or character. Generally
-                pleasing and engaging.
-              </p>
-              <p className={`${storyText} font-light italic text-[#2D2D2D]`}>
-                Synonyms: cheerful, lighthearted, bright, sunny, upbeat
-              </p>
-              <div className="w-12 h-[1px] bg-[#C9A96E]/40 mx-auto lg:mx-0" />
-              <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                The word <em>winsome</em> captures the essence of our
-                brand&mdash;charming, joyful, and quietly uplifting. It reflects
-                the spirit of our stationery, our symbol the honeybee, and the
-                kind of life we aspire to inspire: one filled with grace,
+                We chose the word <em>winsome</em> because it captures the
+                essence of our brand: charming, joyful, and quietly uplifting. It
+                reflects the spirit of our stationery, our symbol the honeybee,
+                and the kind of life we hope to inspire, one filled with grace,
                 warmth, and meaningful connection.
               </p>
+              <div className="border-l-2 border-[#C9A96E] pl-5 text-left mx-auto max-w-md lg:mx-0">
+                <p className={`${storyText} text-[#2D2D2D]`}>
+                  <span className="font-serif italic text-2xl">winsome</span>{' '}
+                  <span className="font-sans text-xs tracking-[0.2em] uppercase">adjective</span>
+                </p>
+                <p className={`${storyText} font-light text-[#2D2D2D] mt-1`}>
+                  Attractive or appealing in appearance or character. Generally
+                  pleasing and engaging.
+                </p>
+                <p className={`${storyText} font-light italic text-[#2D2D2D] mt-1`}>
+                  Cheerful, lighthearted, bright, sunny, upbeat.
+                </p>
+              </div>
             </div>
           </div>
         </motion.div>
@@ -250,7 +239,7 @@ function HoneybeeStory() {
             </p>
             <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] mb-8 leading-tight">
               The Honeybee&mdash;{' '}
-              <span className="text-[#2D2D2D]" style={{fontStyle: 'italic'}}>
+              <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
                 sweet with intention
               </span>
             </h2>
@@ -533,9 +522,12 @@ function ShopCTA() {
         <div className="max-w-2xl mx-auto">
           <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mx-auto mb-8" />
           <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] mb-4">
-            Looking for your next gift or personalized stationery?
+            Looking for your next{' '}
+            <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+              gift?
+            </span>
           </h2>
-          <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed mb-8">
+          <p className={`${storyText} font-light text-[#2D2D2D] mb-8`}>
             Browse our collections and discover stationery that reflects your
             unique style&mdash;thoughtful, timeless, and beautifully personal.
           </p>
@@ -549,7 +541,7 @@ function ShopCTA() {
           </Link>
           <Link
             to="/collections/bestsellers"
-            className="font-sans font-medium inline-flex items-center justify-center px-8 py-3.5 border border-[#C9A96E] text-[#C9A96E] text-sm tracking-[0.15em] uppercase hover:bg-[#C9A96E] hover:text-white transition-colors duration-300"
+            className="font-sans font-medium inline-flex items-center justify-center px-8 py-3.5 border border-[#2D2D2D] text-[#2D2D2D] text-sm tracking-[0.15em] uppercase hover:bg-[#2D2D2D] hover:text-white transition-colors duration-300"
           >
             Bestsellers
           </Link>
