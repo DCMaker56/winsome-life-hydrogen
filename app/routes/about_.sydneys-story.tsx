@@ -18,6 +18,8 @@ export const meta: Route.MetaFunction = () => {
     {title},
     {name: 'description', content: description},
     {tagName: 'link', rel: 'canonical', href: absoluteUrl('/about/sydneys-story')},
+    // Not linked from the site yet (Sydney): keep it out of search results.
+    {name: 'robots', content: 'noindex'},
     {property: 'og:title', content: title},
     {property: 'og:description', content: description},
   ];

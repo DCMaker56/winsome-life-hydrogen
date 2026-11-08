@@ -1,8 +1,8 @@
 /*
  * Design: The Stationery Atelier
  * About Page: Authentic brand origin story with editorial layout.
- * Sections: Hero, Welcome, Winsome Definition, Honeybee, Our Founder (links to
- * /about/sydneys-story), Artist in Residence, How your order is made, Our
+ * Sections: Hero, Welcome, Why Winsome, Honeybee, Our Founder (Sydney's Story
+ * page not linked yet, per Sydney), Artist in Residence, How your order is made, Our
  * Promises, reviews, CTA.
  * Ported from winsome-life/client/src/pages/AboutPage.tsx to Hydrogen + React Router 7.
  */
@@ -325,12 +325,6 @@ function FounderSection() {
                 to someone&rsquo;s day.
               </p>
             </div>
-            <Link
-              to="/about/sydneys-story"
-              className="mt-8 inline-flex items-center gap-2 font-sans font-medium text-[12px] tracking-[0.18em] uppercase text-white bg-[#2D2D2D] px-8 py-3.5 hover:bg-[#1B294E] transition-colors"
-            >
-              Read Sydney&rsquo;s Story <span aria-hidden>&rarr;</span>
-            </Link>
           </div>
         </motion.div>
       </div>
