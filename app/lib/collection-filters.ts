@@ -12,6 +12,8 @@
  * so a filtered page can be shared.
  */
 
+import {isPartnerCollection} from '~/lib/partners';
+
 export type FilterProduct = {
   id: string;
   handle: string;
@@ -79,7 +81,7 @@ export function collectionGroups(
   for (const c of collections) {
     if (
       c.handle !== currentCollection &&
-      !c.handle.startsWith('partner-') &&
+      !isPartnerCollection(c.handle) &&
       !seen.has(c.handle)
     ) {
       seen.set(c.handle, c.title.replace(/ Collection$/i, ''));

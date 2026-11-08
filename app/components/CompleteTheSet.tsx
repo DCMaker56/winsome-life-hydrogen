@@ -14,7 +14,12 @@ import {useFetcher} from 'react-router';
 import {Check, X} from 'lucide-react';
 import {ProductView, type ProductViewData} from '~/components/ProductView';
 import {useAside} from '~/components/Aside';
-import {SET_DISCOUNT_PERCENT, findSet, type SetCardProduct} from '~/lib/matching-sets';
+import {
+  SET_DISCOUNT_PERCENT,
+  findSet,
+  type MatchingSetsIndex,
+  type SetCardProduct,
+} from '~/lib/matching-sets';
 
 /** Personalization carried over from the item being completed. */
 export type PersonalizationPrefill = {
@@ -274,26 +279,26 @@ export function CartCompleteTheSet({
     attributes?: Array<{key: string; value?: string | null}>;
   }>;
 }) {
+  // Every matching set, from Shopify's "Matching set" field.
+  const sets = useFetcher<{sets: MatchingSetsIndex}>({key: 'matching-sets'});
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!sets.data && sets.state === 'idle') sets.load('/api/matching-sets');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const inCart = new Set(lines.map((l) => l.merchandise.product.handle));
   const suggestion = (() => {
     for (const line of lines) {
-      const set = findSet(line.merchandise.product.handle);
+      const set = findSet(sets.data?.sets, line.merchandise.product.handle);
       const missing = set?.others.find((o) => !inCart.has(o.handle));
       if (set && missing) return {line, piece: missing, fromLabel: set.self.label};
     }
     return null;
   })();
-  const preview = useFetcher<ProductViewData>();
-  const [open, setOpen] = useState(false);
-  const handle = suggestion?.piece.handle;
-
-  useEffect(() => {
-    if (handle) preview.load(`/products/${handle}`);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handle]);
 
   if (!suggestion) return null;
-  const app = preview.data?.appProduct;
+  const {piece} = suggestion;
   const attrs = suggestion.line.attributes ?? [];
   const attr = (k: string) => attrs.find((a) => a.key === k)?.value ?? undefined;
   const prefill: PersonalizationPrefill = {
@@ -302,7 +307,7 @@ export function CartCompleteTheSet({
     fontLabel: attr('Font')?.split('–').pop()?.trim(),
     inkLabel: attr('Text Color'),
   };
-  const title = app?.title ?? '';
+  const from = suggestion.fromLabel.toLowerCase();
 
   return (
     <div className="mx-0 my-4 p-4 bg-[#FAF8F5] border border-[#C9A96E]/25 space-y-3">
@@ -314,9 +319,9 @@ export function CartCompleteTheSet({
       </div>
       <div className="flex gap-3 items-center">
         <div className="w-14 h-14 shrink-0 bg-white border border-[#C9A96E]/15 overflow-hidden">
-          {app?.images?.[0] && (
+          {piece.image && (
             <img
-              src={`${app.images[0]}${app.images[0].includes('?') ? '&' : '?'}width=160`}
+              src={`${piece.image}${piece.image.includes('?') ? '&' : '?'}width=160`}
               alt=""
               loading="lazy"
               className="w-full h-full object-contain"
@@ -325,11 +330,10 @@ export function CartCompleteTheSet({
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-sans text-[13px] font-medium text-[#2D2D2D] leading-snug line-clamp-2">
-            {title ? shortTitle(title) : `Matching ${suggestion.piece.label}`}
+            {shortTitle(piece.title)}
           </p>
           <p className="font-sans text-[12px] text-[#2D2D2D]/55">
-            Matches your {suggestion.fromLabel.toLowerCase()}
-            {app ? ` · from $${Number(app.price).toFixed(2)}` : ''}
+            Matches your {from} · from ${piece.price.toFixed(2)}
           </p>
         </div>
         <button
@@ -342,16 +346,11 @@ export function CartCompleteTheSet({
       </div>
       {prefill.text && (
         <p className="font-sans text-[12px] text-[#2D2D2D]/55">
-          Personalized like your {suggestion.fromLabel.toLowerCase()}: {prefill.text}. You can change
-          it before adding.
+          Personalized like your {from}: {prefill.text}. You can change it before adding.
         </p>
       )}
       {open && (
-        <QuickAddSheet
-          product={{handle: suggestion.piece.handle, title: title || suggestion.piece.label}}
-          prefill={prefill}
-          onClose={() => setOpen(false)}
-        />
+        <QuickAddSheet product={piece} prefill={prefill} onClose={() => setOpen(false)} />
       )}
     </div>
   );

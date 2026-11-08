@@ -204,7 +204,11 @@ export const PARTNER_SECTION_ORDER = [
   'graduation',
 ];
 
-/** Partner-only collections never appear in the public "Filter by Collection". */
+/**
+ * Behind-the-scenes collections that never appear publicly (menus, filters,
+ * collection lists, search, their own page): partner-only collections, and
+ * "Matching Sets" (it only powers Complete the Set and its discount).
+ */
 export function isPartnerCollection(handle: string) {
-  return handle.startsWith('partner-');
+  return handle.startsWith('partner-') || handle === 'matching-sets';
 }

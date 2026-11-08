@@ -35,6 +35,7 @@ import {ProductView} from '~/components/ProductView';
 import {
   SET_ACCESSORIES_COLLECTION,
   findSet,
+  loadMatchingSets,
   type SetCardProduct,
 } from '~/lib/matching-sets';
 import {absoluteUrl} from '~/lib/seo';
@@ -221,37 +222,27 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     ? product.personalizationTextHelp?.value?.trim() || undefined
     : undefined;
 
-  // Complete the set (pilot): the other pieces of this product's matching
-  // design, plus a few gift-tag accessories. Never blocks the page.
-  const set = findSet(handle);
-  const setData = set
+  // Complete the set: the other pieces of this product's matching design
+  // (Shopify "Matching set" field), plus a few gift-tag accessories. Never
+  // blocks the page.
+  const set = findSet(await loadMatchingSets(storefront as never), handle);
+  const accData = set
     ? await storefront
-        .query<Record<string, SetQueryProduct | null> & {acc?: {products: {nodes: SetQueryProduct[]}} | null}>(
-            setQuery(set.others.map((o) => o.handle)),
-            {cache: storefront.CacheShort()},
-          )
+        .query<{acc?: {products: {nodes: SetQueryProduct[]}} | null}>(ACCESSORIES_QUERY, {
+          cache: storefront.CacheShort(),
+        })
         .catch(() => null)
     : null;
-  const toCard = (p: SetQueryProduct | null | undefined, label: string) =>
-    p
-      ? {
-          handle: p.handle,
-          title: p.title,
-          label,
-          image: p.featuredImage?.url ?? null,
-          price: Number(p.priceRange.minVariantPrice.amount),
-        }
-      : null;
-  const setMatches = set
-    ? set.others
-        .map((o, i) => toCard(setData?.[`m${i}`], o.label))
-        .filter((c): c is SetCardProduct => Boolean(c))
-    : [];
-  const setAccessories = set
-    ? (setData?.acc?.products.nodes ?? [])
-        .map((p) => toCard(p, 'Gift Tags'))
-        .filter((c): c is SetCardProduct => Boolean(c))
-    : [];
+  const setMatches: SetCardProduct[] = set?.others ?? [];
+  const setAccessories = (accData?.acc?.products.nodes ?? []).map(
+    (p): SetCardProduct => ({
+      handle: p.handle,
+      title: p.title,
+      label: 'Gift Tags',
+      image: p.featuredImage?.url ?? null,
+      price: Number(p.priceRange.minVariantPrice.amount),
+    }),
+  );
   const setLabel = set?.self.label ?? '';
 
   return {
@@ -300,19 +291,14 @@ type SetQueryProduct = {
 
 const SET_PRODUCT_FIELDS = `handle title featuredImage { url } priceRange { minVariantPrice { amount } }`;
 
-function setQuery(handles: string[]) {
-  return `
-    query CompleteTheSet($country: CountryCode, $language: LanguageCode)
-      @inContext(country: $country, language: $language) {
-      ${handles
-        .map((h, i) => `m${i}: product(handle: ${JSON.stringify(h)}) { ${SET_PRODUCT_FIELDS} }`)
-        .join('\n')}
-      acc: collection(handle: ${JSON.stringify(SET_ACCESSORIES_COLLECTION)}) {
-        products(first: 3, sortKey: BEST_SELLING) { nodes { ${SET_PRODUCT_FIELDS} } }
-      }
+const ACCESSORIES_QUERY = `
+  query SetAccessories($country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
+    acc: collection(handle: ${JSON.stringify(SET_ACCESSORIES_COLLECTION)}) {
+      products(first: 3, sortKey: BEST_SELLING) { nodes { ${SET_PRODUCT_FIELDS} } }
     }
-  `;
-}
+  }
+`;
 
 const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariant on ProductVariant {

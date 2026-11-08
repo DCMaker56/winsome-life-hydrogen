@@ -1,4 +1,5 @@
 import {Form, Link, useLoaderData} from 'react-router';
+import {isPartnerCollection} from '~/lib/partners';
 import {Search as SearchIcon} from 'lucide-react';
 import type {Route} from './+types/search';
 import {getPaginationVariables, Analytics, Image, Pagination} from '@shopify/hydrogen';
@@ -496,7 +497,7 @@ async function predictiveSearch({
 
   items.products = items.products.filter((p) => !isAddOnHandle(p.handle));
   // Partner-only collections (partner-…) are private to their partner page.
-  items.collections = items.collections.filter((c) => !c.handle.startsWith('partner-'));
+  items.collections = items.collections.filter((c) => !isPartnerCollection(c.handle));
 
   const total = Object.values(items).reduce(
     (acc: number, item: Array<unknown>) => acc + item.length,

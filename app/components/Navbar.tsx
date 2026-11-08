@@ -10,6 +10,7 @@
  * Wishlist heart with badge count (localStorage-backed).
  */
 import { useState, useEffect, useRef, Suspense } from "react";
+import { isPartnerCollection } from "~/lib/partners";
 import { Link, useLocation, Await } from "react-router";
 import { Menu, X, Search, ShoppingBag, Heart, Sparkles, ChevronDown, ArrowRight } from "lucide-react";
 import { STUDIO_OPEN } from "~/lib/features";
@@ -114,7 +115,7 @@ function useCollectionMenu() {
   const clean = all
     .filter(
       (c) =>
-        !c.handle.startsWith("partner-") &&
+        !isPartnerCollection(c.handle) &&
         !MENU_HIDDEN.includes(c.handle),
     )
     .map((c) => ({ ...c, title: c.title.replace(/ Collection$/i, "") }));
