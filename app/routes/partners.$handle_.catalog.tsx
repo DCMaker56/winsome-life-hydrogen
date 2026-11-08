@@ -88,7 +88,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     loadFilteredProducts(
       context.storefront as never,
       new Request(new URL(`/partners/${partner.handle}`, request.url)),
-      partner.collection,
+      partner.collection ?? undefined,
       {withCollections: true},
     ),
     context.storefront.query<{nodes: Array<MediaProduct | null>}>(MEDIA_QUERY, {

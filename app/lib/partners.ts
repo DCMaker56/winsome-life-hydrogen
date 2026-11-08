@@ -25,8 +25,11 @@ import boxwoodCottageStorefront from '~/assets/partners/boxwood-cottage-storefro
 export type Partner = {
   handle: string;
   name: string;
-  /** Shopify collection handle with the curated products. */
-  collection: string;
+  /**
+   * Shopify collection handle with the curated products; null = every
+   * product in the shop (same as Shop All).
+   */
+  collection: string | null;
   /** Applied to the cart on visit; leave empty for no discount. */
   discountCode: string;
   /** Shown on the page, e.g. 15 → "15% off". null = don't state an amount. */
@@ -105,6 +108,23 @@ export const PARTNERS: Record<string, Partner> = {
     website: 'https://boxwoodcottageavl.com',
     // Soft sage green (Sydney) with deep green text.
     colors: {background: '#B9C6A6', text: '#26331F', accent: '#4E6343'},
+  },
+  'cahill-edit': {
+    handle: 'cahill-edit',
+    name: 'Cahill Edit',
+    // Every product (Sydney, Nov 2026), not a curated collection.
+    collection: null,
+    // Shopify code discount CAHILL35: 35% off (most collections), no end date.
+    discountCode: 'CAHILL35',
+    discountPercent: 35,
+    intro:
+      'The full collection of The Winsome Life’s personalized stationery, especially for Cahill Edit customers.',
+    // Name as a wordmark until we have their logo file.
+    logo: null,
+    viewToggle: true,
+    shareImage: null,
+    // Their olive green on a soft cream (from their logo).
+    colors: {background: '#F4F2E9', text: '#5F6E3A', accent: '#7D8C55'},
   },
 };
 

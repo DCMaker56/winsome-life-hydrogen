@@ -22,7 +22,9 @@ import {absoluteUrl} from '~/lib/seo';
 export const meta: Route.MetaFunction = ({data}) => {
   const name = data?.partner.name ?? 'Partner';
   const title = `${name} × The Winsome Life`;
-  const description = `A curated collection of personalized stationery from The Winsome Life, chosen especially for ${name} customers.`;
+  const description = data?.partner.collection
+    ? `A curated collection of personalized stationery from The Winsome Life, chosen especially for ${name} customers.`
+    : `Personalized stationery from The Winsome Life, especially for ${name} customers.`;
   const image = data?.partner.shareImage;
   return [
     {title},
@@ -54,7 +56,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const products = await loadFilteredProducts(
     context.storefront as never,
     request,
-    partner.collection,
+    partner.collection ?? undefined,
     {withCollections: true},
   );
 
