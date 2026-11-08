@@ -21,6 +21,7 @@ import carmonWeedenLogo from '~/assets/partners/carmon-weeden.png';
 import carmonWeedenShare from '~/assets/partners/carmon-weeden-share.jpg';
 import boxwoodCottageShare from '~/assets/partners/boxwood-cottage-share.jpg';
 import boxwoodCottageStorefront from '~/assets/partners/boxwood-cottage-storefront.jpg';
+import cahillEditLogo from '~/assets/partners/cahill-edit.png';
 
 export type Partner = {
   handle: string;
@@ -114,17 +115,16 @@ export const PARTNERS: Record<string, Partner> = {
     name: 'Cahill Edit',
     // Every product (Sydney, Nov 2026), not a curated collection.
     collection: null,
-    // Shopify code discount CAHILL35: 35% off (most collections), no end date.
+    // Shopify code discount CAHILL35: 35% off everything, no end date.
     discountCode: 'CAHILL35',
     discountPercent: 35,
     intro:
       'The full collection of The Winsome Life’s personalized stationery, especially for Cahill Edit customers.',
-    // Name as a wordmark until we have their logo file.
-    logo: null,
+    logo: cahillEditLogo,
     viewToggle: true,
     shareImage: null,
     // Their olive green on a soft cream (from their logo).
-    colors: {background: '#F4F2E9', text: '#5F6E3A', accent: '#7D8C55'},
+    colors: {background: '#F4F2E9', text: '#5F6E3A', accent: '#7D8950'},
   },
 };
 
