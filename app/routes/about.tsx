@@ -13,6 +13,7 @@ import {useInView} from '~/hooks/useInView';
 import Newsletter from '~/components/Newsletter';
 import {ResponsiveImg} from '~/components/ResponsiveImg';
 import beeWatercolor from '~/assets/about/bee-watercolor.jpg';
+import scallopShell from '~/assets/about/scallop-shell-watercolor.jpg';
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Our Story | The Winsome Life'},
@@ -29,8 +30,6 @@ export const meta: Route.MetaFunction = () => [
 // brand's real desk-scene photography + a warm writing-desk lifestyle shot.
 const STUDIO_IMG =
   'https://caatee-kr.myshopify.com/cdn/shop/files/03.png?v=1758893929&width=1800';
-const FOUNDER_IMG =
-  'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=1100&q=80';
 const PROCESS_IMG =
   'https://caatee-kr.myshopify.com/cdn/shop/files/04.png?v=1758894113&width=1600';
 const VALUES_IMG =
@@ -126,8 +125,39 @@ function HeroBanner() {
   );
 }
 
-/** Our Story text: one size throughout (Sydney); emphasis by weight/italics only. */
+/** About text: one size throughout (Sydney); emphasis by weight/italics only. */
 const storyText = 'font-sans text-[17px] lg:text-lg leading-relaxed';
+
+/**
+ * Sydney's watercolors in a circle frame (white mat, thin gold ring) on a
+ * background matching the painting's paper. Protected from casual saving:
+ * no right-click / drag / long-press, and a clear layer over the image.
+ */
+function CircleArt({src, alt, paper}: {src: string; alt: string; paper: string}) {
+  return (
+    <div className="mx-auto w-full max-w-[300px] sm:max-w-[360px] lg:max-w-[420px]">
+      <div
+        className="relative rounded-full bg-white p-2.5 sm:p-3 shadow-[0_24px_50px_-22px_rgba(45,45,45,0.4)] select-none [-webkit-touch-callout:none]"
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        <div
+          className="relative aspect-square rounded-full overflow-hidden ring-1 ring-[#C9A96E]/70 flex items-center justify-center"
+          style={{background: paper}}
+        >
+          <ResponsiveImg
+            src={src}
+            sizes="(min-width: 1024px) 380px, (min-width: 640px) 330px, 280px"
+            alt={alt}
+            loading="lazy"
+            draggable={false}
+            className="w-full h-full object-cover pointer-events-none"
+          />
+        </div>
+        <span aria-hidden className="absolute inset-0 rounded-full" />
+      </div>
+    </div>
+  );
+}
 
 function BrandMission() {
   const {ref, inView} = useInView({threshold: 0.15});
@@ -139,47 +169,33 @@ function BrandMission() {
           initial={{opacity: 0, y: 25}}
           animate={inView ? {opacity: 1, y: 0} : {}}
           transition={{duration: 0.8, ease: 'easeOut'}}
-          className="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-16 items-center"
+          className="max-w-2xl mx-auto"
         >
-          {/* Sydney's honeybee watercolor, framed like a print. Protected
-              from casual saving: no right-click / drag / long-press, and a
-              clear layer over the photo so it can't be grabbed directly. */}
-          <div className="mx-auto w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[460px]">
-            <div
-              className="relative bg-white p-3 sm:p-4 shadow-[0_24px_50px_-22px_rgba(45,45,45,0.4)] ring-1 ring-[#2D2D2D]/5 select-none [-webkit-touch-callout:none]"
-              onContextMenu={(e) => e.preventDefault()}
-            >
-              <ResponsiveImg
-                src={beeWatercolor}
-                sizes="(min-width: 1024px) 440px, (min-width: 640px) 380px, 300px"
-                alt="Sydney's original watercolor painting of a honeybee with gold detailing"
-                width={1600}
-                height={1590}
-                loading="lazy"
-                draggable={false}
-                className="w-full h-auto pointer-events-none"
-              />
-              <span aria-hidden className="absolute inset-0" />
-            </div>
-          </div>
-
-          <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-            <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mx-auto lg:mx-0 lg:from-[#C9A96E] mb-8" />
-            <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-6">
-              Welcome to The Winsome Life
-            </p>
+          <div className="text-center">
+            <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mx-auto mb-8" />
+            <h2 className="mb-7">
+              <span className="block font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#2D2D2D] mb-3">
+                Welcome to
+              </span>
+              <span
+                className="block text-[2.6rem] md:text-[3.2rem] text-[#2D2D2D] leading-[1.05]"
+                style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive"}}
+              >
+                The Winsome Life
+              </span>
+            </h2>
             <div className="space-y-5">
               <p className={`${storyText} font-normal text-[#2D2D2D]`}>
                 At The Winsome Life, we believe in the quiet beauty of putting
                 pen to paper&mdash;where a handwritten note becomes a gesture of
                 grace, connection, and intention.
               </p>
-              <p className={`${storyText} font-light text-[#2D2D2D]/80`}>
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 Inspired by the honeybee&mdash;symbol of community, sweetness,
                 and purpose&mdash;we craft luxury stationery that is gentle,
                 gracious, and beautifully intentional.
               </p>
-              <p className={`${storyText} font-light text-[#2D2D2D]/80`}>
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 From the texture of the paper to the richness of the print,
                 each detail reflects our commitment to quality and quiet
                 sophistication&mdash;and we aim to make every interaction as
@@ -202,49 +218,55 @@ function WinsomeDefinition() {
 
   return (
     <section className="py-16 lg:py-24 bg-white" ref={ref}>
-      <div className="container">
+      <div className="container max-w-6xl">
         <motion.div
           initial={{opacity: 0, y: 20}}
           animate={inView ? {opacity: 1, y: 0} : {}}
           transition={{duration: 0.7, ease: 'easeOut'}}
-          className="max-w-2xl mx-auto text-center"
+          className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center"
         >
-          <p
-            className="text-4xl lg:text-5xl text-[#C9A96E] mb-3"
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontWeight: 500,
-              fontStyle: 'italic',
-            }}
-          >
-            Winsome
-          </p>
-          <p className="font-sans font-medium text-xs tracking-[0.2em] uppercase text-[#2D2D2D]/40 mb-6">
-            Adjective
-          </p>
-          <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed mb-4">
-            <span className="font-medium text-[#2D2D2D]/85">Definition:</span>{' '}
-            Attractive or appealing in appearance or character. Generally
-            pleasing and engaging.
-          </p>
-          <p
-            className="text-sm text-[#2D2D2D]/50 mb-8"
-            style={{
-              fontFamily: "'Montserrat', sans-serif",
-              fontWeight: 300,
-              fontStyle: 'italic',
-            }}
-          >
-            Synonyms: cheerful, lighthearted, bright, sunny, upbeat
-          </p>
-          <div className="w-12 h-[1px] bg-[#C9A96E]/30 mx-auto mb-8" />
-          <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed">
-            The word <em className="font-serif">winsome</em> captures the
-            essence of our brand&mdash;charming, joyful, and quietly uplifting.
-            It reflects the spirit of our stationery, our symbol the honeybee,
-            and the kind of life we aspire to inspire: one filled with grace,
-            warmth, and meaningful connection.
-          </p>
+          {/* Shell first on phones, on the right on larger screens (mirrors the bee). */}
+          <div className="lg:order-2">
+            <CircleArt
+              src={scallopShell}
+              paper="#D5D3C7"
+              alt="Sydney's original watercolor painting of a scallop shell in gold"
+            />
+          </div>
+
+          <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+            <p
+              className="text-4xl lg:text-5xl text-[#2D2D2D] mb-3"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontWeight: 500,
+                fontStyle: 'italic',
+              }}
+            >
+              Winsome
+            </p>
+            <p className="font-sans font-medium text-xs tracking-[0.2em] uppercase text-[#2D2D2D] mb-6">
+              Adjective
+            </p>
+            <div className="space-y-5">
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
+                <span className="font-medium text-[#2D2D2D]">Definition:</span>{' '}
+                Attractive or appealing in appearance or character. Generally
+                pleasing and engaging.
+              </p>
+              <p className={`${storyText} font-light italic text-[#2D2D2D]`}>
+                Synonyms: cheerful, lighthearted, bright, sunny, upbeat
+              </p>
+              <div className="w-12 h-[1px] bg-[#C9A96E]/40 mx-auto lg:mx-0" />
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
+                The word <em>winsome</em> captures the essence of our
+                brand&mdash;charming, joyful, and quietly uplifting. It reflects
+                the spirit of our stationery, our symbol the honeybee, and the
+                kind of life we aspire to inspire: one filled with grace,
+                warmth, and meaningful connection.
+              </p>
+            </div>
+          </div>
         </motion.div>
       </div>
     </section>
@@ -264,16 +286,11 @@ function HoneybeeStory() {
             animate={inView ? {opacity: 1, x: 0} : {}}
             transition={{duration: 0.8, ease: 'easeOut'}}
           >
-            <div className="relative">
-              <div className="absolute -top-4 -left-4 w-full h-full border border-[#C9A96E]/20" />
-              <img
-                src={FOUNDER_IMG}
-                alt="Original watercolor artwork being created for The Winsome Life stationery"
-                className="w-full h-[500px] lg:h-[600px] object-cover relative z-10"
-                loading="lazy"
-              />
-              <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-[#C9A96E]/10 z-0" />
-            </div>
+            <CircleArt
+              src={beeWatercolor}
+              paper="#CDCED3"
+              alt="Sydney's original watercolor painting of a honeybee with gold detailing"
+            />
           </motion.div>
 
           {/* Right: Honeybee narrative */}
@@ -283,24 +300,24 @@ function HoneybeeStory() {
             transition={{duration: 0.8, ease: 'easeOut', delay: 0.15}}
           >
             <div className="gold-rule w-16 mb-8" />
-            <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-4">
+            <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#2D2D2D] mb-4">
               Our Symbol
             </p>
             <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] mb-8 leading-tight">
               The Honeybee&mdash;{' '}
-              <span className="text-[#C9A96E]" style={{fontStyle: 'italic'}}>
+              <span className="text-[#2D2D2D]" style={{fontStyle: 'italic'}}>
                 sweet with intention
               </span>
             </h2>
             <div className="space-y-5">
-              <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed">
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 At the heart of our brand is the honeybee&mdash;nature&rsquo;s
                 perfect symbol of connection, community, and lasting sweetness.
                 Just as bees thrive through collaboration and create honey that
                 never spoils, meaningful handwritten correspondence builds
                 lasting bonds between people.
               </p>
-              <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed">
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 Bees are always communicating, always connected&mdash;just like
                 us when we pause to write and share meaningful sentiments. Our
                 stationery is designed to capture that same spirit: thoughtful,
@@ -310,17 +327,11 @@ function HoneybeeStory() {
               </p>
               <div className="pt-4">
                 <blockquote className="border-l-2 border-[#C9A96E] pl-5">
-                  <p
-                    className="text-base text-[#2D2D2D]/55 leading-relaxed"
-                    style={{
-                      fontFamily: "'Cormorant Garamond', serif",
-                      fontStyle: 'italic',
-                    }}
-                  >
+                  <p className={`${storyText} font-light italic text-[#2D2D2D]`}>
                     &ldquo;How sweet your words are to my taste&mdash;sweeter
                     than honey.&rdquo;
                   </p>
-                  <p className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#C9A96E] mt-2">
+                  <p className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mt-2">
                     Psalm 119:103
                   </p>
                 </blockquote>
