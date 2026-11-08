@@ -246,18 +246,13 @@ function HoneybeeStory() {
             <div className="space-y-5">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 At the heart of our brand is the honeybee&mdash;nature&rsquo;s
-                perfect symbol of connection, community, and lasting sweetness.
-                Just as bees thrive through collaboration and create honey that
-                never spoils, meaningful handwritten correspondence builds
-                lasting bonds between people.
+                symbol of connection, community, and lasting sweetness.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                Bees are always communicating, always connected&mdash;just like
-                us when we pause to write and share meaningful sentiments. Our
-                stationery is designed to capture that same spirit: thoughtful,
-                enduring, and sweet with intention. Every card, note, or letter
-                you send is a small act of connection that, like honey, never
-                goes out of style.
+                Bees are always communicating, and their honey never spoils. A
+                handwritten note is much the same: a small act of connection
+                that lasts. That is the spirit we bring to every piece&mdash;
+                thoughtful, enduring, and sweet with intention.
               </p>
               <div className="pt-4">
                 <blockquote className="border-l-2 border-[#C9A96E] pl-5">
@@ -366,6 +361,13 @@ function ArtistSection() {
                 She painted the very first artwork The Winsome Life printed,
                 and much of our collection today is her original work, painted
                 especially for us.
+              </p>
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
+                Darlene&rsquo;s artistry has shaped The Winsome Life from the very
+                beginning. The patience, skill and care in every brushstroke set
+                the standard for everything we make, and we are endlessly
+                grateful to have her extraordinary talent at the heart of our
+                story.
               </p>
             </div>
           </div>
