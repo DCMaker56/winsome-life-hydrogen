@@ -88,14 +88,13 @@ export default function BrandStory() {
               <p className={copy}>Welcome. We are so happy you&rsquo;re here.</p>
               <p className={copy}>
                 At The Winsome Life, we believe the most meaningful things are
-                personal. We create luxury stationery designed not just to be used,
-                but to be treasured.
+                personal. We create luxury stationery designed not just to be
+                used, but to be treasured.
               </p>
               <p className={copy}>
-                Every piece is crafted with care, with fine materials, made to
-                reflect your unique style, passions, and purpose. Whether
-                you&rsquo;re writing a note, giving a gift, or creating a moment,
-                we&rsquo;re here to help you make it beautifully personal.
+                Whether you&rsquo;re writing a note, giving a gift, or
+                celebrating a moment, we&rsquo;re here to help you make it
+                beautifully personal.
               </p>
             </div>
 
