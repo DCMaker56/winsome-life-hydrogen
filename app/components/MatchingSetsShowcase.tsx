@@ -10,34 +10,45 @@ import {SET_DISCOUNT_PERCENT, type SetCardProduct} from '~/lib/matching-sets';
 /** Matching set names to feature, in this order. */
 export const FEATURED_SETS = ['Red & Green Tartan', 'Mahjong', 'Dog', 'Hydrangea'];
 
+/** Veterans Day edition (through Nov 11): the military matching sets. */
+export const VETERANS_DAY_SETS = ['US Army', 'US Navy', 'US Air Force', 'US Marine Corps', 'US Coast Guard'];
+
 export type FeaturedSet = {design: string; pieces: SetCardProduct[]};
 
 const script = {fontFamily: "'Parisian Script', 'Great Vibes', cursive"} as const;
 const sized = (url: string, w: number) => `${url}${url.includes('?') ? '&' : '?'}width=${w}`;
 const kind = (p: SetCardProduct) => (/notepad/i.test(p.title) ? 'Notepad' : 'Notecards');
 
-export default function MatchingSetsShowcase({sets}: {sets: FeaturedSet[]}) {
+export default function MatchingSetsShowcase({
+  sets,
+  veteransDay = false,
+}: {
+  sets: FeaturedSet[];
+  /** Veterans Day edition: military sets, honoring copy. */
+  veteransDay?: boolean;
+}) {
   if (!sets.length) return null;
   return (
     <section className="py-20 lg:py-24 bg-[#FAF8F5]" aria-labelledby="sets-title">
       <div className="container max-w-7xl">
         <div className="text-center mb-12">
           <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#2D2D2D] mb-3">
-            Matching Sets &middot; Save {SET_DISCOUNT_PERCENT}%
+            {veteransDay ? 'Honoring Veterans Day \u00b7 November 11' : `Matching Sets \u00b7 Save ${SET_DISCOUNT_PERCENT}%`}
           </p>
           <h2 id="sets-title" className="font-serif font-medium text-3xl md:text-[2.6rem] text-[#2D2D2D] leading-tight">
-            Complete the{' '}
+            {veteransDay ? 'Notes Worth' : 'Complete the'}{' '}
             <span className="inline-block text-[1.35em] leading-none relative top-[0.3em] ml-[0.05em]" style={script}>
-              Set
+              {veteransDay ? 'Saluting' : 'Set'}
             </span>
           </h2>
           <p className="font-sans font-light text-base md:text-[17px] text-[#2D2D2D] max-w-xl mx-auto mt-6 leading-relaxed">
-            The same artwork on your notepad and notecards. Buy two or more
-            pieces of a matching set and save {SET_DISCOUNT_PERCENT}% automatically at checkout.
+            {veteransDay
+              ? `Thank the veterans in your life with a personalized note. Pair the notepad and notecards for every branch and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`
+              : `The same artwork on your notepad and notecards. Buy two or more pieces of a matching set and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`}
           </p>
         </div>
 
-        <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <ul className={`grid sm:grid-cols-2 gap-6 ${sets.length === 5 ? 'lg:grid-cols-5 lg:gap-5' : 'lg:grid-cols-4'}`}>
           {sets.map((set) => {
             const [a, b] = set.pieces;
             return (

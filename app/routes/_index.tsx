@@ -19,13 +19,16 @@ import {
 import {CatalogProvider} from '~/hooks/useProducts';
 import HeroSection from '~/components/HeroSection';
 import TwoUpFeature from '~/components/TwoUpFeature';
-import CollectionRow from '~/components/CollectionRow';
 import GiftGuideTeaser from '~/components/GiftGuideTeaser';
 import {loadRecipients} from '~/lib/gift-guide';
 import PetsSection, {type PetProduct} from '~/components/PetsSection';
 import Marquee from '~/components/Marquee';
 import ShopByProductType from '~/components/ShopByProductType';
-import MatchingSetsShowcase, {FEATURED_SETS, type FeaturedSet} from '~/components/MatchingSetsShowcase';
+import MatchingSetsShowcase, {
+  FEATURED_SETS,
+  VETERANS_DAY_SETS,
+  type FeaturedSet,
+} from '~/components/MatchingSetsShowcase';
 import {loadMatchingSets} from '~/lib/matching-sets';
 import BrandStory from '~/components/BrandStory';
 import ValueProps from '~/components/ValueProps';
@@ -74,8 +77,8 @@ const SEASON_ORDER: Record<'holiday' | 'rest', string[]> = {
   rest: ['notecards', 'notepads', 'place-cards', 'gift-tags-stickers', 'wine-tags-1', 'coasters', 'artwork', 'holiday-photo-cards'],
 };
 
-/** "Notes Worth Saluting" (military) shows through Veterans Day 2026, then
- * the Matching Sets showcase takes its place. */
+/** Through Veterans Day 2026 the sets showcase is the "Notes Worth
+ * Saluting" military edition; after, "Complete the Set". */
 const MILITARY_ROW_UNTIL = Date.parse('2026-11-12T05:00:00Z'); // midnight Eastern, Nov 12
 
 const PRODUCT_TYPE_QUERY = `
@@ -96,18 +99,12 @@ type CollImg = {
 export async function loader({context, request}: Route.LoaderArgs) {
   const [
     {products},
-    {collection: military},
     {collection: pets},
     recipients,
     productTypeData,
     matchingSets,
   ] = await Promise.all([
     context.storefront.query(HOME_PRODUCTS_QUERY, {
-      cache: context.storefront.CacheShort(),
-    }),
-    // "Notes Worth Saluting" product row — the military collection.
-    context.storefront.query(HOME_COLLECTION_QUERY, {
-      variables: {handle: 'military'},
       cache: context.storefront.CacheShort(),
     }),
     // "For the Love of Dogs & Cats" section — the Dogs & Cats collection.
@@ -128,14 +125,17 @@ export async function loader({context, request}: Route.LoaderArgs) {
   // ?sets=1 previews the Matching Sets showcase early.
   const showMilitary =
     Date.now() < MILITARY_ROW_UNTIL && !new URL(request.url).searchParams.has('sets');
-  const featuredSets: FeaturedSet[] = FEATURED_SETS.flatMap((design) => {
+  const toFeatured = (design: string): FeaturedSet[] => {
     const pieces = matchingSets[design] ?? [];
     const notepad = pieces.find((p) => /notepad/i.test(p.title));
     const notecards = pieces.find(
       (p) => !/notepad|folded|photo card|christmas card|tag|coaster|place card|wine/i.test(p.title),
     );
     return notepad && notecards ? [{design, pieces: [notepad, notecards]}] : [];
-  });
+  };
+  // Through Veterans Day: the military sets ("Notes Worth Saluting");
+  // after: the featured sets ("Complete the Set").
+  const featuredSets = (showMilitary ? VETERANS_DAY_SETS : FEATURED_SETS).flatMap(toFeatured);
 
   const petProducts: PetProduct[] = (pets?.products?.nodes ?? []).map((p) => {
     const prices = (p.variants?.nodes ?? [])
@@ -165,9 +165,6 @@ export async function loader({context, request}: Route.LoaderArgs) {
     products: (products?.nodes ?? []).map((p: GraphqlProduct) =>
       graphqlToAppProduct(p),
     ),
-    militaryProducts: (military?.products?.nodes ?? []).map((p: GraphqlProduct) =>
-      graphqlToAppProduct(p),
-    ),
     recipients,
     productTypes,
     petProducts,
@@ -177,7 +174,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
 }
 
 export default function HomePage() {
-  const {products, militaryProducts, recipients, productTypes, petProducts, showMilitary, featuredSets} =
+  const {products, recipients, productTypes, petProducts, showMilitary, featuredSets} =
     useLoaderData<typeof loader>();
   return (
     <CatalogProvider products={products} collections={COLLECTIONS}>
@@ -195,18 +192,7 @@ export default function HomePage() {
         <ValueProps />
         <ShopByProductType productTypes={productTypes} />
         <PetsSection products={petProducts} />
-        {showMilitary ? (
-          <CollectionRow
-            title="Notes Worth"
-            scriptWord="Saluting"
-            subtitle="Personalized military stationery honoring every branch of service"
-            handle="military"
-            products={militaryProducts}
-            stars
-          />
-        ) : (
-          <MatchingSetsShowcase sets={featuredSets} />
-        )}
+        <MatchingSetsShowcase sets={featuredSets} veteransDay={showMilitary} />
       </main>
     </CatalogProvider>
   );
