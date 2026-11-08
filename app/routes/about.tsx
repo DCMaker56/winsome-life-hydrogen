@@ -18,6 +18,8 @@ import beeWatercolor from '~/assets/about/bee-watercolor.jpg';
 import founderPhoto from '~/assets/home/founder-sydney.jpg';
 import SocialProof from '~/components/SocialProof';
 import scallopShell from '~/assets/about/scallop-shell-watercolor.jpg';
+// Small copy from the Retail Partners page; swap for the full-size original when we have it.
+import hydrangea from '~/assets/retail/art-hydrangea.webp';
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Our Story | The Winsome Life'},
@@ -428,6 +430,13 @@ function PromisesSection() {
     <section className="py-16 lg:py-24 bg-[#F3ECDD]" ref={ref}>
       <div className="container max-w-6xl">
         <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="w-44 sm:w-52 mx-auto mb-8">
+            <CircleArt
+              src={hydrangea}
+              paper="#F6F2EB"
+              alt="Sydney's original watercolor painting of a blue hydrangea"
+            />
+          </div>
           <p className={sectionEyebrow}>Our Promises</p>
           <h2 className={sectionTitle}>
             What you can{' '}

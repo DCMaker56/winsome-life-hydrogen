@@ -25,6 +25,8 @@ import {loadRecipients} from '~/lib/gift-guide';
 import PetsSection, {type PetProduct} from '~/components/PetsSection';
 import Marquee from '~/components/Marquee';
 import ShopByProductType from '~/components/ShopByProductType';
+import MatchingSetsShowcase, {FEATURED_SETS, type FeaturedSet} from '~/components/MatchingSetsShowcase';
+import {loadMatchingSets} from '~/lib/matching-sets';
 import BrandStory from '~/components/BrandStory';
 import ValueProps from '~/components/ValueProps';
 import SocialProof from '~/components/SocialProof';
@@ -54,22 +56,34 @@ export const meta: Route.MetaFunction = () => {
 };
 
 // "Shop by Product Type" square tiles — label + collection handle (icon added
-// client-side in the component).
+// client-side in the component). Order changes with the season (below).
 const PRODUCT_TYPES = [
+  {label: 'Holiday Photo Cards', handle: 'holiday-photo-cards'},
   {label: 'Notecards', handle: 'notecards'},
   {label: 'Notepads', handle: 'notepads'},
   {label: 'Gift Tags & Stickers', handle: 'gift-tags-stickers'},
-  {label: 'Artwork', handle: 'artwork'},
-  {label: 'Wine Tags', handle: 'wine-tags-1'},
   {label: 'Place Cards', handle: 'place-cards'},
+  {label: 'Wine Tags', handle: 'wine-tags-1'},
+  {label: 'Coasters', handle: 'coasters'},
+  {label: 'Artwork', handle: 'artwork'},
 ];
+
+/** Holiday season (Oct–Dec) leads with what people buy for the holidays. */
+const SEASON_ORDER: Record<'holiday' | 'rest', string[]> = {
+  holiday: ['holiday-photo-cards', 'gift-tags-stickers', 'notecards', 'notepads', 'place-cards', 'wine-tags-1', 'coasters', 'artwork'],
+  rest: ['notecards', 'notepads', 'place-cards', 'gift-tags-stickers', 'wine-tags-1', 'coasters', 'artwork', 'holiday-photo-cards'],
+};
+
+/** "Notes Worth Saluting" (military) shows through Veterans Day 2026, then
+ * the Matching Sets showcase takes its place. */
+const MILITARY_ROW_UNTIL = Date.parse('2026-11-12T05:00:00Z'); // midnight Eastern, Nov 12
 
 const PRODUCT_TYPE_QUERY = `
   query ProductTypeCollections($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
     ${PRODUCT_TYPES.map(
       (it, i) =>
-        `t${i}: collection(handle: "${it.handle}") { handle image { url } products(first: 1) { nodes { featuredImage { url } } } }`,
+        `t${i}: collection(handle: "${it.handle}") { handle image { url } products(first: 1, sortKey: BEST_SELLING) { nodes { featuredImage { url } } } }`,
     ).join('\n')}
   }
 `;
@@ -79,13 +93,14 @@ type CollImg = {
   products?: {nodes: Array<{featuredImage?: {url: string} | null}>};
 } | null;
 
-export async function loader({context}: Route.LoaderArgs) {
+export async function loader({context, request}: Route.LoaderArgs) {
   const [
     {products},
     {collection: military},
     {collection: pets},
     recipients,
     productTypeData,
+    matchingSets,
   ] = await Promise.all([
     context.storefront.query(HOME_PRODUCTS_QUERY, {
       cache: context.storefront.CacheShort(),
@@ -106,7 +121,21 @@ export async function loader({context}: Route.LoaderArgs) {
     context.storefront.query<Record<string, CollImg>>(PRODUCT_TYPE_QUERY, {
       cache: context.storefront.CacheShort(),
     }),
+    // "Complete the Set" showcase.
+    loadMatchingSets(context.storefront as never),
   ]);
+
+  // ?sets=1 previews the Matching Sets showcase early.
+  const showMilitary =
+    Date.now() < MILITARY_ROW_UNTIL && !new URL(request.url).searchParams.has('sets');
+  const featuredSets: FeaturedSet[] = FEATURED_SETS.flatMap((design) => {
+    const pieces = matchingSets[design] ?? [];
+    const notepad = pieces.find((p) => /notepad/i.test(p.title));
+    const notecards = pieces.find(
+      (p) => !/notepad|folded|photo card|christmas card|tag|coaster|place card|wine/i.test(p.title),
+    );
+    return notepad && notecards ? [{design, pieces: [notepad, notecards]}] : [];
+  });
 
   const petProducts: PetProduct[] = (pets?.products?.nodes ?? []).map((p) => {
     const prices = (p.variants?.nodes ?? [])
@@ -120,6 +149,8 @@ export async function loader({context}: Route.LoaderArgs) {
     };
   });
 
+  const month = new Date().getUTCMonth(); // 0 = Jan
+  const order = SEASON_ORDER[month >= 9 ? 'holiday' : 'rest'];
   const productTypes = PRODUCT_TYPES.map((it, i) => {
     const c = productTypeData?.[`t${i}`];
     return {
@@ -128,7 +159,7 @@ export async function loader({context}: Route.LoaderArgs) {
       image:
         c?.image?.url ?? c?.products?.nodes?.[0]?.featuredImage?.url ?? null,
     };
-  });
+  }).sort((a, b) => order.indexOf(a.handle) - order.indexOf(b.handle));
 
   return {
     products: (products?.nodes ?? []).map((p: GraphqlProduct) =>
@@ -140,18 +171,21 @@ export async function loader({context}: Route.LoaderArgs) {
     recipients,
     productTypes,
     petProducts,
+    showMilitary,
+    featuredSets,
   };
 }
 
 export default function HomePage() {
-  const {products, militaryProducts, recipients, productTypes, petProducts} =
+  const {products, militaryProducts, recipients, productTypes, petProducts, showMilitary, featuredSets} =
     useLoaderData<typeof loader>();
   return (
     <CatalogProvider products={products} collections={COLLECTIONS}>
       <main className="min-h-screen bg-[#FAF8F5]">
-        {/* Order per Sydney: Hero → Best Sellers/Holiday → reviews → Holiday
-            Gift Guide → Founder's Welcome → value bar → Trending → Notes Worth
-            Saluting → Shop by Product Type. Trending was replaced by Dogs & Cats. */}
+        {/* Order per Sydney (Nov 2026): Hero → Holiday Card Shop / Holiday
+            Table → reviews → Holiday Gift Guide → Founder's Welcome → value
+            bar → Shop by Product Type → Dogs & Cats → Notes Worth Saluting
+            (through Veterans Day), then Complete the Set. */}
         <HeroSection />
         <Marquee />
         <TwoUpFeature />
@@ -159,16 +193,20 @@ export default function HomePage() {
         <GiftGuideTeaser recipients={recipients} />
         <BrandStory />
         <ValueProps />
-        <PetsSection products={petProducts} />
-        <CollectionRow
-          title="Notes Worth"
-          scriptWord="Saluting"
-          subtitle="Personalized military stationery honoring every branch of service"
-          handle="military"
-          products={militaryProducts}
-          stars
-        />
         <ShopByProductType productTypes={productTypes} />
+        <PetsSection products={petProducts} />
+        {showMilitary ? (
+          <CollectionRow
+            title="Notes Worth"
+            scriptWord="Saluting"
+            subtitle="Personalized military stationery honoring every branch of service"
+            handle="military"
+            products={militaryProducts}
+            stars
+          />
+        ) : (
+          <MatchingSetsShowcase sets={featuredSets} />
+        )}
       </main>
     </CatalogProvider>
   );

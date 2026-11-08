@@ -1,10 +1,11 @@
 /*
- * ShopByProductType — square tiles for the 6 core product types (per Sydney:
- * same format as the old Shop by Occasion, but each tile carries a product
- * image AND a small icon, kept square). Images resolve in the homepage loader.
+ * ShopByProductType — square tiles for the 8 core product types, each with a
+ * best-selling product image and a small icon, plus Shop All (Sydney, Nov
+ * 2026). Order follows the season; images and order resolve in the homepage
+ * loader.
  */
 import { Link } from "react-router";
-import { Mail, StickyNote, Tag, Image as ImageIcon, Wine, Utensils } from "lucide-react";
+import { Mail, StickyNote, Tag, Image as ImageIcon, Wine, Utensils, Camera, CircleDot } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface ProductType {
@@ -20,6 +21,8 @@ const ICONS: Record<string, LucideIcon> = {
   artwork: ImageIcon,
   "wine-tags-1": Wine,
   "place-cards": Utensils,
+  "holiday-photo-cards": Camera,
+  coasters: CircleDot,
 };
 
 export default function ShopByProductType({
@@ -53,7 +56,7 @@ export default function ShopByProductType({
           <div className="gold-rule w-24 mx-auto" />
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-5 max-w-6xl mx-auto">
           {productTypes.map((t) => {
             const Icon = ICONS[t.handle] ?? Mail;
             return (
@@ -87,7 +90,7 @@ export default function ShopByProductType({
                   <Icon size={17} strokeWidth={1.5} className="text-[#C9A96E]" />
                 </span>
                 <span className="relative p-4 text-center">
-                  <span className="block font-serif font-medium text-[15px] lg:text-base text-white leading-tight">
+                  <span className="block font-serif font-medium text-base lg:text-lg text-white leading-tight">
                     {t.label}
                   </span>
                   <span className="font-sans font-medium text-[9px] tracking-[0.18em] uppercase text-white/85 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 block">
@@ -97,6 +100,14 @@ export default function ShopByProductType({
               </Link>
             );
           })}
+        </div>
+        <div className="text-center mt-10">
+          <Link
+            to="/collections/all"
+            className="inline-flex items-center gap-2 px-9 py-3.5 bg-[#2D2D2D] text-white font-sans font-medium text-[12px] tracking-[0.18em] uppercase hover:bg-[#1B294E] transition-colors"
+          >
+            Shop All <span aria-hidden>&rarr;</span>
+          </Link>
         </div>
       </div>
     </section>
