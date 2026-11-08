@@ -10,7 +10,7 @@ import type {Route} from './+types/about';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router';
 import {useEffect} from 'react';
-import {Check, Gift, Heart, MessageCircle, PenLine} from 'lucide-react';
+import {Check, Gift, Heart, MessageCircle, PenLine, Truck} from 'lucide-react';
 import {useInView} from '~/hooks/useInView';
 import Newsletter from '~/components/Newsletter';
 import {ResponsiveImg} from '~/components/ResponsiveImg';
@@ -417,6 +417,11 @@ const PROMISES = [
     link: {to: '/contact', label: 'Contact us'},
   },
   {
+    icon: Truck,
+    title: 'Made for you, quickly',
+    text: 'Every order is made to order in 5\u20137 business days, then on its way. Free U.S. shipping on orders of $75 or more.',
+  },
+  {
     icon: Gift,
     title: 'Sets that save',
     text: 'Buy two or more pieces of a matching set and save 10%, automatically at checkout.',
@@ -444,7 +449,7 @@ function PromisesSection() {
             </span>
           </h2>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {PROMISES.map((p, i) => (
             <motion.div
               key={p.title}

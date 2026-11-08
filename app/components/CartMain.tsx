@@ -5,6 +5,7 @@ import {useAside} from '~/components/Aside';
 import {CartLineItem, type CartLine} from '~/components/CartLineItem';
 import {CartSummary} from './CartSummary';
 import {CartCompleteTheSet} from '~/components/CompleteTheSet';
+import {FreeShippingProgress} from '~/components/FreeShippingProgress';
 
 export type CartLayout = 'page' | 'aside';
 
@@ -57,6 +58,9 @@ export function CartMain({layout, cart: originalCart}: CartMainProps) {
     >
       <CartEmpty hidden={linesCount} layout={layout} />
       <div className="cart-details">
+        {cartHasItems && (
+          <FreeShippingProgress subtotal={Number(cart?.cost?.subtotalAmount?.amount ?? 0)} />
+        )}
         <p id="cart-lines" className="sr-only">
           Line items
         </p>
