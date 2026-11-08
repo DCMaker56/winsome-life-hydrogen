@@ -303,7 +303,12 @@ function FounderSection() {
           </div>
           <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
             <p className={sectionEyebrow}>Our Founder</p>
-            <h2 className={sectionTitle}>Sydney Wilson</h2>
+            <h2
+              className="text-[2.8rem] md:text-[3.4rem] text-[#2D2D2D] leading-[1.1]"
+              style={scriptFont}
+            >
+              Sydney Wilson
+            </h2>
             <div className="space-y-5 mt-6">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 Wife, mother of three, and lifelong stationery enthusiast,
@@ -350,7 +355,12 @@ function ArtistSection() {
           </div>
           <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
             <p className={sectionEyebrow}>Artist in Residence</p>
-            <h2 className={sectionTitle}>Darlene Redfoot</h2>
+            <h2
+              className="text-[2.8rem] md:text-[3.4rem] text-[#2D2D2D] leading-[1.1]"
+              style={scriptFont}
+            >
+              Darlene Redfoot
+            </h2>
             <div className="space-y-5 mt-6">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 For over five decades, Darlene has worked across watercolor,
