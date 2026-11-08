@@ -1,18 +1,22 @@
 /*
  * Design: The Stationery Atelier
  * About Page: Authentic brand origin story with editorial layout.
- * Sections: Hero, Brand Mission, Winsome Definition, Honeybee Story, Meet the Team, Our Process, Values, CTA.
+ * Sections: Hero, Welcome, Winsome Definition, Honeybee, Our Founder (links to
+ * /about/sydneys-story), Artist in Residence, How your order is made, Our
+ * Promises, reviews, CTA.
  * Ported from winsome-life/client/src/pages/AboutPage.tsx to Hydrogen + React Router 7.
  */
 import type {Route} from './+types/about';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router';
 import {useEffect} from 'react';
-import {Heart, Palette, Sparkles, Gift} from 'lucide-react';
+import {Check, Gift, Heart, MessageCircle} from 'lucide-react';
 import {useInView} from '~/hooks/useInView';
 import Newsletter from '~/components/Newsletter';
 import {ResponsiveImg} from '~/components/ResponsiveImg';
 import beeWatercolor from '~/assets/about/bee-watercolor.jpg';
+import founderPhoto from '~/assets/home/founder-sydney.jpg';
+import SocialProof from '~/components/SocialProof';
 import scallopShell from '~/assets/about/scallop-shell-watercolor.jpg';
 
 export const meta: Route.MetaFunction = () => [
@@ -30,65 +34,6 @@ export const meta: Route.MetaFunction = () => [
 // brand's real desk-scene photography + a warm writing-desk lifestyle shot.
 const STUDIO_IMG =
   'https://caatee-kr.myshopify.com/cdn/shop/files/03.png?v=1758893929&width=1800';
-const PROCESS_IMG =
-  'https://caatee-kr.myshopify.com/cdn/shop/files/04.png?v=1758894113&width=1600';
-const VALUES_IMG =
-  'https://caatee-kr.myshopify.com/cdn/shop/files/03.png?v=1758893929&width=1600';
-
-const values = [
-  {
-    icon: Heart,
-    title: 'Gentle & Gracious',
-    description:
-      'Every interaction — from browsing our collections to the day your order arrives — is designed to feel personal, warm, and genuinely caring. We treat every customer like a friend.',
-  },
-  {
-    icon: Palette,
-    title: 'Quiet Sophistication',
-    description:
-      'From the texture of the paper to the richness of the print, each detail reflects our commitment to quality and understated elegance. Nothing loud, nothing rushed — just beautifully intentional design.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Beautifully Intentional',
-    description:
-      'Every piece is thoughtfully designed with purpose. We believe that a handwritten note is more than words on paper — it’s a gesture of grace, connection, and intention.',
-  },
-  {
-    icon: Gift,
-    title: 'Sweet with Purpose',
-    description:
-      'Inspired by our symbol, the honeybee, we believe in creating things that endure. Every card, note, or letter you send is a small act of connection that, like honey, never goes out of style.',
-  },
-];
-
-const processSteps = [
-  {
-    number: '01',
-    title: 'Original Artwork',
-    description:
-      'Many of our illustrations are original pieces created exclusively for The Winsome Life by our artist-in-residence, Darlene Redfoot, whose watercolors bring flora, fauna, and seaside scenes to life with striking realism.',
-  },
-  {
-    number: '02',
-    title: 'Thoughtful Design',
-    description:
-      'Each original painting is carefully composed into stationery layouts that balance beauty with function. Every element — from typography to spacing — is considered to ensure quiet sophistication on the page.',
-  },
-  {
-    number: '03',
-    title: 'Premium Materials',
-    description:
-      'We print on luxe card stock using rich, archival-quality inks. From the texture of the paper to the vibrancy of each color, we never compromise on the details that make our stationery feel special in your hands.',
-  },
-  {
-    number: '04',
-    title: 'Personalization & Care',
-    description:
-      'Your personalization is added with precision and care — from custom monograms to hand-selected details. Every order is packaged thoughtfully, because we believe the experience should be as memorable as the note inside.',
-  },
-];
-
 function HeroBanner() {
   return (
     <section className="relative h-[50vh] min-h-[400px] max-h-[550px] overflow-hidden">
@@ -344,246 +289,230 @@ function HoneybeeStory() {
   );
 }
 
-function MeetTheTeam() {
-  const {ref, inView} = useInView({threshold: 0.15});
+const sectionEyebrow = 'font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#2D2D2D] mb-4';
+const sectionTitle = 'font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] leading-tight';
+const scriptFont = {fontFamily: "'Parisian Script', 'Great Vibes', cursive"} as const;
 
+function FounderSection() {
+  const {ref, inView} = useInView({threshold: 0.15});
   return (
     <section className="py-16 lg:py-24 bg-white" ref={ref}>
-      <div className="container">
-        {/* Section header */}
-        <motion.div
-          initial={{opacity: 0, y: 20}}
-          animate={inView ? {opacity: 1, y: 0} : {}}
-          transition={{duration: 0.6, ease: 'easeOut'}}
-          className="text-center mb-12 lg:mb-16"
-        >
-          <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-4">
-            The People Behind the Paper
-          </p>
-          <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D]">
-            Meet Our Team
-          </h2>
-        </motion.div>
-
-        {/* Team grid */}
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 max-w-4xl mx-auto">
-          {/* Sydney */}
-          <motion.div
-            initial={{opacity: 0, y: 25}}
-            animate={inView ? {opacity: 1, y: 0} : {}}
-            transition={{duration: 0.6, ease: 'easeOut', delay: 0.1}}
-            className="text-center"
-          >
-            <div className="w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden border-2 border-[#C9A96E]/20 bg-[#FAF8F5]">
-              <img
-                src="https://caatee-kr.myshopify.com/cdn/shop/files/Screen_Shot_2025-09-08_at_00.10.png?width=600"
-                alt="Sydney Wilson, founder of The Winsome Life"
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="font-serif font-medium text-xl text-[#2D2D2D] mb-1">
-              Sydney Wilson
-            </h3>
-            <p className="font-sans font-medium text-xs tracking-[0.2em] uppercase text-[#C9A96E] mb-4">
-              Founder
-            </p>
-            <p className="font-sans font-light text-sm text-[#2D2D2D]/75 leading-relaxed max-w-xs mx-auto">
-              Wife. Mother of three. Stationery fan. Sydney founded The Winsome
-              Life with a belief that the most meaningful things in life are
-              personal&mdash;and that a beautifully crafted note can carry more
-              than words.
-            </p>
-          </motion.div>
-
-          {/* Darlene */}
-          <motion.div
-            initial={{opacity: 0, y: 25}}
-            animate={inView ? {opacity: 1, y: 0} : {}}
-            transition={{duration: 0.6, ease: 'easeOut', delay: 0.2}}
-            className="text-center"
-          >
-            <div className="w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden border-2 border-[#C9A96E]/20 bg-[#FAF8F5]">
-              <img
-                src="https://caatee-kr.myshopify.com/cdn/shop/files/Dar_with_Painting.heic?width=600"
-                alt="Darlene Redfoot, artist-in-residence, with one of her paintings"
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <h3 className="font-serif font-medium text-xl text-[#2D2D2D] mb-1">
-              Darlene Redfoot
-            </h3>
-            <p className="font-sans font-medium text-xs tracking-[0.2em] uppercase text-[#C9A96E] mb-4">
-              Artist-in-Residence
-            </p>
-            <p className="font-sans font-light text-sm text-[#2D2D2D]/75 leading-relaxed max-w-xs mx-auto">
-              For over five decades, Darlene has worked across watercolor,
-              pencil, clay, and paint, bringing flora, fauna, and seaside
-              scenes to life with striking realism. Many of the illustrations
-              in our collections are her original pieces, created exclusively
-              for The Winsome Life.
-            </p>
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ProcessSection() {
-  const {ref, inView} = useInView({threshold: 0.1});
-
-  return (
-    <section className="py-16 lg:py-24 bg-[#FAF8F5]" ref={ref}>
-      <div className="container">
-        {/* Full-width process image */}
+      <div className="container max-w-6xl">
         <motion.div
           initial={{opacity: 0, y: 20}}
           animate={inView ? {opacity: 1, y: 0} : {}}
           transition={{duration: 0.7, ease: 'easeOut'}}
-          className="mb-12 lg:mb-16"
+          className="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-16 items-center"
         >
-          <div className="relative overflow-hidden">
-            <img
-              src={PROCESS_IMG}
-              alt="From original watercolor paintings to finished luxury stationery"
-              className="w-full h-[300px] lg:h-[450px] object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#FAF8F5]/20 to-transparent" />
+          <div className="mx-auto w-full max-w-[340px] lg:max-w-[420px]">
+            <div className="bg-white p-3 shadow-[0_24px_50px_-22px_rgba(45,45,45,0.4)] ring-1 ring-[#2D2D2D]/5">
+              <ResponsiveImg
+                src={founderPhoto}
+                sizes="(min-width: 1024px) 400px, 320px"
+                alt="Sydney Wilson, founder of The Winsome Life, with her daughter"
+                width={1066}
+                height={1333}
+                loading="lazy"
+                className="w-full h-auto"
+              />
+            </div>
+          </div>
+          <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+            <p className={sectionEyebrow}>Our Founder</p>
+            <h2 className={sectionTitle}>Sydney Wilson</h2>
+            <p className={`${storyText} italic text-[#2D2D2D] mt-2 mb-6`}>
+              Wife, mother of three, stationery fan.
+            </p>
+            <div className="space-y-5">
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
+                With three young kids and an intense corporate career, Sydney
+                knew it was time for a change. Rooted in her faith, she stepped
+                away from her job without knowing what came next, and soon
+                after, the idea for The Winsome Life arrived.
+              </p>
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
+                Today she oversees every collection with one goal: that each
+                note leaves the person who receives it feeling truly special.
+              </p>
+            </div>
+            <Link
+              to="/about/sydneys-story"
+              className="mt-8 inline-flex items-center gap-2 font-sans font-medium text-[12px] tracking-[0.18em] uppercase text-white bg-[#2D2D2D] px-8 py-3.5 hover:bg-[#1B294E] transition-colors"
+            >
+              Read Sydney&rsquo;s Story <span aria-hidden>&rarr;</span>
+            </Link>
           </div>
         </motion.div>
-
-        {/* Section header */}
-        <motion.div
-          initial={{opacity: 0, y: 20}}
-          animate={inView ? {opacity: 1, y: 0} : {}}
-          transition={{duration: 0.6, ease: 'easeOut', delay: 0.1}}
-          className="text-center mb-12 lg:mb-16"
-        >
-          <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-4">
-            From Studio to Doorstep
-          </p>
-          <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] mb-4">
-            Our Process
-          </h2>
-          <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed max-w-2xl mx-auto">
-            Every piece of Winsome stationery passes through these four stages
-            of care before it arrives at your door.
-          </p>
-        </motion.div>
-
-        {/* Process steps */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
-          {processSteps.map((step, i) => (
-            <motion.div
-              key={step.number}
-              initial={{opacity: 0, y: 25}}
-              animate={inView ? {opacity: 1, y: 0} : {}}
-              transition={{
-                duration: 0.5,
-                ease: 'easeOut',
-                delay: 0.15 + i * 0.1,
-              }}
-              className="relative"
-            >
-              {/* Step number */}
-              <span className="font-serif text-5xl lg:text-6xl text-[#C9A96E]/15 font-bold leading-none block mb-3">
-                {step.number}
-              </span>
-              <h3 className="font-serif font-medium text-lg text-[#2D2D2D] mb-3">
-                {step.title}
-              </h3>
-              <p className="font-sans font-light text-sm text-[#2D2D2D]/75 leading-relaxed">
-                {step.description}
-              </p>
-              {/* Connector line (except last) */}
-              {i < processSteps.length - 1 && (
-                <div className="hidden lg:block absolute top-8 -right-3 w-6 h-[1px] bg-[#C9A96E]/25" />
-              )}
-            </motion.div>
-          ))}
-        </div>
       </div>
     </section>
   );
 }
 
-function ValuesSection() {
+function ArtistSection() {
   const {ref, inView} = useInView({threshold: 0.15});
-
   return (
-    <section className="py-16 lg:py-24 bg-white" ref={ref}>
-      <div className="container">
-        <div className="grid lg:grid-cols-5 gap-12 lg:gap-16 items-start">
-          {/* Left: Values content (3 cols) */}
-          <div className="lg:col-span-3">
-            <motion.div
-              initial={{opacity: 0, y: 20}}
-              animate={inView ? {opacity: 1, y: 0} : {}}
-              transition={{duration: 0.6, ease: 'easeOut'}}
-              className="mb-12"
-            >
-              <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#C9A96E] mb-4">
-                What We Stand For
-              </p>
-              <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] mb-4">
-                Our Values
-              </h2>
-              <p className="font-sans font-light text-base text-[#2D2D2D]/75 leading-relaxed max-w-lg">
-                These principles guide every decision we make, from the paper we
-                choose to the way we wrap your order.
-              </p>
-            </motion.div>
-
-            <div className="grid sm:grid-cols-2 gap-8">
-              {values.map((value, i) => {
-                const Icon = value.icon;
-                return (
-                  <motion.div
-                    key={value.title}
-                    initial={{opacity: 0, y: 20}}
-                    animate={inView ? {opacity: 1, y: 0} : {}}
-                    transition={{
-                      duration: 0.5,
-                      ease: 'easeOut',
-                      delay: 0.15 + i * 0.1,
-                    }}
-                    className="group"
-                  >
-                    <div className="w-12 h-12 rounded-full border border-[#C9A96E]/30 flex items-center justify-center mb-4 group-hover:bg-[#C9A96E]/10 transition-colors duration-300">
-                      <Icon size={20} className="text-[#C9A96E]" strokeWidth={1.5} />
-                    </div>
-                    <h3 className="font-serif font-medium text-lg text-[#2D2D2D] mb-2">
-                      {value.title}
-                    </h3>
-                    <p className="font-sans font-light text-sm text-[#2D2D2D]/75 leading-relaxed">
-                      {value.description}
-                    </p>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Right: Image (2 cols) */}
-          <motion.div
-            initial={{opacity: 0, x: 20}}
-            animate={inView ? {opacity: 1, x: 0} : {}}
-            transition={{duration: 0.8, ease: 'easeOut', delay: 0.2}}
-            className="lg:col-span-2"
-          >
-            <div className="relative sticky top-32">
-              <div className="absolute -top-3 -right-3 w-full h-full border border-[#C9A96E]/20" />
+    <section className="py-16 lg:py-24 bg-[#FAF8F5]" ref={ref}>
+      <div className="container max-w-6xl">
+        <motion.div
+          initial={{opacity: 0, y: 20}}
+          animate={inView ? {opacity: 1, y: 0} : {}}
+          transition={{duration: 0.7, ease: 'easeOut'}}
+          className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-center"
+        >
+          <div className="lg:order-2 mx-auto w-full max-w-[340px] lg:max-w-[420px]">
+            <div className="bg-white p-3 shadow-[0_24px_50px_-22px_rgba(45,45,45,0.4)] ring-1 ring-[#2D2D2D]/5">
               <img
-                src={VALUES_IMG}
-                alt="Luxury stationery with wax seal and silk ribbon — attention to detail"
-                className="w-full h-[450px] lg:h-[580px] object-cover relative z-10"
+                src="https://caatee-kr.myshopify.com/cdn/shop/files/Dar_with_Painting.heic?width=900"
+                alt="Darlene Redfoot, artist-in-residence, with one of her paintings"
                 loading="lazy"
+                className="w-full h-auto"
               />
             </div>
-          </motion.div>
+          </div>
+          <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+            <p className={sectionEyebrow}>Artist in Residence</p>
+            <h2 className={sectionTitle}>Darlene Redfoot</h2>
+            <div className="space-y-5 mt-6">
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
+                For over five decades, Darlene has worked across watercolor,
+                pencil, clay and paint, bringing flora, fauna and seaside scenes
+                to life with striking realism.
+              </p>
+              <p className={`${storyText} font-light text-[#2D2D2D]`}>
+                She painted the very first artwork The Winsome Life printed,
+                and much of our collection today is her original work, painted
+                especially for us.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+/** What happens after you order: made to order, so we take the worry out. */
+const ORDER_STEPS = [
+  {
+    title: 'Pick your design',
+    text: 'Choose from our signature watercolor designs, many painted by our artist-in-residence.',
+  },
+  {
+    title: 'Make it yours',
+    text: 'Add your name, choose from our 10 fonts and your ink color. For our pet designs, pick your breed or send a photo of your own.',
+  },
+  {
+    title: 'Approve it, or ask for a proof',
+    text: 'Everything is made to order, so you see and approve exactly what we will print before we print it.',
+  },
+  {
+    title: 'Printed and packed with care',
+    text: 'Heavy, premium paper and crisp printing, carefully packaged for its journey to you.',
+  },
+  {
+    title: 'On its way',
+    text: 'We email your tracking as soon as your order ships.',
+  },
+];
+
+function HowItsMade() {
+  const {ref, inView} = useInView({threshold: 0.1});
+  return (
+    <section className="py-16 lg:py-24 bg-white" ref={ref}>
+      <div className="container max-w-6xl">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <p className={sectionEyebrow}>From Our Studio to Your Door</p>
+          <h2 className={sectionTitle}>
+            How your order is{' '}
+            <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+              made
+            </span>
+          </h2>
+        </div>
+        <ol className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          {ORDER_STEPS.map((step, i) => (
+            <motion.li
+              key={step.title}
+              initial={{opacity: 0, y: 20}}
+              animate={inView ? {opacity: 1, y: 0} : {}}
+              transition={{duration: 0.5, ease: 'easeOut', delay: 0.1 + i * 0.08}}
+              className="bg-[#FAF8F5] p-6 text-center lg:text-left"
+            >
+              <span className="inline-flex items-center justify-center w-9 h-9 rounded-full ring-1 ring-[#C9A96E] font-serif text-lg text-[#2D2D2D]">
+                {i + 1}
+              </span>
+              <h3 className="font-serif font-medium text-xl text-[#2D2D2D] mt-4 mb-2">{step.title}</h3>
+              <p className="font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]">{step.text}</p>
+            </motion.li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+const PROMISES = [
+  {
+    icon: Check,
+    title: 'You approve before we print',
+    text: 'Every personalized order is approved by you, or you can ask for a proof first.',
+  },
+  {
+    icon: Heart,
+    title: 'If we make a mistake, we make it right',
+    text: 'Your order should be exactly what you approved. If we get something wrong, we will fix it.',
+  },
+  {
+    icon: MessageCircle,
+    title: 'Real people, here to help',
+    text: 'Questions about a design or an order? Our small team answers personally.',
+    link: {to: '/contact', label: 'Contact us'},
+  },
+  {
+    icon: Gift,
+    title: 'Sets that save',
+    text: 'Buy two or more pieces of a matching set and save 10%, automatically at checkout.',
+  },
+];
+
+function PromisesSection() {
+  const {ref, inView} = useInView({threshold: 0.15});
+  return (
+    <section className="py-16 lg:py-24 bg-[#F3ECDD]" ref={ref}>
+      <div className="container max-w-6xl">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <p className={sectionEyebrow}>Our Promises</p>
+          <h2 className={sectionTitle}>
+            What you can{' '}
+            <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+              count on
+            </span>
+          </h2>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {PROMISES.map((p, i) => (
+            <motion.div
+              key={p.title}
+              initial={{opacity: 0, y: 20}}
+              animate={inView ? {opacity: 1, y: 0} : {}}
+              transition={{duration: 0.5, ease: 'easeOut', delay: 0.1 + i * 0.08}}
+              className="bg-white p-7 text-center shadow-sm"
+            >
+              <span className="inline-flex items-center justify-center w-12 h-12 rounded-full ring-1 ring-[#C9A96E]">
+                <p.icon size={20} className="text-[#2D2D2D]" strokeWidth={1.5} />
+              </span>
+              <h3 className="font-serif font-medium text-xl text-[#2D2D2D] mt-4 mb-2">{p.title}</h3>
+              <p className="font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]">{p.text}</p>
+              {p.link && (
+                <Link
+                  to={p.link.to}
+                  className="mt-3 inline-block font-sans font-medium text-[11px] tracking-[0.18em] uppercase text-[#2D2D2D] border-b border-[#2D2D2D]/40 hover:border-[#2D2D2D]"
+                >
+                  {p.link.label}
+                </Link>
+              )}
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
@@ -641,9 +570,11 @@ export default function AboutRoute() {
       <BrandMission />
       <WinsomeDefinition />
       <HoneybeeStory />
-      <MeetTheTeam />
-      <ProcessSection />
-      <ValuesSection />
+      <FounderSection />
+      <ArtistSection />
+      <HowItsMade />
+      <PromisesSection />
+      <SocialProof />
       <ShopCTA />
       <Newsletter />
     </div>
