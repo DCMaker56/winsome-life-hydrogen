@@ -16,13 +16,13 @@ const script = {
   lineHeight: '0.9',
 } as const;
 
-const copy = 'font-sans font-light text-base lg:text-[17px] text-[#2D2D2D]/85 leading-relaxed';
+const copy = 'font-sans font-light text-[17px] lg:text-[19px] text-[#2D2D2D] leading-relaxed';
 
 export default function BrandStory() {
   return (
     <section
       id="brand-story"
-      className="relative py-20 lg:py-28 overflow-hidden bg-[#CADEEA]"
+      className="relative py-20 lg:py-28 overflow-hidden bg-[#E4E9DF]"
       aria-label="Founder's Welcome"
     >
       <div className="container relative z-10 max-w-6xl">
