@@ -72,37 +72,21 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     if (sections.length < 2) sections = null;
   }
 
-  // Theme and season pages (Floral, Sports, Fall, …): one full grid in
-  // product-type order, each product labeled with its type, plus a row of
-  // product-type buttons with counts. Separate headings left small types
-  // with one or two products and lots of empty space (Sydney, Nov 2026).
-  let typeView: {
-    cards: typeof rest.cards;
-    labels: Record<string, string>;
-    types: Array<{handle: string; title: string; count: number}>;
-  } | null = null;
-  if (!sections && !PRODUCT_TYPE_COLLECTIONS.includes(handle) && rest.total >= 6) {
+  // Theme and season pages (Floral, Sports, Fall, …): grouped by product
+  // type, with a heading for each (Notecards, Notepads, Gift Tags, …) and
+  // a "Jump to" row (Sydney, Nov 2026).
+  if (!sections && !PRODUCT_TYPE_COLLECTIONS.includes(handle)) {
     const byType = groupIntoSections(rest.cards, collectionsById, {
       order: PRODUCT_TYPE_COLLECTIONS,
       moreTitle: 'More Designs',
     });
-    if (byType.length >= 2) {
-      const labels: Record<string, string> = {};
-      for (const t of byType) for (const c of t.cards) if (t.handle !== 'more') labels[c.id] = t.title;
-      typeView = {
-        cards: byType.flatMap((t) => t.cards),
-        labels,
-        types: byType
-          .filter((t) => t.handle !== 'more')
-          .map((t) => ({handle: t.handle, title: t.title, count: t.cards.length})),
-      };
-    }
+    if (byType.length >= 2) sections = byType;
   }
-  return {collection, ...rest, sections, typeView};
+  return {collection, ...rest, sections};
 }
 
 export default function CollectionRoute() {
-  const {collection, cards, facets, sort, q, sections, typeView, total} =
+  const {collection, cards, facets, sort, q, sections, total} =
     useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   // Product-type choices with counts (from the Product Type filter), shown
@@ -111,7 +95,7 @@ export default function CollectionRoute() {
   const typeChoices =
     !sections && typeFacet && typeFacet.options.length >= 2 ? typeFacet.options : null;
   const anyTypeSelected = !!typeChoices?.some((o) => o.selected);
-  const allCount = typeView ? typeView.cards.length : total;
+  const allCount = total;
   const typeHref = (h: string | null) => {
     const next = new URLSearchParams(params);
     if (h) next.set('type', h);
@@ -182,7 +166,7 @@ export default function CollectionRoute() {
             <SectionJumpNav sections={sections} />
             <SectionList sections={sections} />
           </>
-        ) : typeView || typeChoices ? (
+        ) : typeChoices ? (
           <>
             {/* Product-type tabs: "All" plus each type with its count. The
                 chosen one is filled dark; tap again (or All) to show all. */}
@@ -218,11 +202,7 @@ export default function CollectionRoute() {
                 )}
               </ul>
             </nav>
-            {typeView ? (
-              <FilteredProductGrid cards={typeView.cards} labels={typeView.labels} />
-            ) : (
-              <FilteredProductGrid cards={cards} />
-            )}
+            <FilteredProductGrid cards={cards} />
           </>
         ) : (
           <FilteredProductGrid cards={cards} />

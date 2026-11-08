@@ -10,7 +10,7 @@ import type {Route} from './+types/about';
 import {motion} from 'framer-motion';
 import {Link} from 'react-router';
 import {useEffect} from 'react';
-import {Check, Gift, Heart, MessageCircle} from 'lucide-react';
+import {Check, Gift, Heart, MessageCircle, PenLine} from 'lucide-react';
 import {useInView} from '~/hooks/useInView';
 import Newsletter from '~/components/Newsletter';
 import {ResponsiveImg} from '~/components/ResponsiveImg';
@@ -174,7 +174,7 @@ function WinsomeDefinition() {
           <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
             <h2 className={`${sectionTitle} mb-6`}>
               Why{' '}
-              <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+              <span className="inline-block text-[1.3em] leading-none relative top-[0.32em] ml-[0.1em]" style={scriptFont}>
                 Winsome?
               </span>
             </h2>
@@ -239,7 +239,7 @@ function HoneybeeStory() {
             </p>
             <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] mb-8 leading-tight">
               The Honeybee&mdash;{' '}
-              <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+              <span className="inline-block text-[1.3em] leading-none relative top-[0.32em] ml-[0.1em]" style={scriptFont}>
                 sweet with intention
               </span>
             </h2>
@@ -395,6 +395,11 @@ function ArtistSection() {
 
 const PROMISES = [
   {
+    icon: PenLine,
+    title: 'Personalization made easy',
+    text: 'Choose your name, font and colors in a few simple steps, and get it exactly the way you want it.',
+  },
+  {
     icon: Check,
     title: 'You approve before we print',
     text: 'Every personalized order is approved by you, or you can ask for a proof first.',
@@ -426,19 +431,19 @@ function PromisesSection() {
           <p className={sectionEyebrow}>Our Promises</p>
           <h2 className={sectionTitle}>
             What you can{' '}
-            <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+            <span className="inline-block text-[1.3em] leading-none relative top-[0.32em] ml-[0.1em]" style={scriptFont}>
               count on
             </span>
           </h2>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-5">
           {PROMISES.map((p, i) => (
             <motion.div
               key={p.title}
               initial={{opacity: 0, y: 20}}
               animate={inView ? {opacity: 1, y: 0} : {}}
               transition={{duration: 0.5, ease: 'easeOut', delay: 0.1 + i * 0.08}}
-              className="bg-white p-7 text-center shadow-sm"
+              className="bg-white p-6 text-center shadow-sm"
             >
               <span className="inline-flex items-center justify-center w-12 h-12 rounded-full ring-1 ring-[#C9A96E]">
                 <p.icon size={20} className="text-[#2D2D2D]" strokeWidth={1.5} />
@@ -476,7 +481,7 @@ function ShopCTA() {
           <div className="w-16 h-[1px] bg-gradient-to-r from-transparent via-[#C9A96E] to-transparent mx-auto mb-8" />
           <h2 className="font-serif font-medium text-3xl md:text-4xl text-[#2D2D2D] mb-4">
             Looking for your next{' '}
-            <span className="inline-block text-[1.3em] leading-none relative top-[0.14em] ml-[0.1em]" style={scriptFont}>
+            <span className="inline-block text-[1.3em] leading-none relative top-[0.32em] ml-[0.1em]" style={scriptFont}>
               gift?
             </span>
           </h2>
