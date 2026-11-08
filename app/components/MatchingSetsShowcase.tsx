@@ -1,7 +1,8 @@
 /*
  * "Complete the Set, save 10%" (Sydney, Nov 2026) — a few of the best
  * matching sets on the home page, each as its notepad and notecards side by
- * side. Replaces "Notes Worth Saluting" after Veterans Day. Sets come from
+ * side. Through Veterans Day it's the "Matching U.S. Military Sets" edition
+ * (navy with red, white and gold accents); after, "Complete the Set". Sets come from
  * Shopify's "Matching set" field (~/lib/matching-sets); FEATURED picks them.
  */
 import {Link} from 'react-router';
@@ -29,21 +30,43 @@ export default function MatchingSetsShowcase({
 }) {
   if (!sets.length) return null;
   return (
-    <section className="py-20 lg:py-24 bg-[#FAF8F5]" aria-labelledby="sets-title">
+    <section
+      className={`relative py-20 lg:py-24 ${veteransDay ? 'bg-[#1B2A4A]' : 'bg-[#FAF8F5]'}`}
+      aria-labelledby="sets-title"
+    >
+      {/* Veterans Day: red, white and navy stripe along the top. */}
+      {veteransDay && (
+        <div aria-hidden className="absolute inset-x-0 top-0 h-2 flex">
+          <span className="flex-1 bg-[#B22234]" />
+          <span className="flex-1 bg-white" />
+          <span className="flex-1 bg-[#B22234]" />
+        </div>
+      )}
       <div className="container max-w-7xl">
         <div className="text-center mb-12">
-          <p className="font-sans font-medium text-xs tracking-[0.3em] uppercase text-[#2D2D2D] mb-3">
-            {veteransDay ? 'Honoring Veterans Day \u00b7 November 11' : `Matching Sets \u00b7 Save ${SET_DISCOUNT_PERCENT}%`}
+          {veteransDay && (
+            <p aria-hidden className="text-[#E8B04B] tracking-[0.6em] text-sm mb-3">&#9733; &#9733; &#9733;</p>
+          )}
+          <p className={`font-sans font-medium text-xs tracking-[0.3em] uppercase mb-3 ${veteransDay ? 'text-white' : 'text-[#2D2D2D]'}`}>
+            {veteransDay ? 'Veterans Day \u00b7 November 11' : `Matching Sets \u00b7 Save ${SET_DISCOUNT_PERCENT}%`}
           </p>
-          <h2 id="sets-title" className="font-serif font-medium text-3xl md:text-[2.6rem] text-[#2D2D2D] leading-tight">
-            {veteransDay ? 'Notes Worth' : 'Complete the'}{' '}
-            <span className="inline-block text-[1.35em] leading-none relative top-[0.3em] ml-[0.05em]" style={script}>
-              {veteransDay ? 'Saluting' : 'Set'}
-            </span>
+          <h2
+            id="sets-title"
+            className={`font-serif font-medium text-3xl md:text-[2.6rem] leading-tight ${veteransDay ? 'text-white' : 'text-[#2D2D2D]'}`}
+          >
+            {veteransDay ? 'Matching' : 'Complete the'}{' '}
+            <span
+              className={`inline-block text-[1.35em] leading-none relative top-[0.3em] ml-[0.05em] ${veteransDay ? 'text-[#E8B04B]' : ''}`}
+              style={script}
+            >
+              {veteransDay ? 'U.S. Military' : 'Set'}
+            </span>{veteransDay ? ' Sets' : ''}
           </h2>
-          <p className="font-sans font-light text-base md:text-[17px] text-[#2D2D2D] max-w-xl mx-auto mt-6 leading-relaxed">
+          <p
+            className={`font-sans font-light text-base md:text-[17px] max-w-xl mx-auto mt-6 leading-relaxed ${veteransDay ? 'text-white/90' : 'text-[#2D2D2D]'}`}
+          >
             {veteransDay
-              ? `Thank the veterans in your life with a personalized note. Pair the notepad and notecards for every branch and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`
+              ? `Thank the veterans in your life with a personalized note. Every branch has a matching notepad and notecards: buy both and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`
               : `The same artwork on your notepad and notecards. Buy two or more pieces of a matching set and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`}
           </p>
         </div>
@@ -71,7 +94,7 @@ export default function MatchingSetsShowcase({
                       </span>
                     </Link>
                   ))}
-                  <span className="absolute top-3 left-3 bg-[#2D2D2D] text-white font-sans font-semibold text-[10px] tracking-[0.16em] uppercase px-2.5 py-1">
+                  <span className={`absolute top-3 left-3 ${veteransDay ? 'bg-[#B22234]' : 'bg-[#2D2D2D]'} text-white font-sans font-semibold text-[10px] tracking-[0.16em] uppercase px-2.5 py-1`}>
                     Save {SET_DISCOUNT_PERCENT}%
                   </span>
                 </div>
