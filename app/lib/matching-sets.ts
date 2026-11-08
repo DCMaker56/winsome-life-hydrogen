@@ -44,6 +44,7 @@ type SetNode = {
   featuredImage: {url: string} | null;
   priceRange: {minVariantPrice: {amount: string}};
   matchingSet: {value: string} | null;
+  matchingSet2: {value: string} | null;
 };
 
 const MATCHING_SETS_QUERY = `
@@ -57,18 +58,34 @@ const MATCHING_SETS_QUERY = `
           featuredImage { url }
           priceRange { minVariantPrice { amount } }
           matchingSet: metafield(namespace: "winsome", key: "matching_set") { value }
+          matchingSet2: metafield(namespace: "winsome", key: "matching_set_2") { value }
         }
       }
     }
   }
 `;
 
-const ORDER = ['Notepad', 'Notecards', 'Folded Notecards'];
+const ORDER = [
+  'Notepad',
+  'Notecards',
+  'Folded Notecards',
+  'Photo Card',
+  'Gift Tags',
+  'Wine Tags',
+  'Place Cards',
+  'Coasters',
+];
 
-/** "Notepad", "Folded Notecards" or "Notecards", from the product title. */
+/** What kind of piece it is ("Notepad", "Wine Tags", …), from the product title. */
 function pieceKind(title: string) {
-  const t = title.toLowerCase();
+  const t = title.split('|')[0].toLowerCase();
   if (t.includes('notepad')) return 'Notepad';
+  if (t.includes('wine tag') || t.includes('bottle tag')) return 'Wine Tags';
+  if (t.includes('gift tag') || t.includes('sticker')) return 'Gift Tags';
+  if (t.includes('place card')) return 'Place Cards';
+  if (t.includes('coaster')) return 'Coasters';
+  if (t.includes('photo card') || t.includes('christmas card') || t.includes('holiday card'))
+    return 'Photo Card';
   if (t.includes('folded') || t.includes('greeting card')) return 'Folded Notecards';
   return 'Notecards';
 }
@@ -91,15 +108,20 @@ export async function loadMatchingSets(storefront: Storefront): Promise<Matching
     .catch(() => null);
   const index: MatchingSetsIndex = {};
   for (const p of data?.collection?.products.nodes ?? []) {
-    const design = p.matchingSet?.value?.trim();
-    if (!design) continue;
-    (index[design] ??= []).push({
-      handle: p.handle,
-      title: p.title,
-      label: pieceKind(p.title),
-      image: p.featuredImage?.url ?? null,
-      price: Number(p.priceRange.minVariantPrice.amount),
-    });
+    // A product can be in two sets ("Also in matching set", e.g. coasters
+    // that come in red or blue).
+    const designs = new Set(
+      [p.matchingSet?.value, p.matchingSet2?.value].map((d) => d?.trim()).filter(Boolean) as string[],
+    );
+    for (const design of designs) {
+      (index[design] ??= []).push({
+        handle: p.handle,
+        title: p.title,
+        label: pieceKind(p.title),
+        image: p.featuredImage?.url ?? null,
+        price: Number(p.priceRange.minVariantPrice.amount),
+      });
+    }
   }
   for (const pieces of Object.values(index)) {
     pieces.sort((a, b) => ORDER.indexOf(a.label) - ORDER.indexOf(b.label));
@@ -111,14 +133,20 @@ export async function loadMatchingSets(storefront: Storefront): Promise<Matching
   return index;
 }
 
-/** This product's set: its own piece and the others. */
+/**
+ * This product's set: its own piece and the others. A product in two sets
+ * gets the pieces of both (no repeats).
+ */
 export function findSet(index: MatchingSetsIndex | null | undefined, handle: string) {
   if (!index) return null;
+  let found: {design: string; self: SetCardProduct; others: SetCardProduct[]} | null = null;
   for (const [design, pieces] of Object.entries(index)) {
     const self = pieces.find((p) => p.handle === handle);
-    if (self && pieces.length > 1) {
-      return {design, self, others: pieces.filter((p) => p.handle !== handle)};
-    }
+    if (!self || pieces.length < 2) continue;
+    const others = pieces.filter((p) => p.handle !== handle);
+    if (!found) found = {design, self, others: [...others]};
+    else
+      found.others.push(...others.filter((o) => !found!.others.some((f) => f.handle === o.handle)));
   }
-  return null;
+  return found;
 }

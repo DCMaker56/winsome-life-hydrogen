@@ -69,7 +69,7 @@ export function CompleteTheSet({
             </span>
           </div>
           <ul className="space-y-4">
-            {matches.map((m) => (
+            {matches.slice(0, 2).map((m) => (
               <li key={m.handle} className="space-y-3">
                 <div className="flex gap-4 items-center">
                   <div className="w-20 h-20 shrink-0 bg-[#FAF8F5] border border-[#C9A96E]/20 overflow-hidden">
@@ -108,6 +108,7 @@ export function CompleteTheSet({
               </li>
             ))}
           </ul>
+          <MoreFromSet items={matches.slice(2)} onAdd={setOpen} />
           <p className="font-sans text-[12px] text-[#2D2D2D]/60 text-center">
             Buy two or more pieces of a matching set and save {SET_DISCOUNT_PERCENT}% at
             checkout.
@@ -257,6 +258,59 @@ export function QuickAddSheet({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * The rest of a bigger set (e.g. tartan wine tags, place cards, coasters):
+ * a compact row of small photos with "Add", so the first two pieces stay
+ * the clear focus.
+ */
+function MoreFromSet({
+  items,
+  onAdd,
+}: {
+  items: SetCardProduct[];
+  onAdd: (p: SetCardProduct) => void;
+}) {
+  if (!items.length) return null;
+  return (
+    <div className="pt-1">
+      <p className="font-sans font-medium text-[11px] tracking-[0.18em] uppercase text-[#2D2D2D]/60 mb-2.5">
+        More in this design
+      </p>
+      <ul className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {items.map((m) => (
+          <li key={m.handle} className="shrink-0 w-[104px]">
+            <button
+              type="button"
+              onClick={() => onAdd(m)}
+              className="group w-full text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C9A96E]"
+            >
+              <span className="block w-full aspect-square bg-white border border-[#C9A96E]/25 group-hover:border-[#C9A96E] overflow-hidden transition-colors">
+                {m.image && (
+                  <img
+                    src={`${m.image}${m.image.includes('?') ? '&' : '?'}width=220`}
+                    alt=""
+                    loading="lazy"
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </span>
+              <span className="block mt-1.5 font-sans text-[12px] font-medium text-[#2D2D2D] leading-tight line-clamp-1">
+                {m.label}
+              </span>
+              <span className="block font-sans text-[11px] text-[#2D2D2D]/55">
+                from ${m.price.toFixed(2)}
+              </span>
+              <span className="mt-1 inline-block font-sans font-semibold text-[10px] tracking-[0.14em] uppercase text-[#1B294E] border-b border-[#1B294E]/40 group-hover:border-[#1B294E]">
+                Add
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -458,7 +512,7 @@ export function AddedPopup({
               </span>
             </div>
             <ul className="space-y-4">
-              {matches.map((m) => (
+              {matches.slice(0, 2).map((m) => (
                 <li key={m.handle} className="space-y-3">
                   <div className="flex gap-4 items-center">
                     <div className="w-24 h-24 shrink-0 bg-white border border-[#C9A96E]/25 overflow-hidden">
@@ -488,6 +542,7 @@ export function AddedPopup({
                 </li>
               ))}
             </ul>
+            <MoreFromSet items={matches.slice(2)} onAdd={setQuickAdd} />
             <p className="font-sans text-[12px] text-[#2D2D2D]/60 text-center mt-4">
               Buy two or more pieces of a matching set and save {SET_DISCOUNT_PERCENT}% at checkout.
             </p>

@@ -234,7 +234,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
         .catch(() => null)
     : null;
   const setMatches: SetCardProduct[] = set?.others ?? [];
-  const setAccessories = (accData?.acc?.products.nodes ?? []).map(
+  const setAccessories = (accData?.acc?.products.nodes ?? [])
+    // Gift tags already in this set are offered there instead.
+    .filter((p) => !setMatches.some((m) => m.handle === p.handle))
+    .map(
     (p): SetCardProduct => ({
       handle: p.handle,
       title: p.title,
