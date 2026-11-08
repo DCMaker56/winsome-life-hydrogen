@@ -21,7 +21,6 @@ import carmonWeedenLogo from '~/assets/partners/carmon-weeden.png';
 import carmonWeedenShare from '~/assets/partners/carmon-weeden-share.jpg';
 import boxwoodCottageShare from '~/assets/partners/boxwood-cottage-share.jpg';
 import boxwoodCottageStorefront from '~/assets/partners/boxwood-cottage-storefront.jpg';
-import cahillEditLogo from '~/assets/partners/cahill-edit.png';
 import cahillEditShare from '~/assets/partners/cahill-edit-share.jpg';
 
 export type Partner = {
@@ -121,7 +120,9 @@ export const PARTNERS: Record<string, Partner> = {
     discountPercent: 35,
     intro:
       'The full collection of The Winsome Life’s personalized stationery, especially for Cahill Edit customers.',
-    logo: cahillEditLogo,
+    // Name as a wordmark: Sydney prefers it to the logo (file kept in
+    // app/assets/partners/cahill-edit.png).
+    logo: null,
     viewToggle: true,
     shareImage: cahillEditShare,
     // Their olive green on a soft cream (from their logo).
