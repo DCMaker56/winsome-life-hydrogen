@@ -307,8 +307,8 @@ function FounderSection() {
             <div className="space-y-5 mt-6">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 Wife, mother of three, and lifelong stationery enthusiast,
-                Sydney took an unexpected turn when she left a successful
-                corporate career to launch The Winsome Life. A rather
+                Sydney left a successful corporate career to launch The Winsome
+                Life. A rather
                 unconventional&mdash;or shall we say,{' '}
                 <em className="font-normal">winsome</em>&mdash;change of course.
               </p>
