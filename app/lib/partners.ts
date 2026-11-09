@@ -23,6 +23,7 @@ import boxwoodCottageShare from '~/assets/partners/boxwood-cottage-share.jpg';
 import boxwoodCottageStorefront from '~/assets/partners/boxwood-cottage-storefront.jpg';
 import cahillEditLogo from '~/assets/partners/cahill-edit.png';
 import cahillEditShare from '~/assets/partners/cahill-edit-share.jpg';
+import cornerstoneShare from '~/assets/partners/cornerstone-share.jpg';
 
 export type Partner = {
   handle: string;
@@ -110,6 +111,24 @@ export const PARTNERS: Record<string, Partner> = {
     website: 'https://boxwoodcottageavl.com',
     // Soft sage green (Sydney) with deep green text.
     colors: {background: '#B9C6A6', text: '#26331F', accent: '#4E6343'},
+  },
+  cornerstone: {
+    handle: 'cornerstone',
+    name: 'Cornerstone',
+    collection: 'partner-cornerstone',
+    // Shopify code discount CORNERSTONE35: 35% off (most collections), no end
+    // date. Products copied from Boxwood Cottage (Sydney, Nov 2026).
+    discountCode: 'CORNERSTONE35',
+    discountPercent: 35,
+    intro:
+      'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Cornerstone customers.',
+    // Name as a wordmark until we have their logo file (Lake Geneva, WI).
+    logo: null,
+    viewToggle: true,
+    shareImage: cornerstoneShare,
+    website: 'https://cornerstonelakegeneva.com',
+    // Lake blue with deep navy text (placeholder until we see their brand).
+    colors: {background: '#D7E4EA', text: '#1F3A4D', accent: '#4F7A93'},
   },
   'cahill-edit': {
     handle: 'cahill-edit',
