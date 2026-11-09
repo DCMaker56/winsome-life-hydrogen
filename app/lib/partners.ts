@@ -137,8 +137,11 @@ export const PARTNERS: Record<string, Partner> = {
   'cahill-edit': {
     handle: 'cahill-edit',
     name: 'Cahill Edit',
-    // Every product (Sydney, Nov 2026), not a curated collection.
-    collection: null,
+    // Every product, minus anything Cahill Edit asks to remove (Sydney, Nov
+    // 2026): a Shopify collection of all active products (add-ons left out);
+    // removals are applied as exclusions on that collection, so new products
+    // still show up on their own.
+    collection: 'partner-cahill-edit',
     // Shopify code discount CAHILL35: 35% off the entire order, no end date.
     discountCode: 'CAHILL35',
     discountPercent: 35,
