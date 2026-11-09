@@ -136,6 +136,11 @@ export default function PartnerPage() {
                 {partner.name}
               </span>
             )}
+            {partner.location && (
+              <span className="font-sans font-medium text-xs md:text-sm tracking-[0.25em] uppercase opacity-80">
+                {partner.location}
+              </span>
+            )}
             <span
               className="text-[2.3rem] md:text-[3rem] leading-none"
               style={{

@@ -37,6 +37,8 @@ export type Partner = {
   discountCode: string;
   /** Shown on the page, e.g. 15 → "15% off". null = don't state an amount. */
   discountPercent: number | null;
+  /** Small line under the partner's name, e.g. "Lake Geneva, WI". */
+  location?: string;
   /** Short welcome under the heading. */
   intro: string;
   /** Partner logo (image URL); null shows their name as a wordmark. */
@@ -115,6 +117,7 @@ export const PARTNERS: Record<string, Partner> = {
   cornerstone: {
     handle: 'cornerstone',
     name: 'Cornerstone Shop & Gallery',
+    location: 'Lake Geneva, WI',
     collection: 'partner-cornerstone',
     // Shopify code discount CORNERSTONE35: 35% off (most collections), no end
     // date. Products copied from Boxwood Cottage (Sydney, Nov 2026).
