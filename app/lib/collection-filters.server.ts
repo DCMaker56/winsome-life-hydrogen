@@ -72,6 +72,8 @@ export type CardData = {
   price: number;
   onSale: boolean;
   type: string;
+  /** When the product went live on the store (ISO date). */
+  publishedAt?: string;
 };
 
 async function fetchAll(storefront: Storefront, handle?: string) {
@@ -135,6 +137,7 @@ export async function loadFilteredProducts(
       price,
       onSale: Number(p.compareAtPriceRange.maxVariantPrice.amount) > price,
       type: p.productType || 'stationery',
+      publishedAt: p.publishedAt ?? '',
     };
   });
   // Each card's collections (for pages that group products under headings).

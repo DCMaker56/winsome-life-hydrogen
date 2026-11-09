@@ -82,9 +82,14 @@ function splitToc(entries: TocEntry[]) {
 export async function loader({context, params, request}: Route.LoaderArgs) {
   const partner = params.handle ? PARTNERS[params.handle] : undefined;
   if (!partner) throw new Response(null, {status: 404});
-  const pick = new URL(request.url).searchParams.get('pick') === '1';
+  const url = new URL(request.url);
+  const pick = url.searchParams.get('pick') === '1';
+  // ?since=YYYY-MM-DD: a "New Products" catalog of only the products added
+  // to the store on or after that date (no options pages).
+  const sinceParam = url.searchParams.get('since') ?? '';
+  const since = /^\d{4}-\d{2}-\d{2}$/.test(sinceParam) ? sinceParam : null;
 
-  const [{cards, collectionsById}, media] = await Promise.all([
+  const [{cards: allCards, collectionsById}, media] = await Promise.all([
     loadFilteredProducts(
       context.storefront as never,
       new Request(new URL(`/partners/${partner.handle}`, request.url)),
@@ -116,6 +121,9 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 
   // Product pages: each product type starts a new page; within it, products
   // run in collection order, 4 per page, each labeled with its collection.
+  const cards = since
+    ? allCards.filter((c) => (c.publishedAt ?? '').slice(0, 10) >= since)
+    : allCards;
   const groups = groupByTypeThenCollection(cards, collectionsById);
   const productPages: Array<{type: string; items: Item[]; collections: string[]}> = [];
   for (const g of groups) {
@@ -134,7 +142,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
 
   // One page per chosen photo; options without a photo yet are left out.
   const options: Array<{title: string; note?: string; image: string; first: boolean}> = [];
-  for (const o of CATALOG_OPTION_PAGES) {
+  for (const o of since ? [] : CATALOG_OPTION_PAGES) {
     let images = o.images ?? [];
     if (!images.length && o.fromAlt) {
       const p = mediaById.get(o.fromAlt.product);
@@ -171,7 +179,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
       }
     });
     const firstOptionPage = firstProductPage + productPages.length;
-    entries.push({title: 'Personalization Options', page: firstOptionPage, level: 1});
+    if (options.length)
+      entries.push({title: 'Personalization Options', page: firstOptionPage, level: 1});
     options.forEach((o, i) => {
       if (o.first)
         entries.push({
@@ -195,7 +204,18 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     ...productPages.map((p) => ({kind: 'products' as const, type: p.type, items: p.items})),
     ...options.map((o) => ({kind: 'option' as const, title: o.title, note: o.note, image: o.image})),
   ];
-  return {partner, pick: false as const, options: [], pages};
+  return {partner, pick: false as const, options: [], pages, since, productCount: cards.length};
+}
+
+/** "2026-11-01" → "November 1, 2026" */
+function longDate(iso: string) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
 }
 
 const SCRIPT = "'Parisian Script', 'Great Vibes', cursive";
@@ -211,8 +231,19 @@ export default function PartnerCatalog() {
       <style>{CATALOG_CSS}</style>
       <div className="catalog-toolbar">
         <p>
-          <strong>{partner.name} catalog</strong> · {data.pages.length} pages · Letter size (8.5 × 11 in)
+          <strong>{partner.name} {data.since ? 'new products' : 'catalog'}</strong> ·{' '}
+          {data.since ? `${data.productCount} products added since ${longDate(data.since)} · ` : ''}
+          {data.pages.length} pages · Letter size (8.5 × 11 in)
         </p>
+        {/* New products only: pick a date, or clear it for the full catalog. */}
+        <form method="get" className="catalog-since">
+          <label>
+            New products since{' '}
+            <input type="date" name="since" defaultValue={data.since ?? ''} />
+          </label>
+          <button type="submit">Show</button>
+          {data.since && <a href="?">Full catalog</a>}
+        </form>
         <button type="button" onClick={() => window.print()}>
           Print / Save as PDF
         </button>
@@ -234,7 +265,10 @@ export default function PartnerCatalog() {
               <p className="cover-script" style={{fontFamily: SCRIPT}}>
                 Personalized Stationery
               </p>
-              <p className="cover-sub">A Curated Collection</p>
+              <p className="cover-sub">{data.since ? 'New Products' : 'A Curated Collection'}</p>
+              {data.since && (
+                <p className="cover-since">Added since {longDate(data.since)}</p>
+              )}
               <p className="cover-foot">Every piece is personalized and made to order by The Winsome Life</p>
             </div>
           )}
@@ -329,6 +363,10 @@ const CATALOG_CSS = `
 @page { size: letter; margin: 0; }
 .catalog { background: #E9E5DF; padding: 24px 0 48px; color: #2D2D2D; }
 .catalog-toolbar { position: sticky; top: 0; z-index: 10; max-width: 8.5in; margin: 0 auto 20px; display: flex; gap: 16px; align-items: center; justify-content: space-between; background: #fff; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.08); font-family: Montserrat, system-ui, sans-serif; font-size: 14px; }
+.catalog-since { display: flex; gap: 8px; align-items: center; }
+.catalog-since input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 8px; font: inherit; }
+.catalog-since a { color: #2D2D2D; text-decoration: underline; white-space: nowrap; }
+.cover-since { font-family: Montserrat, system-ui, sans-serif; font-size: 14pt; letter-spacing: .12em; margin-top: 10px; opacity: .85; }
 .catalog-toolbar button { background: #2D2D2D; color: #fff; padding: 10px 18px; border-radius: 4px; font-weight: 600; letter-spacing: .04em; }
 .catalog-page { position: relative; width: 8.5in; height: 11in; margin: 0 auto 24px; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.12); overflow: hidden; break-after: page; page-break-after: always; }
 .page-number { position: absolute; bottom: .35in; left: 0; right: 0; text-align: center; font-family: Montserrat, sans-serif; font-size: 11pt; color: #8a8a8a; }
