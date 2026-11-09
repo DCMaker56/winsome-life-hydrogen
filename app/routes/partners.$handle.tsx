@@ -5,7 +5,10 @@
  * and the partner's discount code put on the cart automatically. See
  * ~/lib/partners for how partners are set up.
  */
+import {useState} from 'react';
 import {data, useLoaderData, useSearchParams, Link} from 'react-router';
+import {PencilLine} from 'lucide-react';
+import {PartnerSelectionEditor} from '~/components/PartnerSelectionEditor';
 import type {Route} from './+types/partners.$handle';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
@@ -100,6 +103,9 @@ export default function PartnerPage() {
   const {partner, cards, facets, sort, q, sections, customerView} =
     useLoaderData<typeof loader>();
   const {colors} = partner;
+  // Store view only: partners request changes to their product selection.
+  const [editing, setEditing] = useState(false);
+  const canEdit = !!partner.collection && !customerView;
 
   return (
     <main id="main" className="bg-[#FAF8F5] min-h-screen pb-20">
@@ -178,7 +184,23 @@ export default function PartnerPage() {
           <p className="font-sans text-sm text-[#2D2D2D]/45">
             {cards.length} {cards.length === 1 ? 'piece' : 'pieces'}
           </p>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="ml-auto inline-flex items-center gap-2 h-10 px-5 bg-white ring-1 ring-[#2D2D2D]/25 hover:ring-[#2D2D2D] font-sans font-medium text-[12px] tracking-[0.12em] uppercase text-[#2D2D2D] transition-colors"
+            >
+              <PencilLine size={15} aria-hidden /> Edit my selection
+            </button>
+          )}
         </div>
+        {editing && (
+          <PartnerSelectionEditor
+            partnerHandle={partner.handle}
+            partnerName={partner.name}
+            onClose={() => setEditing(false)}
+          />
+        )}
         <CollectionFilters
           facets={facets}
           sort={sort}
