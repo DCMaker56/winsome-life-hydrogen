@@ -114,21 +114,22 @@ export const PARTNERS: Record<string, Partner> = {
   },
   cornerstone: {
     handle: 'cornerstone',
-    name: 'Cornerstone',
+    name: 'Cornerstone Shop & Gallery',
     collection: 'partner-cornerstone',
     // Shopify code discount CORNERSTONE35: 35% off (most collections), no end
     // date. Products copied from Boxwood Cottage (Sydney, Nov 2026).
     discountCode: 'CORNERSTONE35',
     discountPercent: 35,
     intro:
-      'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Cornerstone customers.',
+      'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Cornerstone Shop & Gallery customers.',
     // Name as a wordmark until we have their logo file (Lake Geneva, WI).
     logo: null,
     viewToggle: true,
     shareImage: cornerstoneShare,
     website: 'https://cornerstonelakegeneva.com',
-    // Lake blue with deep navy text (placeholder until we see their brand).
-    colors: {background: '#D7E4EA', text: '#1F3A4D', accent: '#4F7A93'},
+    // Their teal (#5C9C9C) as the accent on a light teal, with deep teal
+    // text so small type stays readable.
+    colors: {background: '#DCEDEC', text: '#1F4D4D', accent: '#5C9C9C'},
   },
   'cahill-edit': {
     handle: 'cahill-edit',
