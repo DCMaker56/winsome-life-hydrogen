@@ -150,9 +150,8 @@ export const PARTNERS: Record<string, Partner> = {
     logo: null,
     viewToggle: true,
     shareImage: willowTreeShare,
-    // Soft sage green with a French blue accent (the bordered discount line
-    // and the share picture's frame) (Sydney).
-    colors: {background: '#D5DEC9', text: '#2B3A26', accent: '#5B7DB1'},
+    // A pretty French blue (Sydney), with deep navy text.
+    colors: {background: '#BFD1EA', text: '#1E2E4A', accent: '#3F5F8F'},
   },
   'cahill-edit': {
     handle: 'cahill-edit',
