@@ -1,4 +1,5 @@
 import {Analytics, getShopAnalytics, useNonce} from '@shopify/hydrogen';
+import {GoogleAnalyticsEvents} from '~/components/GoogleAnalyticsEvents';
 import {
   Outlet,
   useRouteError,
@@ -227,6 +228,7 @@ export default function App() {
       shop={data.shop}
       consent={data.consent}
     >
+      <GoogleAnalyticsEvents />
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       <WinsomeLayout {...data}>
         <Outlet />
