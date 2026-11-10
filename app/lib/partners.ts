@@ -24,6 +24,7 @@ import boxwoodCottageStorefront from '~/assets/partners/boxwood-cottage-storefro
 import cahillEditLogo from '~/assets/partners/cahill-edit.png';
 import cahillEditShare from '~/assets/partners/cahill-edit-share.jpg';
 import cornerstoneShare from '~/assets/partners/cornerstone-share.jpg';
+import willowTreeShare from '~/assets/partners/willow-tree-share.jpg';
 
 export type Partner = {
   handle: string;
@@ -133,6 +134,23 @@ export const PARTNERS: Record<string, Partner> = {
     // Their teal (#5C9C9C) as the accent on a light teal, with deep teal
     // text so small type stays readable.
     colors: {background: '#DCEDEC', text: '#1F4D4D', accent: '#5C9C9C'},
+  },
+  'willow-tree': {
+    handle: 'willow-tree',
+    name: 'Willow Tree',
+    collection: 'partner-willow-tree',
+    // Shopify code discount WillowTree35: 35% off (most collections), no end
+    // date. Products copied from Boxwood Cottage (Sydney, Nov 2026).
+    discountCode: 'WillowTree35',
+    discountPercent: 35,
+    intro:
+      'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Willow Tree customers.',
+    // Name as a wordmark (no logo yet).
+    logo: null,
+    viewToggle: true,
+    shareImage: willowTreeShare,
+    // Soft sage green (Sydney); lighter than Boxwood Cottage's sage.
+    colors: {background: '#D5DEC9', text: '#2B3A26', accent: '#6E8362'},
   },
   'cahill-edit': {
     handle: 'cahill-edit',
