@@ -138,6 +138,7 @@ export const PARTNERS: Record<string, Partner> = {
   'willow-tree': {
     handle: 'willow-tree',
     name: 'Willow Tree',
+    location: 'Westland, MI',
     collection: 'partner-willow-tree',
     // Shopify code discount WillowTree35: 35% off (most collections), no end
     // date. Products copied from Boxwood Cottage (Sydney, Nov 2026).
@@ -149,8 +150,9 @@ export const PARTNERS: Record<string, Partner> = {
     logo: null,
     viewToggle: true,
     shareImage: willowTreeShare,
-    // Soft sage green (Sydney); lighter than Boxwood Cottage's sage.
-    colors: {background: '#D5DEC9', text: '#2B3A26', accent: '#6E8362'},
+    // Soft sage green with a French blue accent (the bordered discount line
+    // and the share picture's frame) (Sydney).
+    colors: {background: '#D5DEC9', text: '#2B3A26', accent: '#5B7DB1'},
   },
   'cahill-edit': {
     handle: 'cahill-edit',
