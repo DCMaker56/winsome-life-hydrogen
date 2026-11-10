@@ -2,8 +2,8 @@
  * "For the Love of Dogs & Cats" (Sydney, Nov 2026) — replaces Trending &
  * Popular on the home page. Holiday pet pieces featured large (with a
  * Holiday ribbon), year-round pet favorites below, and a link to the Dogs &
- * Cats collection. Products come from that collection (home loader); the
- * handle lists below pick and order them.
+ * Cats collection. Every product in that collection shows automatically
+ * (home loader); see sortPets for how they're grouped.
  */
 import {Link} from 'react-router';
 import {ResponsiveImg} from '~/components/ResponsiveImg';
@@ -16,47 +16,70 @@ export type PetProduct = {
   price: number | null;
 };
 
-/** Featured large, in this order (holiday pieces). */
-const HOLIDAY = [
+/** Holiday pieces lead in this order; any other holiday product follows. */
+const HOLIDAY_ORDER = [
   'personalized-christmas-dog-gift-tags-customize-your-dog-breed',
   'personalized-dog-bow-stationery-set-stationary-dog-breed-flat-notecards-christmas-bow-dog-lover-gift',
   'plaid-dog-christmas-card-happy-pawlidays-holiday-photo-card-for-dogs',
 ];
-/** Year-round favorites, in this order. */
-const EVERYDAY = [
-  'custom-dog-stationery-stationary-choose-your-dog-breed-custom-canine-notecards-dog-lover-gift-ability-to-add-multiple-dogs-1',
-  'custom-cat-stationery-stationary-choose-your-cat-breed-cat-lover-gift',
-  'personalized-dog-notepad-dog-lover-gift-customize-with-dog-of-your-choice-name-customize-with-multiple-dogs',
-  'personalized-cat-notepad-cat-lover-gift-customize-with-cat-of-your-choice-name-customize-with-multiple-cats',
-  'custom-dog-coasters-customize-dog-breed-text',
-  'personalized-dog-bookmark-customize-your-dog-breed-and-text',
-];
 
 /** Short display names (Shopify titles are long, keyword-heavy listings). */
 const NAMES: Record<string, string> = {
-  [HOLIDAY[0]]: 'Christmas Dog Gift Tags',
-  [HOLIDAY[1]]: 'Dog & Christmas Bow Notecards',
-  [HOLIDAY[2]]: 'Happy Pawlidays Photo Card',
-  [EVERYDAY[0]]: 'Dog Stationery',
-  [EVERYDAY[1]]: 'Cat Stationery',
-  [EVERYDAY[2]]: 'Dog Notepad',
-  [EVERYDAY[3]]: 'Cat Notepad',
-  [EVERYDAY[4]]: 'Dog Coasters',
-  [EVERYDAY[5]]: 'Dog Bookmark',
+  'personalized-christmas-dog-gift-tags-customize-your-dog-breed': 'Christmas Dog Gift Tags',
+  'personalized-dog-bow-stationery-set-stationary-dog-breed-flat-notecards-christmas-bow-dog-lover-gift':
+    'Dog & Christmas Bow Notecards',
+  'plaid-dog-christmas-card-happy-pawlidays-holiday-photo-card-for-dogs': 'Happy Pawlidays Photo Card',
+  'custom-dog-stationery-stationary-choose-your-dog-breed-custom-canine-notecards-dog-lover-gift-ability-to-add-multiple-dogs-1':
+    'Dog Stationery',
+  'custom-cat-stationery-stationary-choose-your-cat-breed-cat-lover-gift': 'Cat Stationery',
+  'personalized-dog-notepad-dog-lover-gift-customize-with-dog-of-your-choice-name-customize-with-multiple-dogs':
+    'Dog Notepad',
+  'personalized-cat-notepad-cat-lover-gift-customize-with-cat-of-your-choice-name-customize-with-multiple-cats':
+    'Cat Notepad',
+  'custom-dog-coasters-customize-dog-breed-text': 'Dog Coasters',
+  'personalized-dog-bookmark-customize-your-dog-breed-and-text': 'Dog Bookmark',
 };
 
-const name = (p: PetProduct) => NAMES[p.handle] ?? p.title.split('|')[0].trim();
+/** Everything in the Dogs & Cats collection shows on its own (Sydney, Nov
+ * 2026): Christmas / holiday pieces in the Holiday row (Oct–Dec), everything
+ * else in Year-round favorites, ordered stationery → notepads → coasters →
+ * the rest. Valentine's pieces only show in January and February. */
+const isHoliday = (t: string) => /christmas|holiday|pawlidays|\bbow\b/i.test(t);
+const isValentine = (t: string) => /valentine/i.test(t);
+const KIND_ORDER = [/stationery|notecard/i, /notepad/i, /coaster/i, /tag/i, /bookmark/i];
+const kindRank = (t: string) => {
+  const i = KIND_ORDER.findIndex((r) => r.test(t.split('|')[0]));
+  return i === -1 ? KIND_ORDER.length : i;
+};
+
+const name = (p: PetProduct) =>
+  NAMES[p.handle] ??
+  p.title
+    .split('|')[0]
+    .replace(/\s*\/\s*Stationary\b/i, '')
+    .replace(/^(Personalized|Custom)\s+/i, '')
+    .trim();
 const script = {fontFamily: "'Parisian Script', 'Great Vibes', cursive", lineHeight: 0.9} as const;
 
-function pick(products: PetProduct[], handles: string[]) {
-  return handles
-    .map((h) => products.find((p) => p.handle === h))
-    .filter((p): p is PetProduct => !!p);
+function sortPets(products: PetProduct[]) {
+  const month = new Date().getMonth(); // 0 = Jan
+  const holidaySeason = month >= 9; // Oct–Dec
+  const valentineSeason = month <= 1; // Jan–Feb
+  const shown = products.filter((p) => !isValentine(p.title) || valentineSeason);
+  const holiday = holidaySeason ? shown.filter((p) => isHoliday(p.title)) : [];
+  holiday.sort((a, b) => {
+    const ia = HOLIDAY_ORDER.indexOf(a.handle);
+    const ib = HOLIDAY_ORDER.indexOf(b.handle);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+  const everyday = shown
+    .filter((p) => !holiday.includes(p) && !isHoliday(p.title))
+    .sort((a, b) => kindRank(a.title) - kindRank(b.title) || Number(/cat/i.test(a.title)) - Number(/cat/i.test(b.title)));
+  return {holiday, everyday};
 }
 
 export default function PetsSection({products}: {products: PetProduct[]}) {
-  const holiday = pick(products, HOLIDAY);
-  const everyday = pick(products, EVERYDAY);
+  const {holiday, everyday} = sortPets(products);
   if (!holiday.length && !everyday.length) return null;
 
   return (
@@ -96,7 +119,7 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
 
         {/* Holiday pieces, featured large */}
         {holiday.length > 0 && (
-          <ul className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:gap-5 lg:gap-7 sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ul className={`flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-3 sm:gap-5 lg:gap-6 sm:overflow-visible ${holiday.length >= 5 ? "lg:grid-cols-5" : holiday.length === 4 ? "lg:grid-cols-4" : ""} [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
             {holiday.map((p) => (
               <li key={p.handle} className="snap-center shrink-0 w-[78%] sm:w-auto">
                 <Link
@@ -144,7 +167,7 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
               </p>
               <span aria-hidden className="h-px flex-1 bg-white/25" />
             </div>
-            <ul className="flex gap-5 overflow-x-auto snap-x pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-6 lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <ul className={`flex gap-5 overflow-x-auto snap-x pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid ${everyday.length > 6 ? "lg:grid-cols-4 lg:gap-y-8 lg:max-w-4xl lg:mx-auto" : "lg:grid-cols-6"} lg:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
               {everyday.map((p) => (
                 <li key={p.handle} className="snap-start shrink-0 w-36 lg:w-auto">
                   <Link to={`/products/${p.handle}`} prefetch="intent" className="group block text-center">

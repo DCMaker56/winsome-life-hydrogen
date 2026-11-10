@@ -461,6 +461,7 @@ export type HomeProductsQuery = {
 
 export type HomeCollectionQueryVariables = StorefrontAPI.Exact<{
   handle: StorefrontAPI.Scalars['String']['input'];
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
@@ -1327,7 +1328,7 @@ interface GeneratedQueryTypes {
     return: HomeProductsQuery;
     variables: HomeProductsQueryVariables;
   };
-  '#graphql\n  query HomeCollection($handle: String!, $country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      handle\n      title\n      products(first: 12, sortKey: BEST_SELLING) {\n        nodes {\n          id\n          handle\n          title\n          descriptionHtml\n          vendor\n          productType\n          tags\n          featuredImage { url altText width height }\n          images(first: 2) { nodes { url altText } }\n          variants(first: 3) {\n            nodes {\n              price { amount currencyCode }\n              compareAtPrice { amount }\n              availableForSale\n            }\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  query HomeCollection($handle: String!, $first: Int = 12, $country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      handle\n      title\n      products(first: $first, sortKey: BEST_SELLING) {\n        nodes {\n          id\n          handle\n          title\n          descriptionHtml\n          vendor\n          productType\n          tags\n          featuredImage { url altText width height }\n          images(first: 2) { nodes { url altText } }\n          variants(first: 3) {\n            nodes {\n              price { amount currencyCode }\n              compareAtPrice { amount }\n              availableForSale\n            }\n          }\n        }\n      }\n    }\n  }\n': {
     return: HomeCollectionQuery;
     variables: HomeCollectionQueryVariables;
   };

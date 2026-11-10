@@ -109,7 +109,7 @@ export async function loader({context, request}: Route.LoaderArgs) {
     }),
     // "For the Love of Dogs & Cats" section — the Dogs & Cats collection.
     context.storefront.query(HOME_COLLECTION_QUERY, {
-      variables: {handle: 'dogs'},
+      variables: {handle: 'dogs', first: 40},
       cache: context.storefront.CacheShort(),
     }),
     // Holiday Gift Guide teaser circles (replaced "Shop by Interest").
@@ -240,13 +240,13 @@ const HOME_PRODUCTS_QUERY = `#graphql
 ` as const;
 
 const HOME_COLLECTION_QUERY = `#graphql
-  query HomeCollection($handle: String!, $country: CountryCode, $language: LanguageCode)
+  query HomeCollection($handle: String!, $first: Int = 12, $country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
       id
       handle
       title
-      products(first: 12, sortKey: BEST_SELLING) {
+      products(first: $first, sortKey: BEST_SELLING) {
         nodes {
           id
           handle
