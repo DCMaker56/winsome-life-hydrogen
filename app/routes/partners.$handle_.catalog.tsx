@@ -263,14 +263,18 @@ export default function PartnerCatalog() {
         <form method="get" className="catalog-since">
           <label>
             New products since{' '}
-            <input type="date" name="date" defaultValue={data.since ?? data.newSince ?? ''} required />
+            <input type="date" name="date" defaultValue={data.since ?? data.newSince ?? ''} />
           </label>
-          <select name="mode" defaultValue={data.since ? 'only' : 'section'} aria-label="What to print">
+          <select
+            name="mode"
+            defaultValue={data.since ? 'only' : data.newSince ? 'section' : 'full'}
+            aria-label="What to print"
+          >
+            <option value="full">Full catalog</option>
             <option value="section">Full catalog + New Products section</option>
             <option value="only">New products only</option>
           </select>
           <button type="submit">Show</button>
-          {(data.since || data.newSince) && <a href="?">Full catalog</a>}
         </form>
         <button type="button" onClick={() => window.print()}>
           Print / Save as PDF
