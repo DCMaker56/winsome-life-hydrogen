@@ -49,7 +49,7 @@ type MediaProduct = {
   media: {nodes: Array<{image?: {url: string; altText: string | null}}>};
 };
 
-type Item = {card: CardData; collection: string};
+type Item = {card: CardData; collection: string; isNew?: boolean};
 type Page =
   | {kind: 'cover'}
   | {kind: 'toc'; entries: TocEntry[]}
@@ -84,10 +84,16 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   if (!partner) throw new Response(null, {status: 404});
   const url = new URL(request.url);
   const pick = url.searchParams.get('pick') === '1';
-  // ?since=YYYY-MM-DD: a "New Products" catalog of only the products added
-  // to the store on or after that date (no options pages).
-  const sinceParam = url.searchParams.get('since') ?? '';
-  const since = /^\d{4}-\d{2}-\d{2}$/.test(sinceParam) ? sinceParam : null;
+  // A date (YYYY-MM-DD) picks out products added on or after it:
+  //  ?since=DATE (or mode=only&date=DATE): a "New Products" catalog of only
+  //    those products (no options pages);
+  //  ?new=DATE (or mode=section&date=DATE): the full catalog with a "New
+  //    Products" section up front, and a "New" tag on them throughout.
+  const isDate = (v: string | null) => (v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null);
+  const mode = url.searchParams.get('mode');
+  const date = isDate(url.searchParams.get('date'));
+  const since = isDate(url.searchParams.get('since')) ?? (mode === 'only' ? date : null);
+  const newSince = since ? null : isDate(url.searchParams.get('new')) ?? (mode === 'section' ? date : null);
 
   const [{cards: allCards, collectionsById}, media] = await Promise.all([
     loadFilteredProducts(
@@ -124,11 +130,28 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const cards = since
     ? allCards.filter((c) => (c.publishedAt ?? '').slice(0, 10) >= since)
     : allCards;
+  const isNewCard = (c: CardData) => !!newSince && (c.publishedAt ?? '').slice(0, 10) >= newSince;
   const groups = groupByTypeThenCollection(cards, collectionsById);
   const productPages: Array<{type: string; items: Item[]; collections: string[]}> = [];
+  // Full catalog + New Products: the new ones first, by product type (each
+  // labeled with its type), then the whole catalog as usual.
+  const newCards = cards.filter(isNewCard);
+  if (newCards.length) {
+    const newItems: Item[] = groupByTypeThenCollection(newCards, collectionsById).flatMap((g) =>
+      g.cards.map((card) => ({card, collection: g.title, isNew: true})),
+    );
+    for (let i = 0; i < newItems.length; i += CATALOG_PER_PAGE) {
+      const chunk = newItems.slice(i, i + CATALOG_PER_PAGE);
+      productPages.push({
+        type: 'New Products',
+        items: chunk,
+        collections: [...new Set(chunk.map((c) => c.collection))],
+      });
+    }
+  }
   for (const g of groups) {
     const items: Item[] = (g.subsections ?? [{handle: g.handle, title: '', cards: g.cards}]).flatMap(
-      (s) => s.cards.map((card) => ({card, collection: s.title})),
+      (s) => s.cards.map((card) => ({card, collection: s.title, isNew: isNewCard(card)})),
     );
     for (let i = 0; i < items.length; i += CATALOG_PER_PAGE) {
       const chunk = items.slice(i, i + CATALOG_PER_PAGE);
@@ -204,7 +227,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     ...productPages.map((p) => ({kind: 'products' as const, type: p.type, items: p.items})),
     ...options.map((o) => ({kind: 'option' as const, title: o.title, note: o.note, image: o.image})),
   ];
-  return {partner, pick: false as const, options: [], pages, since, productCount: cards.length};
+  return {partner, pick: false as const, options: [], pages, since, newSince, newCount: newCards.length, productCount: cards.length};
 }
 
 /** "2026-11-01" → "November 1, 2026" */
@@ -233,16 +256,21 @@ export default function PartnerCatalog() {
         <p>
           <strong>{partner.name} {data.since ? 'new products' : 'catalog'}</strong> ·{' '}
           {data.since ? `${data.productCount} products added since ${longDate(data.since)} · ` : ''}
+          {data.newSince ? `${data.newCount} new since ${longDate(data.newSince)} · ` : ''}
           {data.pages.length} pages · Letter size (8.5 × 11 in)
         </p>
         {/* New products only: pick a date, or clear it for the full catalog. */}
         <form method="get" className="catalog-since">
           <label>
             New products since{' '}
-            <input type="date" name="since" defaultValue={data.since ?? ''} />
+            <input type="date" name="date" defaultValue={data.since ?? data.newSince ?? ''} required />
           </label>
+          <select name="mode" defaultValue={data.since ? 'only' : 'section'} aria-label="What to print">
+            <option value="section">Full catalog + New Products section</option>
+            <option value="only">New products only</option>
+          </select>
           <button type="submit">Show</button>
-          {data.since && <a href="?">Full catalog</a>}
+          {(data.since || data.newSince) && <a href="?">Full catalog</a>}
         </form>
         <button type="button" onClick={() => window.print()}>
           Print / Save as PDF
@@ -269,6 +297,9 @@ export default function PartnerCatalog() {
               {data.since && (
                 <p className="cover-since">Added since {longDate(data.since)}</p>
               )}
+              {data.newSince && data.newCount > 0 && (
+                <p className="cover-since">Now with new products added since {longDate(data.newSince)}</p>
+              )}
               <p className="cover-foot">Every piece is personalized and made to order by The Winsome Life</p>
             </div>
           )}
@@ -293,12 +324,17 @@ export default function PartnerCatalog() {
                 <span>The Winsome Life × {partner.name}</span>
               </header>
               <ul className="grid">
-                {page.items.map(({card, collection}) => (
+                {page.items.map(({card, collection, isNew}) => (
                   <li key={card.id}>
                     <div className="photo">
                       {card.image && <img src={printImage(card.image)} alt="" />}
                     </div>
-                    {collection && <p className="collection">{collection}</p>}
+                    {collection && (
+                      <p className="collection">
+                        {isNew && page.type !== 'New Products' && <span className="new-tag">New</span>}
+                        {collection}
+                      </p>
+                    )}
                     <p className="title">{shortTitle(card.title)}</p>
                   </li>
                 ))}
@@ -363,7 +399,9 @@ const CATALOG_CSS = `
 @page { size: letter; margin: 0; }
 .catalog { background: #E9E5DF; padding: 24px 0 48px; color: #2D2D2D; }
 .catalog-toolbar { position: sticky; top: 0; z-index: 10; max-width: 8.5in; margin: 0 auto 20px; display: flex; gap: 16px; align-items: center; justify-content: space-between; background: #fff; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.08); font-family: Montserrat, system-ui, sans-serif; font-size: 14px; }
-.catalog-since { display: flex; gap: 8px; align-items: center; }
+.catalog-since { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.catalog-since select { border: 1px solid #ccc; border-radius: 4px; padding: 6px 8px; font: inherit; }
+.new-tag { display: inline-block; background: #2D2D2D; color: #fff; font-size: 7pt; letter-spacing: .12em; padding: 1px 5px; margin-right: 6px; vertical-align: 1px; }
 .catalog-since input { border: 1px solid #ccc; border-radius: 4px; padding: 6px 8px; font: inherit; }
 .catalog-since a { color: #2D2D2D; text-decoration: underline; white-space: nowrap; }
 .cover-since { font-family: Montserrat, system-ui, sans-serif; font-size: 14pt; letter-spacing: .12em; margin-top: 10px; opacity: .85; }
