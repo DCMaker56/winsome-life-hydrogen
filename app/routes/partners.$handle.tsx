@@ -24,10 +24,13 @@ import {absoluteUrl} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = ({data}) => {
   const name = data?.partner.name ?? 'Partner';
-  const title = `${name} × The Winsome Life`;
-  const description = data?.partner.collection
-    ? `A curated collection of personalized stationery from The Winsome Life, chosen especially for ${name} customers.`
-    : `Personalized stationery from The Winsome Life, especially for ${name} customers.`;
+  const white = !!data?.partner.whiteLabel;
+  const title = white ? `${name} | Personalized Stationery` : `${name} × The Winsome Life`;
+  const description = white
+    ? `A curated collection of personalized stationery, chosen especially for ${name} customers.`
+    : data?.partner.collection
+      ? `A curated collection of personalized stationery from The Winsome Life, chosen especially for ${name} customers.`
+      : `Personalized stationery from The Winsome Life, especially for ${name} customers.`;
   const image = data?.partner.shareImage;
   return [
     {title},
@@ -44,7 +47,7 @@ export const meta: Route.MetaFunction = ({data}) => {
           {property: 'og:image', content: absoluteUrl(image)},
           {property: 'og:image:width', content: '1200'},
           {property: 'og:image:height', content: '630'},
-          {property: 'og:image:alt', content: `The Winsome Life × ${name} — Personalized Stationery, a curated collection`},
+          {property: 'og:image:alt', content: white ? `${name} — Personalized Stationery, a curated collection` : `The Winsome Life × ${name} — Personalized Stationery, a curated collection`},
           {name: 'twitter:card', content: 'summary_large_image'},
           {name: 'twitter:image', content: absoluteUrl(image)},
         ]
@@ -96,7 +99,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const customerView =
     !!partner.viewToggle && new URL(request.url).searchParams.get('view') === 'customer';
 
-  return data({partner, ...rest, sections, customerView}, headers ? {headers} : undefined);
+  return data(
+    {partner, ...rest, sections, customerView, whiteLabel: !!partner.whiteLabel},
+    headers ? {headers} : undefined,
+  );
 }
 
 export default function PartnerPage() {
@@ -115,10 +121,12 @@ export default function PartnerPage() {
         style={{background: colors.background, color: colors.text}}
       >
         <div className="container max-w-5xl mx-auto px-5 lg:px-8 py-12 lg:py-16 text-center">
-          <p className="font-sans font-medium text-[13px] md:text-sm tracking-[0.25em] uppercase opacity-80">
-            The Winsome Life <span aria-hidden>×</span>
-            <span className="sr-only">and</span> {partner.name}
-          </p>
+          {!partner.whiteLabel && (
+            <p className="font-sans font-medium text-[13px] md:text-sm tracking-[0.25em] uppercase opacity-80">
+              The Winsome Life <span aria-hidden>×</span>
+              <span className="sr-only">and</span> {partner.name}
+            </p>
+          )}
           {partner.photo && (
             <div className="mt-6 mx-auto w-56 md:w-64 bg-white p-2 shadow-[0_14px_30px_-14px_rgba(0,0,0,0.35)]">
               <img
@@ -236,11 +244,17 @@ export default function PartnerPage() {
           </div>
         )}
         <p className="mt-16 text-center font-sans font-light text-[13px] text-[#2D2D2D]/55">
-          Every piece is personalized and made to order by{' '}
-          <Link to="/" className="underline decoration-[#C9A96E] underline-offset-2 hover:text-[#C9A96E]">
-            The Winsome Life
-          </Link>
-          .
+          {partner.whiteLabel ? (
+            <>Every piece is personalized and made to order.</>
+          ) : (
+            <>
+              Every piece is personalized and made to order by{' '}
+              <Link to="/" className="underline decoration-[#C9A96E] underline-offset-2 hover:text-[#C9A96E]">
+                The Winsome Life
+              </Link>
+              .
+            </>
+          )}
         </p>
       </section>
     </main>

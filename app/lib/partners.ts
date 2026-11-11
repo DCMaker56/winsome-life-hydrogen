@@ -38,6 +38,13 @@ export type Partner = {
   discountCode: string;
   /** Shown on the page, e.g. 15 → "15% off". null = don't state an amount. */
   discountPercent: number | null;
+  /**
+   * White label: the page shows only the partner's brand — no Winsome Life
+   * header, menu or footer, and no "The Winsome Life" mentions on the page
+   * or in its link preview. (Product pages, cart and checkout are still The
+   * Winsome Life's.)
+   */
+  whiteLabel?: boolean;
   /** Small line under the partner's name, e.g. "Lake Geneva, WI". */
   location?: string;
   /** Short welcome under the heading. */
@@ -83,13 +90,15 @@ export const PARTNERS: Record<string, Partner> = {
   'carmon-weeden': {
     handle: 'carmon-weeden',
     name: 'Carmon Weeden',
+    // White label (Sydney, Nov 2026).
+    whiteLabel: true,
     collection: 'partner-carmon-weeden',
     // Shopify code discount CARMONW30: 30% off (most collections), ends
     // Dec 31, 2026.
     discountCode: 'CARMONW30',
     discountPercent: 30,
     intro:
-      'A curated collection of The Winsome Life’s personalized stationery, chosen especially for Carmon Weeden customers.',
+      'A curated collection of personalized stationery, chosen especially for Carmon Weeden customers.',
     logo: carmonWeedenLogo,
     logoRound: true,
     viewToggle: true,

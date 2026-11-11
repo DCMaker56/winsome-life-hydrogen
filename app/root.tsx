@@ -210,8 +210,12 @@ gtag('config', 'G-H9RRG960BX');`,
 
 export default function App() {
   const data = useRouteLoaderData<RootLoader>('root');
+  // Bare: no site header/menu/footer — printable pages (handle.bare) and
+  // white-label partner pages (their loader returns whiteLabel: true).
   const bare = useMatches().some(
-    (m) => (m.handle as {bare?: boolean} | undefined)?.bare,
+    (m) =>
+      (m.handle as {bare?: boolean} | undefined)?.bare ||
+      (m.data as {whiteLabel?: boolean} | undefined)?.whiteLabel,
   );
 
   if (!data) {
