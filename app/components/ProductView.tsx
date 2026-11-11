@@ -173,6 +173,9 @@ export function ProductView({
   // Add to Cart stays clickable; a click with required info missing shows
   // what's still needed instead of adding to the cart.
   const [triedAddToCart, setTriedAddToCart] = useState(false);
+  // Scrolled into view (and focused) when a click is blocked, so the red
+  // "needed" highlights above are actually on screen.
+  const personalizeRef = useRef<HTMLDivElement>(null);
   // Complete the set appears only once this item is in the cart, so the
   // page never shows two competing calls to action (Sydney).
   const [addedToCart, setAddedToCart] = useState(false);
@@ -689,6 +692,25 @@ export function ProductView({
           : []),
       ];
 
+  // The same missing items, keyed to the actual controls above, so each one
+  // is ringed red in place (not just listed under the button). "__font" and
+  // "__ink" stand in for the font and text-color pickers.
+  const missingFieldKeys = new Set<string>();
+  if (personalizable) {
+    shownFields.filter(isMissing).forEach((f) => missingFieldKeys.add(f.key));
+    if (!hideFont && !personalization.fontKey) missingFieldKeys.add('__font');
+    if (!hideInk && !personalization.inkKey) missingFieldKeys.add('__ink');
+    if (
+      wantsAddressing &&
+      addressCountField &&
+      (personalization.fields[addressCountField.key] ?? '').trim() &&
+      !(addressesTyped > 0)
+    ) {
+      missingFieldKeys.add(addressCountField.key);
+    }
+  }
+  const approvalMissing = needsApproval && !proofApproved && !wantsProof;
+
   const lineAttributes = [
     ...(activeSchema
       ? buildLineAttributes(
@@ -1088,7 +1110,7 @@ export function ProductView({
 
             {/* Personalize — classic form: name/text, font, color */}
             {schema && panelHasQuestions && (
-              <div className="mb-6">
+              <div className="mb-6" ref={personalizeRef}>
                 <PersonalizationPanel
                   schema={activeSchema ?? schema}
                   value={personalization}
@@ -1097,6 +1119,8 @@ export function ProductView({
                   requireChoices
                   hideFont={hideFont}
                   hideInk={hideInk}
+                  highlightMissing={triedAddToCart}
+                  missingKeys={missingFieldKeys}
                   textLabel={pdpOverride.textLabel}
                   fontLabel={fontLabel}
                   photoFeePrice={photoFee?.price}
@@ -1155,12 +1179,26 @@ export function ProductView({
               </div>
             )}
             {needsApproval && !freeProof && (
-              <fieldset className="mb-4 space-y-2">
+              <fieldset
+                className={`mb-4 space-y-2 ${
+                  triedAddToCart && approvalMissing
+                    ? 'rounded-sm ring-2 ring-[#B23A3A] ring-offset-2 ring-offset-[#FAF8F5] p-3'
+                    : ''
+                }`}
+              >
                 <legend className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
-                  Before We Print{' '}
-                  <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
-                    Choose one
-                  </span>
+                  <span className={triedAddToCart && approvalMissing ? 'text-[#B23A3A]' : undefined}>
+                    Before We Print
+                  </span>{' '}
+                  {triedAddToCart && approvalMissing ? (
+                    <span className="font-semibold normal-case tracking-[0.08em] text-[#B23A3A]">
+                      ← choose one
+                    </span>
+                  ) : (
+                    <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
+                      Choose one
+                    </span>
+                  )}
                 </legend>
                 {[
                   ...(proofRequired
@@ -1251,6 +1289,15 @@ export function ProductView({
                     if (missingInfo.length) {
                       e.preventDefault();
                       setTriedAddToCart(true);
+                      // Bring the newly-ringed fields into view so the
+                      // customer sees exactly what to fill in.
+                      requestAnimationFrame(() => {
+                        const first =
+                          personalizeRef.current?.querySelector<HTMLElement>(
+                            '[data-missing="true"]',
+                          ) ?? personalizeRef.current;
+                        first?.scrollIntoView({behavior: 'smooth', block: 'center'});
+                      });
                     }
                   }}
                   disabled={!variantId || fetcher.state !== 'idle'}

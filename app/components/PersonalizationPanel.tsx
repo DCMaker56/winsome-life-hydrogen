@@ -48,6 +48,11 @@ interface PersonalizationPanelProps {
   /** Skip the Font / Ink Color pickers (product's "Hide standard questions"). */
   hideFont?: boolean;
   hideInk?: boolean;
+  /** Turn on the red "this is still missing" highlighting (set once the
+   *  customer has tried to Add to Cart with required answers unfilled). */
+  highlightMissing?: boolean;
+  /** Field keys (and "__font" / "__ink") that are still required-but-empty. */
+  missingKeys?: ReadonlySet<string>;
 }
 
 export function PersonalizationPanel({
@@ -64,8 +69,20 @@ export function PersonalizationPanel({
   hideInk = false,
   photoFeePrice,
   afterField,
+  highlightMissing = false,
+  missingKeys,
 }: PersonalizationPanelProps) {
   const hasMonogram = !hideMonogram && !!schema.monogramStyles?.length;
+  // Is this control still required-but-empty, and has the customer tried to
+  // add to cart? If so we ring it red and tag it "Needed".
+  const needs = (key: string) => highlightMissing && !!missingKeys?.has(key);
+  // Box-shadow ring — no layout shift when it appears.
+  const missingRing = "rounded-sm ring-2 ring-[#B23A3A] ring-offset-2 ring-offset-white";
+  const NeededTag = () => (
+    <span className="ml-1.5 align-middle font-sans font-semibold text-[10px] tracking-[0.08em] uppercase text-[#B23A3A]">
+      ← needed
+    </span>
+  );
   const monogramStyle: MonogramStyle | undefined = useMemo(() => {
     if (!value.monogramStyleKey || !schema.monogramStyles) return undefined;
     return schema.monogramStyles.find((s) => s.key === value.monogramStyleKey);
@@ -315,8 +332,9 @@ export function PersonalizationPanel({
       (g) => g.key !== field.key && (g.key === field.alternativeTo || g.alternativeTo === field.key),
     );
     const isAlternative = partnerIndex >= 0 && partnerIndex < extraFields.indexOf(field);
+    const fieldNeeds = needs(field.key);
     return (
-      <div key={field.key}>
+      <div key={field.key} data-missing={fieldNeeds || undefined} className={cn(fieldNeeds && `${missingRing} p-3`)}>
         {isAlternative && (
           <div className="flex items-center gap-3 mb-3" aria-hidden>
             <span className="h-px flex-1 bg-[#C9A96E]/30" />
@@ -325,8 +343,11 @@ export function PersonalizationPanel({
           </div>
         )}
         <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
-          {isAlternative ? `Or: ${field.label}` : field.label}
+          <span className={fieldNeeds ? "text-[#B23A3A]" : undefined}>
+            {isAlternative ? `Or: ${field.label}` : field.label}
+          </span>
           {field.required && !isAlternative && <span className="text-[#C9A96E]"> *</span>}
+          {fieldNeeds && <NeededTag />}
         </label>
         {/* Upload instructions read best before the button. */}
         {field.type === "upload" && field.helpText && (
@@ -567,17 +588,23 @@ export function PersonalizationPanel({
 
         {/* ── Name mode input ── */}
         {(value.mode === "name" || !hasMonogram) && textField && (
-          <div>
+          <div data-missing={needs("text") || undefined}>
             <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
-              {textLabel ?? textField.label}
+              <span className={needs("text") ? "text-[#B23A3A]" : undefined}>
+                {textLabel ?? textField.label}
+              </span>
               {textField.required && <span className="text-[#C9A96E]"> *</span>}
+              {needs("text") && <NeededTag />}
             </label>
             <GrowingTextBox
               value={value.fields["text"] ?? ""}
               onChange={(v) => setField("text", v)}
               maxLength={textField.maxLength}
               rows={2}
-              className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+              className={cn(
+                "font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-base text-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm",
+                needs("text") && missingRing,
+              )}
             />
             {textField.helpText && (
               <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1.5">
@@ -685,10 +712,13 @@ export function PersonalizationPanel({
 
             {/* Step 3: Enter letters */}
             {monoField && (
-              <div>
+              <div data-missing={needs(monoField.key) || undefined}>
                 <label className="block font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75 mb-1.5">
-                  Enter your {letterCountFilter === 1 ? "initial" : "initials"}
+                  <span className={needs(monoField.key) ? "text-[#B23A3A]" : undefined}>
+                    Enter your {letterCountFilter === 1 ? "initial" : "initials"}
+                  </span>
                   {monoField.required && <span className="text-[#C9A96E]"> *</span>}
+                  {needs(monoField.key) && <NeededTag />}
                 </label>
                 <input
                   type="text"
@@ -704,7 +734,10 @@ export function PersonalizationPanel({
                   }
                   placeholder={["A", "AW", "AEW"][letterCountFilter - 1]}
                   maxLength={monogramStyle?.letterCount ?? letterCountFilter}
-                  className="font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-2xl text-[#2D2D2D] tracking-[0.2em] text-center uppercase focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm"
+                  className={cn(
+                    "font-sans w-full px-4 py-3 border border-[#C9A96E]/30 bg-[#FAF8F5] text-2xl text-[#2D2D2D] tracking-[0.2em] text-center uppercase focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2 rounded-sm",
+                    needs(monoField.key) && missingRing,
+                  )}
                 />
                 {monoField.helpText && (
                   <p className="font-sans font-light text-[11px] text-[#2D2D2D]/50 mt-1.5">
@@ -722,13 +755,17 @@ export function PersonalizationPanel({
 
         {/* ── Font picker — shows customer's own text ── */}
         {!hideFont && (
-        <fieldset className="space-y-3">
+        <fieldset data-missing={needs("__font") || undefined} className={cn("space-y-3", needs("__font") && `${missingRing} p-3`)}>
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
-            {fontLabel}
+            <span className={needs("__font") ? "text-[#B23A3A]" : undefined}>{fontLabel}</span>
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}{" "}
-            <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
-              Choose from fonts below for your text
-            </span>
+            {needs("__font") ? (
+              <NeededTag />
+            ) : (
+              <span className="font-light normal-case tracking-normal text-[#2D2D2D]/55">
+                Choose from fonts below for your text
+              </span>
+            )}
           </legend>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {schema.fonts.map((f, i) => {
@@ -768,10 +805,11 @@ export function PersonalizationPanel({
 
         {/* ── Ink color picker — with visible labels ── */}
         {!hideInk && (
-        <fieldset className="space-y-3">
+        <fieldset data-missing={needs("__ink") || undefined} className={cn("space-y-3", needs("__ink") && `${missingRing} p-3`)}>
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
-            Text Color
+            <span className={needs("__ink") ? "text-[#B23A3A]" : undefined}>Text Color</span>
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}
+            {needs("__ink") && <NeededTag />}
           </legend>
           <SwatchGrid
             compact
