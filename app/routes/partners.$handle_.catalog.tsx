@@ -23,7 +23,11 @@ import {
 export const handle = {bare: true};
 
 export const meta: Route.MetaFunction = ({data}) => [
-  {title: `${data?.partner.name ?? 'Partner'} × The Winsome Life — Catalog`},
+  {
+    title: data?.partner.whiteLabel
+      ? `${data.partner.name} — Catalog`
+      : `${data?.partner.name ?? 'Partner'} × The Winsome Life — Catalog`,
+  },
   {name: 'robots', content: 'noindex'},
 ];
 
@@ -284,7 +288,7 @@ export default function PartnerCatalog() {
         <section key={i} className="catalog-page">
           {page.kind === 'cover' && (
             <div className="cover" style={{background: partner.colors.background, color: partner.colors.text}}>
-              <p className="cover-eyebrow">The Winsome Life × {partner.name}</p>
+              {!partner.whiteLabel && <p className="cover-eyebrow">The Winsome Life × {partner.name}</p>}
               {partner.logo ? (
                 <img
                   src={partner.logo}
@@ -304,7 +308,11 @@ export default function PartnerCatalog() {
               {data.newSince && data.newCount > 0 && (
                 <p className="cover-since">Now with new products added since {longDate(data.newSince)}</p>
               )}
-              <p className="cover-foot">Every piece is personalized and made to order by The Winsome Life</p>
+              <p className="cover-foot">
+                {partner.whiteLabel
+                  ? 'Every piece is personalized and made to order'
+                  : 'Every piece is personalized and made to order by The Winsome Life'}
+              </p>
             </div>
           )}
           {page.kind === 'toc' && (
@@ -325,7 +333,7 @@ export default function PartnerCatalog() {
             <div className="products">
               <header>
                 <span>{page.type}</span>
-                <span>The Winsome Life × {partner.name}</span>
+                <span>{partner.whiteLabel ? partner.name : `The Winsome Life × ${partner.name}`}</span>
               </header>
               <ul className="grid">
                 {page.items.map(({card, collection, isNew}) => (
@@ -349,7 +357,7 @@ export default function PartnerCatalog() {
             <div className="option">
               <header>
                 <span>Personalization Options</span>
-                <span>The Winsome Life × {partner.name}</span>
+                <span>{partner.whiteLabel ? partner.name : `The Winsome Life × ${partner.name}`}</span>
               </header>
               <h1>{page.title}</h1>
               {page.note && <p className="note">{page.note}</p>}
