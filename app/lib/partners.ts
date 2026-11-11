@@ -287,3 +287,20 @@ export const PARTNER_SECTION_ORDER = [
 export function isPartnerCollection(handle: string) {
   return handle.startsWith('partner-') || handle === 'matching-sets';
 }
+
+/**
+ * The white-label partner a page belongs to, for the slim partner header
+ * (see ~/components/PartnerShell): their page, or a product page opened from
+ * it (?via=<partner>). Null for everyone else.
+ */
+export function whiteLabelPartnerFor(handle: string | null | undefined) {
+  const p = handle ? PARTNERS[handle] : undefined;
+  if (!p?.whiteLabel) return null;
+  return {
+    handle: p.handle,
+    name: p.name,
+    logo: p.logo,
+    logoRound: p.logoRound,
+    colors: p.colors,
+  };
+}

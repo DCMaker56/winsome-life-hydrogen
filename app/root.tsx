@@ -19,6 +19,7 @@ import {FOOTER_QUERY, HEADER_QUERY} from '~/lib/fragments';
 import resetStyles from '~/styles/reset.css?url';
 import appStyles from '~/styles/app.css?url';
 import {WinsomeLayout} from './components/WinsomeLayout';
+import {PartnerShell, type WhiteLabelPartner} from './components/PartnerShell';
 import {JsonLd} from './components/JsonLd';
 import {organizationJsonLd, websiteJsonLd} from './lib/seo';
 
@@ -210,13 +211,13 @@ gtag('config', 'G-H9RRG960BX');`,
 
 export default function App() {
   const data = useRouteLoaderData<RootLoader>('root');
-  // Bare: no site header/menu/footer — printable pages (handle.bare) and
-  // white-label partner pages (their loader returns whiteLabel: true).
-  const bare = useMatches().some(
-    (m) =>
-      (m.handle as {bare?: boolean} | undefined)?.bare ||
-      (m.data as {whiteLabel?: boolean} | undefined)?.whiteLabel,
-  );
+  const matches = useMatches();
+  const bare = matches.some((m) => (m.handle as {bare?: boolean} | undefined)?.bare);
+  // White-label partner pages, and product pages opened from them: the
+  // partner's slim header instead of The Winsome Life's (PartnerShell).
+  const whiteLabel = matches
+    .map((m) => (m.data as {whiteLabelPartner?: WhiteLabelPartner | null} | undefined)?.whiteLabelPartner)
+    .find(Boolean);
 
   if (!data) {
     return <Outlet />;
@@ -224,6 +225,16 @@ export default function App() {
 
   // Printable pages (e.g. partner catalogs) render without the site chrome.
   if (bare) return <Outlet />;
+
+  if (whiteLabel) {
+    return (
+      <Analytics.Provider cart={data.cart} shop={data.shop} consent={data.consent}>
+        <PartnerShell partner={whiteLabel} cart={data.cart}>
+          <Outlet />
+        </PartnerShell>
+      </Analytics.Provider>
+    );
+  }
 
   return (
     <Analytics.Provider

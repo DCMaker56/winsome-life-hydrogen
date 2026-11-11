@@ -354,7 +354,10 @@ export function FilteredProductGrid({
   discountPercent,
   hidePrices = false,
   labels,
+  productQuery = '',
 }: {
+  /** Added to each product link (white-label partner pages: "?via=<partner>"). */
+  productQuery?: string;
   cards: CardData[];
   /** Small label above each product's name (e.g. its product type). */
   labels?: Record<string, string>;
@@ -386,7 +389,7 @@ export function FilteredProductGrid({
         {cards.slice(0, shown).map((p, i) => (
           <li key={p.id}>
             <Link
-              to={`/products/${p.slug}`}
+              to={`/products/${p.slug}${productQuery}`}
               prefetch="intent"
               className="group block bg-white overflow-hidden"
             >

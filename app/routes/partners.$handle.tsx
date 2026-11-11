@@ -18,6 +18,7 @@ import {
   PARTNER_SECTION_ORDER,
   PARTNER_SECTION_RULES,
   PARTNER_SECTION_TITLES,
+  whiteLabelPartnerFor,
 } from '~/lib/partners';
 import {groupIntoSections} from '~/lib/collection-sections';
 import {absoluteUrl} from '~/lib/seo';
@@ -100,7 +101,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     !!partner.viewToggle && new URL(request.url).searchParams.get('view') === 'customer';
 
   return data(
-    {partner, ...rest, sections, customerView, whiteLabel: !!partner.whiteLabel},
+    {partner, ...rest, sections, customerView, whiteLabelPartner: whiteLabelPartnerFor(partner.handle)},
     headers ? {headers} : undefined,
   );
 }
@@ -238,6 +239,7 @@ export default function PartnerPage() {
                   hideEnd
                   discountPercent={partner.discountPercent}
                   hidePrices={customerView}
+                  productQuery={partner.whiteLabel ? `?via=${partner.handle}` : undefined}
                 />
               </section>
             ))}

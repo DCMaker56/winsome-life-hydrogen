@@ -115,6 +115,9 @@ export function ProductView({
     setAccessories,
     setLabel,
   } = data;
+  // Opened from a white-label partner's page: no links back into The Winsome
+  // Life site (breadcrumbs, "More like this").
+  const whiteLabel = !!(data as {whiteLabelPartner?: unknown}).whiteLabelPartner;
   const hideInstructions = hidden.includes('Additional instructions');
 
   const preset = VARIANT_PRESETS[appProduct.type];
@@ -748,7 +751,7 @@ export function ProductView({
       {!embedded && <JsonLd data={[productLd, breadcrumbJsonLd(breadcrumbs)]} />}
       <div className={embedded ? 'px-5 py-5' : 'container max-w-7xl mx-auto px-4 lg:px-8'}>
         {/* Visible, semantic breadcrumb trail (mirrors the BreadcrumbList schema) */}
-        {!embedded && (
+        {!embedded && !whiteLabel && (
         <nav aria-label="Breadcrumb" className="text-xs uppercase tracking-wider text-[#2D2D2D]/50 mb-6">
           <ol className="flex flex-wrap items-center gap-1.5">
             {breadcrumbs.map((c, i) => (
@@ -1324,7 +1327,7 @@ export function ProductView({
 
         {/* More designs — every sibling in this product's collection, so the
             customer can browse all the variations of what they clicked. */}
-        {!embedded && related.products.length > 0 && (
+        {!embedded && !whiteLabel && related.products.length > 0 && (
           <section className="mt-20 lg:mt-28 pt-12 border-t border-[#C9A96E]/15">
             <div className="flex items-baseline justify-between mb-8">
               <div>

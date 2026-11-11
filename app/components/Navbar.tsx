@@ -26,7 +26,7 @@ import { useWishlistCount } from "~/hooks/useWishlist";
 import { PRODUCT_TYPE_COLLECTIONS, SEASON_COLLECTIONS } from "~/lib/collection-filters";
 
 /** Compact cart button — opens the Hydrogen cart aside and shows live count. */
-function CartButton() {
+export function CartButton() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   return (
     <Suspense fallback={<CartCountBadge count={null} />}>

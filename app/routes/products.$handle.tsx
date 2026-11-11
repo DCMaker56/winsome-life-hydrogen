@@ -39,9 +39,12 @@ import {
   type SetCardProduct,
 } from '~/lib/matching-sets';
 import {absoluteUrl} from '~/lib/seo';
+import {whiteLabelPartnerFor} from '~/lib/partners';
 
 export const meta: Route.MetaFunction = ({data}) => {
-  const title = `${data?.product?.title ?? 'Product'} | The Winsome Life`;
+  const title = data?.whiteLabelPartner
+    ? `${data?.product?.title ?? 'Product'} | ${data.whiteLabelPartner.name}`
+    : `${data?.product?.title ?? 'Product'} | The Winsome Life`;
   const description =
     data?.product?.seo?.description ||
     data?.appProduct?.description ||
@@ -249,6 +252,9 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const setLabel = set?.self.label ?? '';
 
   return {
+    // Opened from a white-label partner's page: their slim header instead of
+    // The Winsome Life's (see ~/components/PartnerShell).
+    whiteLabelPartner: whiteLabelPartnerFor(new URL(request.url).searchParams.get('via')),
     setMatches,
     setAccessories,
     setLabel,
