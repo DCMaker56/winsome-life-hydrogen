@@ -1111,6 +1111,25 @@ export function ProductView({
             {/* Personalize — classic form: name/text, font, color */}
             {schema && panelHasQuestions && (
               <div className="mb-6" ref={personalizeRef}>
+                {/* Shown at the top of the questions after a blocked Add to
+                    Cart, so the reason is on screen wherever the page lands
+                    (Sydney, Nov 2026: customers didn't see why nothing was
+                    added). */}
+                {triedAddToCart && missingInfo.length > 0 && (
+                  <div
+                    role="alert"
+                    className="mb-5 p-3.5 border border-[#B23A3A]/45 bg-[#B23A3A]/[0.06] rounded-sm font-sans text-[14px] text-[#B23A3A] leading-snug"
+                  >
+                    <p className="font-semibold">
+                      Almost there! Please complete the{' '}
+                      {missingInfo.length === 1
+                        ? 'question'
+                        : `${missingInfo.length} questions`}{' '}
+                      marked in red before adding to your cart.
+                    </p>
+                    <p className="mt-1 text-[13px]">{missingInfo.join(' · ')}</p>
+                  </div>
+                )}
                 <PersonalizationPanel
                   schema={activeSchema ?? schema}
                   value={personalization}
@@ -1180,6 +1199,7 @@ export function ProductView({
             )}
             {needsApproval && !freeProof && (
               <div
+                data-missing={(triedAddToCart && approvalMissing) || undefined}
                 className={`mb-4 ${
                   triedAddToCart && approvalMissing
                     ? 'rounded-sm ring-2 ring-[#B23A3A] ring-offset-2 ring-offset-[#FAF8F5] p-3'
@@ -1294,10 +1314,13 @@ export function ProductView({
                       // Bring the newly-ringed fields into view so the
                       // customer sees exactly what to fill in.
                       requestAnimationFrame(() => {
+                        // Search the whole product form (the "Before We
+                        // Print" box sits below the questions).
+                        const form =
+                          personalizeRef.current?.parentElement ?? document;
                         const first =
-                          personalizeRef.current?.querySelector<HTMLElement>(
-                            '[data-missing="true"]',
-                          ) ?? personalizeRef.current;
+                          form.querySelector<HTMLElement>('[data-missing="true"]') ??
+                          personalizeRef.current;
                         first?.scrollIntoView({behavior: 'smooth', block: 'center'});
                       });
                     }
@@ -1316,7 +1339,7 @@ export function ProductView({
                 className="mt-3 p-3 border border-[#B23A3A]/40 bg-[#B23A3A]/5 rounded-sm font-sans text-[13px] text-[#B23A3A]"
               >
                 <p className="font-medium mb-1">
-                  Please complete the following before adding to your cart:
+                  Not added yet. Please complete the following first:
                 </p>
                 <ul className="list-disc pl-5 space-y-0.5">
                   {missingInfo.map((m) => (

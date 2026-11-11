@@ -79,8 +79,8 @@ export function PersonalizationPanel({
   // Box-shadow ring — no layout shift when it appears.
   const missingRing = "rounded-sm ring-2 ring-[#B23A3A] ring-offset-2 ring-offset-white";
   const NeededTag = () => (
-    <span className="ml-1.5 align-middle font-sans font-semibold text-[10px] tracking-[0.08em] uppercase text-[#B23A3A]">
-      ← needed
+    <span className="ml-1.5 inline-block align-middle bg-[#B23A3A] text-white font-sans font-semibold text-[10px] tracking-[0.08em] uppercase px-1.5 py-0.5 rounded-sm">
+      Required
     </span>
   );
   const monogramStyle: MonogramStyle | undefined = useMemo(() => {
