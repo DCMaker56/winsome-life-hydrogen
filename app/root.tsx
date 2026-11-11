@@ -21,6 +21,7 @@ import appStyles from '~/styles/app.css?url';
 import {WinsomeLayout} from './components/WinsomeLayout';
 import {PartnerShell, type WhiteLabelPartner} from './components/PartnerShell';
 import {JsonLd} from './components/JsonLd';
+import {GoogleTagEvents} from './components/GoogleTagEvents';
 import {organizationJsonLd, websiteJsonLd} from './lib/seo';
 
 export type RootLoader = typeof loader;
@@ -229,6 +230,7 @@ export default function App() {
   if (whiteLabel) {
     return (
       <Analytics.Provider cart={data.cart} shop={data.shop} consent={data.consent}>
+        <GoogleTagEvents />
         <PartnerShell partner={whiteLabel} cart={data.cart}>
           <Outlet />
         </PartnerShell>
@@ -242,6 +244,7 @@ export default function App() {
       shop={data.shop}
       consent={data.consent}
     >
+      <GoogleTagEvents />
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       <WinsomeLayout {...data}>
         <Outlet />
