@@ -755,7 +755,8 @@ export function PersonalizationPanel({
 
         {/* ── Font picker — shows customer's own text ── */}
         {!hideFont && (
-        <fieldset data-missing={needs("__font") || undefined} className={cn("space-y-3", needs("__font") && `${missingRing} p-3`)}>
+        <div data-missing={needs("__font") || undefined} className={cn(needs("__font") && `${missingRing} p-3`)}>
+        <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
             <span className={needs("__font") ? "text-[#B23A3A]" : undefined}>{fontLabel}</span>
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}{" "}
@@ -801,11 +802,13 @@ export function PersonalizationPanel({
             })}
           </div>
         </fieldset>
+        </div>
         )}
 
         {/* ── Ink color picker — with visible labels ── */}
         {!hideInk && (
-        <fieldset data-missing={needs("__ink") || undefined} className={cn("space-y-3", needs("__ink") && `${missingRing} p-3`)}>
+        <div data-missing={needs("__ink") || undefined} className={cn(needs("__ink") && `${missingRing} p-3`)}>
+        <fieldset className="space-y-3">
           <legend className="font-sans font-medium text-xs tracking-[0.1em] uppercase text-[#2D2D2D]/75">
             <span className={needs("__ink") ? "text-[#B23A3A]" : undefined}>Text Color</span>
             {requireChoices && <span className="text-[#C9A96E]"> *</span>}
@@ -818,6 +821,7 @@ export function PersonalizationPanel({
             onSelect={(key) => onChange({ ...value, inkKey: key })}
           />
         </fieldset>
+        </div>
         )}
 
         {/* ── Extra questions, after text/font/ink: border → icon → placement →

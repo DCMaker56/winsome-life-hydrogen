@@ -1179,13 +1179,14 @@ export function ProductView({
               </div>
             )}
             {needsApproval && !freeProof && (
-              <fieldset
-                className={`mb-4 space-y-2 ${
+              <div
+                className={`mb-4 ${
                   triedAddToCart && approvalMissing
                     ? 'rounded-sm ring-2 ring-[#B23A3A] ring-offset-2 ring-offset-[#FAF8F5] p-3'
                     : ''
                 }`}
               >
+              <fieldset className="space-y-2">
                 <legend className="font-sans font-medium text-xs tracking-[0.15em] uppercase text-[#2D2D2D] mb-2.5">
                   <span className={triedAddToCart && approvalMissing ? 'text-[#B23A3A]' : undefined}>
                     Before We Print
@@ -1245,6 +1246,7 @@ export function ProductView({
                   </label>
                 ))}
               </fieldset>
+              </div>
             )}
 
             {/* Add to Cart with Shopify line item properties */}
