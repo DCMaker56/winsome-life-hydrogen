@@ -41,12 +41,17 @@ export default async function handleRequest(
       'https://*.google.com',
       'https://*.g.doubleclick.net',
       'https://*.doubleclick.net',
+      // OpenAI commerce pixel (oaiq) img beacons
+      'https://bzrcdn.openai.com',
+      'https://*.openai.com',
     ],
     // gtag.js loads from googletagmanager (host-allowlisted alongside our nonce)
     scriptSrc: [
       "'self'",
       'https://cdn.shopify.com',
       'https://www.googletagmanager.com',
+      // OpenAI commerce pixel SDK (oaiq.min.js)
+      'https://bzrcdn.openai.com',
     ],
     styleSrc: [
       "'self'",
@@ -74,6 +79,9 @@ export default async function handleRequest(
       'https://*.doubleclick.net',
       'https://www.google.com',
       'https://*.google.com',
+      // OpenAI commerce pixel (oaiq) event beacons
+      'https://bzrcdn.openai.com',
+      'https://*.openai.com',
     ],
   });
 

@@ -196,6 +196,16 @@ gtag('config', 'AW-17795546793');
 gtag('config', 'G-H9RRG960BX');`,
           }}
         />
+        {/* OpenAI commerce pixel (oaiq). Nonce'd bootstrap self-injects the SDK
+            from bzrcdn.openai.com (allowlisted in entry.server CSP). Tracks
+            on-site browsing; the order_created conversion fires on Shopify's
+            hosted checkout, not here. */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"GjkZBcvfs5unKQ8my7KF6k",debug:true});`,
+          }}
+        />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
         <Meta />
