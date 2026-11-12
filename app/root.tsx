@@ -196,15 +196,22 @@ gtag('config', 'AW-17795546793');
 gtag('config', 'G-H9RRG960BX');`,
           }}
         />
-        {/* OpenAI commerce pixel (oaiq). Nonce'd bootstrap self-injects the SDK
-            from bzrcdn.openai.com (allowlisted in entry.server CSP). Tracks
-            on-site browsing; the order_created conversion fires on Shopify's
-            hosted checkout, not here. */}
+        {/* OpenAI commerce pixel (oaiq). React renders both tags (stub + SDK
+            loader) so nothing mutates the <head> outside React — an imperative
+            insertBefore breaks hydration. SDK loads from bzrcdn.openai.com
+            (allowlisted in entry.server CSP). Tracks on-site browsing; the
+            order_created conversion fires on Shopify's hosted checkout, not
+            here. */}
         <script
           nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: `!function(w,d,s,u){if(w.oaiq)return;var q=function(){q.q.push(arguments)};q.q=[];w.oaiq=q;var j=d.createElement(s);j.async=1;j.src=u;var f=d.getElementsByTagName(s)[0];f.parentNode.insertBefore(j,f)}(window,document,"script","https://bzrcdn.openai.com/sdk/oaiq.min.js");oaiq("init",{pixelId:"GjkZBcvfs5unKQ8my7KF6k",debug:true});`,
+            __html: `window.oaiq=window.oaiq||function(){(window.oaiq.q=window.oaiq.q||[]).push(arguments)};oaiq("init",{pixelId:"GjkZBcvfs5unKQ8my7KF6k",debug:true});`,
           }}
+        />
+        <script
+          async
+          src="https://bzrcdn.openai.com/sdk/oaiq.min.js"
+          nonce={nonce}
         />
         <link rel="stylesheet" href={resetStyles}></link>
         <link rel="stylesheet" href={appStyles}></link>
