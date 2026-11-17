@@ -69,6 +69,15 @@ export default function PartnerPage() {
 
   return (
     <main id="main" className="bg-[#FAF8F5] min-h-screen pb-20">
+      {/* Store view only: first thing on the page, so the partner knows this
+          page isn't for customers and where their customer link is. */}
+      {partner.commission && !customerLink && (
+        <CustomerLinkBox
+          handle={partner.handle}
+          discountPercent={partner.discountPercent}
+          commissionPercent={partner.commission.percent}
+        />
+      )}
       {/* Co-branded header in the partner's colors */}
       <section
         className="border-b border-[#111111]/10"
@@ -139,9 +148,6 @@ export default function PartnerPage() {
 
       <section className="container max-w-7xl mx-auto px-4 lg:px-8 pt-10">
         {partner.viewToggle && !customerLink && <ViewToggle customerView={customerView} />}
-        {partner.commission && !customerLink && (
-          <CustomerLinkBox handle={partner.handle} percent={partner.commission.percent} />
-        )}
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-6">
           <h2 className="font-serif font-medium text-2xl md:text-3xl text-[#2D2D2D]">
             The {partner.name} Collection
@@ -220,7 +226,15 @@ export default function PartnerPage() {
 }
 
 /** Store link only: the customer link to forward, and the partner's earnings. */
-function CustomerLinkBox({handle, percent}: {handle: string; percent: number}) {
+function CustomerLinkBox({
+  handle,
+  discountPercent,
+  commissionPercent,
+}: {
+  handle: string;
+  discountPercent: number | null;
+  commissionPercent: number;
+}) {
   const path = `/shop/${handle}`;
   const [copied, setCopied] = useState(false);
   const copy = () => {
@@ -234,17 +248,20 @@ function CustomerLinkBox({handle, percent}: {handle: string; percent: number}) {
     );
   };
   return (
-    <div className="mb-8 p-5 md:p-6 bg-white ring-1 ring-[#2D2D2D]/10 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+    <div className="bg-white border-b border-[#2D2D2D]/10">
+    <div className="container max-w-7xl mx-auto px-4 lg:px-8 py-5 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
       <div className="flex-1 min-w-0">
         <p className="font-sans font-semibold text-[11px] tracking-[0.2em] uppercase text-[#2D2D2D]/60">
-          For you only · Your customer link
+          Your store view · Not for customers
         </p>
         <p className="font-sans text-[15px] text-[#2D2D2D] mt-1.5 leading-relaxed">
-          Send this link to your customers. They shop at full price, and you earn {percent}% of every
-          order placed through it.
+          This page is just for you. It shows your{' '}
+          {discountPercent ? `${discountPercent}% off ` : ''}discount and lets you edit your
+          selection. To share with customers, copy your customer link: they shop at full price,
+          and you earn {commissionPercent}% of every order.
         </p>
-        <p className="font-sans text-[14px] text-[#2D2D2D]/70 mt-1 break-all">
-          thewinsomelife.com{path}
+        <p className="font-sans text-[14px] text-[#2D2D2D]/65 mt-1 break-all">
+          Customer link: thewinsomelife.com{path}
         </p>
       </div>
       <div className="flex flex-wrap gap-2.5 shrink-0">
@@ -254,7 +271,7 @@ function CustomerLinkBox({handle, percent}: {handle: string; percent: number}) {
           className="inline-flex items-center gap-2 h-11 px-5 bg-[#2D2D2D] text-white font-sans font-medium text-[12px] tracking-[0.12em] uppercase hover:bg-[#1B294E] transition-colors"
         >
           {copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />}
-          {copied ? 'Copied' : 'Copy link'}
+          {copied ? 'Copied' : 'Copy customer link'}
         </button>
         <Link
           to={`/partners/${handle}/earnings`}
@@ -263,6 +280,7 @@ function CustomerLinkBox({handle, percent}: {handle: string; percent: number}) {
           <Wallet size={15} aria-hidden /> My earnings
         </Link>
       </div>
+    </div>
     </div>
   );
 }
