@@ -45,6 +45,14 @@ export type Partner = {
    * Winsome Life's.)
    */
   whiteLabel?: boolean;
+  /**
+   * Customer link + commission (Sydney, Nov 2026): the partner forwards
+   * /shop/<handle> to their customers, who pay full price (no discount). We
+   * pay the partner this % of each order's product total afterwards; their
+   * Store link shows what they've earned (/partners/<handle>/earnings).
+   * Orders are marked by a "Partner referral" cart attribute.
+   */
+  commission?: {percent: number; since: string};
   /** Small line under the partner's name, e.g. "Lake Geneva, WI". */
   location?: string;
   /** Short welcome under the heading. */
@@ -101,7 +109,10 @@ export const PARTNERS: Record<string, Partner> = {
       'A curated collection of personalized stationery, chosen especially for Carmon Weeden customers.',
     logo: carmonWeedenLogo,
     logoRound: true,
-    viewToggle: true,
+    // Customers get their own full-price link (/shop/carmon-weeden); Carmon
+    // earns 30% of those orders (Sydney, Nov 2026). Replaces the Customer
+    // view toggle.
+    commission: {percent: 30, since: '2026-11-17'},
     shareImage: carmonWeedenShare,
     // Texas burnt orange (Sydney) to set off the purple Events logo.
     colors: {background: '#BF5700', text: '#FFFFFF', accent: '#FFE3C8'},
@@ -293,10 +304,16 @@ export function isPartnerCollection(handle: string) {
  * (see ~/components/PartnerShell): their page, or a product page opened from
  * it (?via=<partner>). Null for everyone else.
  */
-export function whiteLabelPartnerFor(handle: string | null | undefined) {
+/** Cart attribute that marks an order as coming from a partner's customer link. */
+export const REFERRAL_ATTRIBUTE = 'Partner referral';
+
+/** customerLink: opened from the customer link, so the header leads back
+ * there (never to the partner's Store link). */
+export function whiteLabelPartnerFor(handle: string | null | undefined, customerLink = false) {
   const p = handle ? PARTNERS[handle] : undefined;
   if (!p?.whiteLabel) return null;
   return {
+    home: customerLink && p.commission ? `/shop/${p.handle}` : `/partners/${p.handle}`,
     handle: p.handle,
     name: p.name,
     logo: p.logo,

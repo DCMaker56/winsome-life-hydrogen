@@ -6,21 +6,12 @@
  * ~/lib/partners for how partners are set up.
  */
 import {useState} from 'react';
-import {data, useLoaderData, useSearchParams, Link} from 'react-router';
-import {PencilLine} from 'lucide-react';
+import {useLoaderData, useSearchParams, Link} from 'react-router';
+import {Check, Copy, PencilLine, Wallet} from 'lucide-react';
 import {PartnerSelectionEditor} from '~/components/PartnerSelectionEditor';
 import type {Route} from './+types/partners.$handle';
 import {CollectionFilters, FilteredProductGrid} from '~/components/CollectionFilters';
-import {loadFilteredProducts} from '~/lib/collection-filters.server';
-import {
-  PARTNERS,
-  PARTNER_PLACEMENTS,
-  PARTNER_SECTION_ORDER,
-  PARTNER_SECTION_RULES,
-  PARTNER_SECTION_TITLES,
-  whiteLabelPartnerFor,
-} from '~/lib/partners';
-import {groupIntoSections} from '~/lib/collection-sections';
+import {partnerPageLoader} from '~/lib/partner-page.server';
 import {absoluteUrl} from '~/lib/seo';
 
 export const meta: Route.MetaFunction = ({data}) => {
@@ -42,7 +33,10 @@ export const meta: Route.MetaFunction = ({data}) => {
     {property: 'og:type', content: 'website'},
     {property: 'og:title', content: title},
     {property: 'og:description', content: description},
-    {property: 'og:url', content: absoluteUrl(`/partners/${data?.partner.handle ?? ''}`)},
+    {
+      property: 'og:url',
+      content: absoluteUrl(`/${data?.customerLink ? 'shop' : 'partners'}/${data?.partner.handle ?? ''}`),
+    },
     ...(image
       ? [
           {property: 'og:image', content: absoluteUrl(image)},
@@ -56,63 +50,22 @@ export const meta: Route.MetaFunction = ({data}) => {
   ];
 };
 
-export async function loader({context, params, request}: Route.LoaderArgs) {
-  const partner = params.handle ? PARTNERS[params.handle] : undefined;
-  if (!partner) throw new Response(null, {status: 404});
-
-  const products = await loadFilteredProducts(
-    context.storefront as never,
-    request,
-    partner.collection ?? undefined,
-    {withCollections: true},
-  );
-
-  // Put the partner's code on the cart (keeping any others) so it's applied
-  // at checkout. Only on a normal page view, not on every filter change.
-  let headers: Headers | undefined;
-  if (partner.discountCode) {
-    const cart = await context.cart.get();
-    const codes = (cart?.discountCodes ?? []).map((d) => d.code);
-    const has = codes.some(
-      (c) => c.toUpperCase() === partner.discountCode.toUpperCase(),
-    );
-    if (!has) {
-      const result = await context.cart.updateDiscountCodes([
-        ...codes,
-        partner.discountCode,
-      ]);
-      if (result.cart?.id) headers = context.cart.setCartId(result.cart.id);
-    }
-  }
-
-  // Group the (searched / filtered / sorted) results under collection headings.
-  const {collectionsById, ...rest} = products;
-  const sections = groupIntoSections(rest.cards, collectionsById, {
-    order: PARTNER_SECTION_ORDER,
-    titles: PARTNER_SECTION_TITLES,
-    rules: PARTNER_SECTION_RULES,
-    placements: PARTNER_PLACEMENTS,
-    moreTitle: 'More Favorites',
-  });
-
-  // Customer view (?view=customer): no prices or discount, for browsing with
-  // customers. Store view (default) shows prices and the partner discount.
-  const customerView =
-    !!partner.viewToggle && new URL(request.url).searchParams.get('view') === 'customer';
-
-  return data(
-    {partner, ...rest, sections, customerView, whiteLabelPartner: whiteLabelPartnerFor(partner.handle)},
-    headers ? {headers} : undefined,
-  );
+export async function loader(args: Route.LoaderArgs) {
+  return partnerPageLoader(args, false);
 }
 
 export default function PartnerPage() {
-  const {partner, cards, facets, sort, q, sections, customerView} =
+  const {partner, cards, facets, sort, q, sections, customerView, customerLink} =
     useLoaderData<typeof loader>();
   const {colors} = partner;
-  // Store view only: partners request changes to their product selection.
+  // Store link only: partners request changes to their product selection.
   const [editing, setEditing] = useState(false);
-  const canEdit = !!partner.collection && !customerView;
+  const canEdit = !!partner.collection && !customerView && !customerLink;
+  // Customer link: full price, no partner discount shown or applied.
+  const showDiscount = !!partner.discountCode && !customerView && !customerLink;
+  const productQuery = partner.whiteLabel
+    ? `?via=${partner.handle}${customerLink ? '&shop=1' : ''}`
+    : undefined;
 
   return (
     <main id="main" className="bg-[#FAF8F5] min-h-screen pb-20">
@@ -169,7 +122,7 @@ export default function PartnerPage() {
           <p className="mt-5 max-w-2xl mx-auto font-sans text-[17px] md:text-[19px] leading-relaxed opacity-90">
             {partner.intro}
           </p>
-          {partner.discountCode && !customerView && (
+          {showDiscount && (
             <p
               className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 border font-sans font-medium text-[15px] md:text-base tracking-wide"
               style={{borderColor: colors.accent}}
@@ -185,7 +138,10 @@ export default function PartnerPage() {
       </section>
 
       <section className="container max-w-7xl mx-auto px-4 lg:px-8 pt-10">
-        {partner.viewToggle && <ViewToggle customerView={customerView} />}
+        {partner.viewToggle && !customerLink && <ViewToggle customerView={customerView} />}
+        {partner.commission && !customerLink && (
+          <CustomerLinkBox handle={partner.handle} percent={partner.commission.percent} />
+        )}
         <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 mb-6">
           <h2 className="font-serif font-medium text-2xl md:text-3xl text-[#2D2D2D]">
             The {partner.name} Collection
@@ -237,9 +193,9 @@ export default function PartnerPage() {
                 <FilteredProductGrid
                   cards={s.cards}
                   hideEnd
-                  discountPercent={partner.discountPercent}
+                  discountPercent={customerLink ? null : partner.discountPercent}
                   hidePrices={customerView}
-                  productQuery={partner.whiteLabel ? `?via=${partner.handle}` : undefined}
+                  productQuery={productQuery}
                 />
               </section>
             ))}
@@ -260,6 +216,54 @@ export default function PartnerPage() {
         </p>
       </section>
     </main>
+  );
+}
+
+/** Store link only: the customer link to forward, and the partner's earnings. */
+function CustomerLinkBox({handle, percent}: {handle: string; percent: number}) {
+  const path = `/shop/${handle}`;
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    const url = `${window.location.origin}${path}`;
+    navigator.clipboard?.writeText(url).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      },
+      () => window.prompt('Copy your customer link:', url),
+    );
+  };
+  return (
+    <div className="mb-8 p-5 md:p-6 bg-white ring-1 ring-[#2D2D2D]/10 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+      <div className="flex-1 min-w-0">
+        <p className="font-sans font-semibold text-[11px] tracking-[0.2em] uppercase text-[#2D2D2D]/60">
+          For you only · Your customer link
+        </p>
+        <p className="font-sans text-[15px] text-[#2D2D2D] mt-1.5 leading-relaxed">
+          Send this link to your customers. They shop at full price, and you earn {percent}% of every
+          order placed through it.
+        </p>
+        <p className="font-sans text-[14px] text-[#2D2D2D]/70 mt-1 break-all">
+          thewinsomelife.com{path}
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2.5 shrink-0">
+        <button
+          type="button"
+          onClick={copy}
+          className="inline-flex items-center gap-2 h-11 px-5 bg-[#2D2D2D] text-white font-sans font-medium text-[12px] tracking-[0.12em] uppercase hover:bg-[#1B294E] transition-colors"
+        >
+          {copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />}
+          {copied ? 'Copied' : 'Copy link'}
+        </button>
+        <Link
+          to={`/partners/${handle}/earnings`}
+          className="inline-flex items-center gap-2 h-11 px-5 bg-white ring-1 ring-[#2D2D2D]/25 hover:ring-[#2D2D2D] font-sans font-medium text-[12px] tracking-[0.12em] uppercase text-[#2D2D2D] transition-colors"
+        >
+          <Wallet size={15} aria-hidden /> My earnings
+        </Link>
+      </div>
+    </div>
   );
 }
 

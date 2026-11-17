@@ -13,6 +13,8 @@ import {CartMain} from '~/components/CartMain';
 import {CartButton} from '~/components/Navbar';
 
 export type WhiteLabelPartner = {
+  /** Where the logo leads: the Store link or the customer link. */
+  home: string;
   handle: string;
   name: string;
   logo: string | null;
@@ -41,7 +43,7 @@ export function PartnerShell({
         style={{background: partner.colors.background, color: partner.colors.text}}
       >
         <div className="container max-w-7xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between gap-4">
-          <Link to={`/partners/${partner.handle}`} className="flex items-center gap-3 min-w-0" aria-label={`${partner.name} home`}>
+          <Link to={partner.home} className="flex items-center gap-3 min-w-0" aria-label={`${partner.name} home`}>
             {partner.logo && (
               <img
                 src={partner.logo}

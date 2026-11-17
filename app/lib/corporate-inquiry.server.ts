@@ -21,14 +21,14 @@ import {
   type InquiryResult,
 } from './corporate-inquiry';
 
-const ADMIN_API_VERSION = '2025-10';
+export const ADMIN_API_VERSION = '2025-10';
 // The Admin API must be called on the store's myshopify.com domain.
-const ADMIN_SHOP_DOMAIN = 'caatee-kr.myshopify.com';
+export const ADMIN_SHOP_DOMAIN = 'caatee-kr.myshopify.com';
 
 // Reused across requests within a worker until shortly before it expires.
 let cachedToken: {value: string; expiresAt: number} | null = null;
 
-async function getAdminToken(env: Env): Promise<string | null> {
+export async function getAdminToken(env: Env): Promise<string | null> {
   if (env.PRIVATE_ADMIN_API_TOKEN) return env.PRIVATE_ADMIN_API_TOKEN;
 
   const clientId = env.SHOPIFY_ADMIN_CLIENT_ID;

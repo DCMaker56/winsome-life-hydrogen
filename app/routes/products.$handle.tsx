@@ -254,7 +254,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   return {
     // Opened from a white-label partner's page: their slim header instead of
     // The Winsome Life's (see ~/components/PartnerShell).
-    whiteLabelPartner: whiteLabelPartnerFor(new URL(request.url).searchParams.get('via')),
+    whiteLabelPartner: whiteLabelPartnerFor(
+      new URL(request.url).searchParams.get('via'),
+      new URL(request.url).searchParams.get('shop') === '1',
+    ),
     setMatches,
     setAccessories,
     setLabel,
