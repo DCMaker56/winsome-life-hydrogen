@@ -251,6 +251,69 @@ export const PARTNER_PLACEMENTS: Record<string, string[]> = {
 };
 
 /** Heading names that differ from the Shopify collection's title. */
+/**
+ * "Partner page section" product field (Shopify admin → product →
+ * Metafields; Sydney, Nov 2026): its choices, by the heading shown on
+ * partner pages, → the section. A product with the field set shows there
+ * (up to two), ahead of PARTNER_PLACEMENTS and the rules. Keep these names
+ * in step with the field's choices in Shopify.
+ */
+export const PARTNER_SECTION_CHOICES: Record<string, string> = {
+  Monograms: 'monogram-styles',
+  Floral: 'floral',
+  Seaside: 'seaside',
+  Nature: 'nature-1',
+  'Family / Couples Stationery': 'classics',
+  Christian: 'christian-1',
+  'Family / Couples': 'family-couples',
+  'Baby / Child': 'baby',
+  Men: 'mens',
+  Teacher: 'teacher',
+  'Business / Professional': 'business-professional',
+  Sports: 'sports-1',
+  Military: 'military',
+  Travel: 'travel',
+  'Dogs & Cats': 'dogs',
+  'Affinity / Hobbies': 'affinity-hobbies',
+  'Greek Life - Sorority & Fraternity': 'greek-life-sorority-fraternity',
+  Mahjong: 'mahjong',
+  'Wine Tags': 'wine-tags-1',
+  'Place Cards': 'place-cards',
+  'Christmas / Holiday': 'christmas-holiday',
+  'Thanksgiving / Fall': 'fall-autumn',
+  Winter: 'winter-1',
+  Spring: 'spring-1',
+  Summer: 'summer',
+  "Valentine's Day": 'valentines-day',
+  Easter: 'easter',
+  Halloween: 'halloween',
+  Graduation: 'graduation',
+};
+
+/** PARTNER_PLACEMENTS plus each product's "Partner page section" field
+ * (the field wins). `allowed`: only sections that page shows. */
+export function partnerPlacementsFor(
+  cards: Array<{slug: string; partnerSections?: string[]}>,
+  allowed?: ReadonlySet<string>,
+): Record<string, string[]> {
+  const out: Record<string, string[]> = {...PARTNER_PLACEMENTS};
+  for (const c of cards) {
+    const picked = (c.partnerSections ?? [])
+      .map((name) => PARTNER_SECTION_CHOICES[name])
+      .filter((h): h is string => !!h && (!allowed || allowed.has(h)))
+      .slice(0, 2);
+    if (picked.length) out[c.slug] = picked;
+  }
+  if (allowed) {
+    for (const [slug, hs] of Object.entries(out)) {
+      const ok = hs.filter((h) => allowed.has(h));
+      if (ok.length) out[slug] = ok;
+      else delete out[slug];
+    }
+  }
+  return out;
+}
+
 export const PARTNER_SECTION_TITLES: Record<string, string> = {
   classics: 'Family / Couples Stationery',
   'place-cards': 'Place Cards',

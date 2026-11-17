@@ -130,6 +130,8 @@ export const PRODUCT_TYPE_SECTION_ORDER = [
 export function groupByTypeThenCollection(
   cards: CardData[],
   collectionsById: Record<string, Array<{handle: string; title: string}>>,
+  /** Hand placements for the collection headings (partner catalogs). */
+  placements?: Record<string, string[]>,
 ) {
   const types = groupIntoSections(cards, collectionsById, {
     order: PRODUCT_TYPE_COLLECTIONS,
@@ -141,6 +143,7 @@ export function groupByTypeThenCollection(
       subsections = groupIntoSections(t.cards, collectionsById, {
         order: PRODUCT_TYPE_SECTION_ORDER,
         rules: PRODUCT_TYPE_SECTION_RULES,
+        placements,
       });
       if (subsections.length < 2) subsections = null;
     }

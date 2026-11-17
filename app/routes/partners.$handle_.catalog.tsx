@@ -8,10 +8,10 @@
  */
 import {useLoaderData} from 'react-router';
 import type {Route} from './+types/partners.$handle_.catalog';
-import {PARTNERS} from '~/lib/partners';
+import {PARTNERS, partnerPlacementsFor} from '~/lib/partners';
 import {loadFilteredProducts} from '~/lib/collection-filters.server';
 import type {CardData} from '~/lib/collection-filters.server';
-import {groupByTypeThenCollection} from '~/lib/collection-sections';
+import {groupByTypeThenCollection, PRODUCT_TYPE_SECTION_ORDER} from '~/lib/collection-sections';
 import {
   CATALOG_OPTION_PAGES,
   CATALOG_PER_PAGE,
@@ -135,13 +135,16 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     ? allCards.filter((c) => (c.publishedAt ?? '').slice(0, 10) >= since)
     : allCards;
   const isNewCard = (c: CardData) => !!newSince && (c.publishedAt ?? '').slice(0, 10) >= newSince;
-  const groups = groupByTypeThenCollection(cards, collectionsById);
+  // Same hand placements as the partner page ("Partner page section" field),
+  // for the collection headings the catalog uses.
+  const placements = partnerPlacementsFor(allCards, new Set(PRODUCT_TYPE_SECTION_ORDER));
+  const groups = groupByTypeThenCollection(cards, collectionsById, placements);
   const productPages: Array<{type: string; items: Item[]; collections: string[]}> = [];
   // Full catalog + New Products: the new ones first, by product type (each
   // labeled with its type), then the whole catalog as usual.
   const newCards = cards.filter(isNewCard);
   if (newCards.length) {
-    const newItems: Item[] = groupByTypeThenCollection(newCards, collectionsById).flatMap((g) =>
+    const newItems: Item[] = groupByTypeThenCollection(newCards, collectionsById, placements).flatMap((g) =>
       g.cards.map((card) => ({card, collection: g.title, isNew: true})),
     );
     for (let i = 0; i < newItems.length; i += CATALOG_PER_PAGE) {

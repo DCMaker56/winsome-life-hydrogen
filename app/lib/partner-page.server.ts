@@ -8,7 +8,7 @@ import {loadFilteredProducts} from '~/lib/collection-filters.server';
 import {groupIntoSections} from '~/lib/collection-sections';
 import {
   PARTNERS,
-  PARTNER_PLACEMENTS,
+  partnerPlacementsFor,
   PARTNER_SECTION_ORDER,
   PARTNER_SECTION_RULES,
   PARTNER_SECTION_TITLES,
@@ -84,7 +84,7 @@ export async function partnerPageLoader(
     order: PARTNER_SECTION_ORDER,
     titles: PARTNER_SECTION_TITLES,
     rules: PARTNER_SECTION_RULES,
-    placements: PARTNER_PLACEMENTS,
+    placements: partnerPlacementsFor(rest.cards),
     moreTitle: 'More Favorites',
   });
 

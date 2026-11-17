@@ -26,6 +26,8 @@ type RawProduct = {
   priceRange: {minVariantPrice: {amount: string}};
   compareAtPriceRange: {maxVariantPrice: {amount: string}};
   collections: {nodes: Array<{handle: string; title: string}>};
+  /** "Partner page section" product field (JSON list of section names). */
+  partnerSection: {value: string} | null;
 };
 
 type Page = {
@@ -39,6 +41,7 @@ const FIELDS = `
   priceRange { minVariantPrice { amount } }
   compareAtPriceRange { maxVariantPrice { amount } }
   collections(first: 60) { nodes { handle title } }
+  partnerSection: metafield(namespace: "winsome", key: "partner_section") { value }
 `;
 
 const COLLECTION_PRODUCTS = `
@@ -74,7 +77,18 @@ export type CardData = {
   type: string;
   /** When the product went live on the store (ISO date). */
   publishedAt?: string;
+  /** Sections chosen in the product's "Partner page section" field. */
+  partnerSections?: string[];
 };
+
+function parseList(value?: string | null): string[] {
+  try {
+    const v = JSON.parse(value ?? '[]');
+    return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
+  } catch {
+    return [];
+  }
+}
 
 async function fetchAll(storefront: Storefront, handle?: string) {
   const out: RawProduct[] = [];
@@ -138,6 +152,7 @@ export async function loadFilteredProducts(
       onSale: Number(p.compareAtPriceRange.maxVariantPrice.amount) > price,
       type: p.productType || 'stationery',
       publishedAt: p.publishedAt ?? '',
+      partnerSections: parseList(p.partnerSection?.value),
     };
   });
   // Each card's collections (for pages that group products under headings).
