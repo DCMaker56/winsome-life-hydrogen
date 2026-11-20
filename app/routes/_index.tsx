@@ -80,7 +80,6 @@ const SEASON_ORDER: Record<'holiday' | 'rest', string[]> = {
 
 /** Through Veterans Day 2026 the sets showcase is the "Notes Worth
  * Saluting" military edition; after, "Complete the Set". */
-const MILITARY_ROW_UNTIL = Date.parse('2026-11-12T05:00:00Z'); // midnight Eastern, Nov 12
 
 const PRODUCT_TYPE_QUERY = `
   query ProductTypeCollections($country: CountryCode, $language: LanguageCode)
@@ -97,7 +96,7 @@ type CollImg = {
   products?: {nodes: Array<{featuredImage?: {url: string} | null}>};
 } | null;
 
-export async function loader({context, request}: Route.LoaderArgs) {
+export async function loader({context}: Route.LoaderArgs) {
   const [
     {products},
     {collection: pets},
@@ -123,9 +122,6 @@ export async function loader({context, request}: Route.LoaderArgs) {
     loadMatchingSets(context.storefront as never),
   ]);
 
-  // ?sets=1 previews the Matching Sets showcase early.
-  const showMilitary =
-    Date.now() < MILITARY_ROW_UNTIL && !new URL(request.url).searchParams.has('sets');
   const toFeatured = (design: string): FeaturedSet[] => {
     const pieces = matchingSets[design] ?? [];
     const notepad = pieces.find((p) => /notepad/i.test(p.title));
@@ -134,9 +130,10 @@ export async function loader({context, request}: Route.LoaderArgs) {
     );
     return notepad && notecards ? [{design, pieces: [notepad, notecards]}] : [];
   };
-  // Through Veterans Day: the military sets ("Notes Worth Saluting");
-  // after: the featured sets ("Complete the Set").
-  const featuredSets = (showMilitary ? VETERANS_DAY_SETS : FEATURED_SETS).flatMap(toFeatured);
+  // Two showcases (Sydney, Nov 2026): the military sets, then featured
+  // non-military sets with "See more matching sets".
+  const militarySets = VETERANS_DAY_SETS.flatMap(toFeatured);
+  const featuredSets = FEATURED_SETS.flatMap(toFeatured);
 
   const petProducts: PetProduct[] = (pets?.products?.nodes ?? []).map((p) => {
     const prices = (p.variants?.nodes ?? [])
@@ -169,13 +166,13 @@ export async function loader({context, request}: Route.LoaderArgs) {
     recipients,
     productTypes,
     petProducts,
-    showMilitary,
+    militarySets,
     featuredSets,
   };
 }
 
 export default function HomePage() {
-  const {products, recipients, productTypes, petProducts, showMilitary, featuredSets} =
+  const {products, recipients, productTypes, petProducts, militarySets, featuredSets} =
     useLoaderData<typeof loader>();
   return (
     <CatalogProvider products={products} collections={COLLECTIONS}>
@@ -195,7 +192,8 @@ export default function HomePage() {
         <ValueProps />
         <ShopByProductType productTypes={productTypes} />
         <PetsSection products={petProducts} />
-        <MatchingSetsShowcase sets={featuredSets} veteransDay={showMilitary} />
+        <MatchingSetsShowcase sets={militarySets} veteransDay />
+        <MatchingSetsShowcase sets={featuredSets} seeAll />
       </main>
     </CatalogProvider>
   );

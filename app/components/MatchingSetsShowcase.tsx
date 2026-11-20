@@ -8,25 +8,31 @@
 import {Link} from 'react-router';
 import {SET_DISCOUNT_PERCENT, type SetCardProduct} from '~/lib/matching-sets';
 
-/** Matching set names to feature, in this order. */
-export const FEATURED_SETS = ['Red & Green Tartan', 'Mahjong', 'Dog', 'Hydrangea'];
+/** Matching set names to feature, in this order (Sydney, Nov 2026). */
+export const FEATURED_SETS = ['Dog', 'Cat', 'Hydrangea', 'Mallard', 'Lacrosse'];
 
-/** Veterans Day edition (through Nov 11): the military matching sets. */
+/** The military edition: one set per branch. */
 export const VETERANS_DAY_SETS = ['US Army', 'US Navy', 'US Air Force', 'US Marine Corps', 'US Coast Guard'];
 
 export type FeaturedSet = {design: string; pieces: SetCardProduct[]};
 
 const script = {fontFamily: "'Parisian Script', 'Great Vibes', cursive"} as const;
 const sized = (url: string, w: number) => `${url}${url.includes('?') ? '&' : '?'}width=${w}`;
-const kind = (p: SetCardProduct) => (/notepad/i.test(p.title) ? 'Notepad' : 'Notecards');
+const kind = (p: SetCardProduct) => p.label || (/notepad/i.test(p.title) ? 'Notepad' : 'Notecards');
 
 export default function MatchingSetsShowcase({
   sets,
   veteransDay = false,
+  seeAll = false,
+  heading = true,
 }: {
   sets: FeaturedSet[];
-  /** Veterans Day edition: military sets, honoring copy. */
+  /** Military edition: navy with red, white and gold; the branch sets. */
   veteransDay?: boolean;
+  /** "See more matching sets" button to /matching-sets. */
+  seeAll?: boolean;
+  /** Show the section heading (off on the Matching Sets page). */
+  heading?: boolean;
 }) {
   if (!sets.length) return null;
   return (
@@ -43,12 +49,13 @@ export default function MatchingSetsShowcase({
         </div>
       )}
       <div className="container max-w-7xl">
+        {heading && (
         <div className="text-center mb-12">
           {veteransDay && (
             <p aria-hidden className="text-[#E8B04B] tracking-[0.6em] text-sm mb-3">&#9733; &#9733; &#9733;</p>
           )}
           <p className={`font-sans font-medium text-xs tracking-[0.3em] uppercase mb-3 ${veteransDay ? 'text-white' : 'text-[#2D2D2D]'}`}>
-            {veteransDay ? 'Veterans Day \u00b7 November 11' : `Matching Sets \u00b7 Save ${SET_DISCOUNT_PERCENT}%`}
+            {veteransDay ? `For Those Who Serve \u00b7 Save ${SET_DISCOUNT_PERCENT}%` : `Matching Sets \u00b7 Save ${SET_DISCOUNT_PERCENT}%`}
           </p>
           <h2
             id="sets-title"
@@ -66,10 +73,11 @@ export default function MatchingSetsShowcase({
             className={`font-sans font-light text-base md:text-[17px] max-w-xl mx-auto mt-6 leading-relaxed ${veteransDay ? 'text-white/90' : 'text-[#2D2D2D]'}`}
           >
             {veteransDay
-              ? `Thank the veterans in your life with a personalized note. Every branch has a matching notepad and notecards: buy both and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`
-              : `The same artwork on your notepad and notecards. Buy two or more pieces of a matching set and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`}
+              ? `Every branch has a matching notepad and notecards, perfect for the service members and veterans in your life. Buy both and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`
+              : `The same artwork on your notepad and notecards. Buy two different pieces of the same set and save ${SET_DISCOUNT_PERCENT}% automatically at checkout.`}
           </p>
         </div>
+        )}
 
         <ul className={`grid sm:grid-cols-2 gap-6 ${sets.length === 5 ? 'lg:grid-cols-5 lg:gap-5' : 'lg:grid-cols-4'}`}>
           {sets.map((set) => {
@@ -94,14 +102,15 @@ export default function MatchingSetsShowcase({
                       </span>
                     </Link>
                   ))}
-                  <span className={`absolute top-3 left-3 ${veteransDay ? 'bg-[#B22234]' : 'bg-[#2D2D2D]'} text-white font-sans font-semibold text-[10px] tracking-[0.16em] uppercase px-2.5 py-1`}>
-                    Save {SET_DISCOUNT_PERCENT}%
-                  </span>
                 </div>
                 <div className="px-5 py-5 text-center flex-1 flex flex-col">
+                  {/* Below the photos so it never covers them (Sydney). */}
+                  <span className={`self-center mb-2 ${veteransDay ? 'bg-[#B22234]' : 'bg-[#2D2D2D]'} text-white font-sans font-semibold text-[10px] tracking-[0.16em] uppercase px-2.5 py-1`}>
+                    Save {SET_DISCOUNT_PERCENT}% on the set
+                  </span>
                   <p className="font-serif text-xl text-[#2D2D2D]">{set.design}</p>
                   <p className="font-sans text-[13px] text-[#2D2D2D]/70 mt-1">
-                    Notepad from ${a.price.toFixed(2)} &middot; Notecards from ${b.price.toFixed(2)}
+                    {kind(a)} from ${a.price.toFixed(2)} &middot; {kind(b)} from ${b.price.toFixed(2)}
                   </p>
                   <Link
                     to={`/products/${a.handle}`}
@@ -115,6 +124,18 @@ export default function MatchingSetsShowcase({
             );
           })}
         </ul>
+        {seeAll && (
+          <div className="text-center mt-12">
+            <Link
+              to="/matching-sets"
+              className={`inline-flex items-center gap-2 px-9 py-3.5 font-sans font-medium text-[12px] tracking-[0.18em] uppercase transition-colors ${
+                veteransDay ? 'bg-white text-[#1B2A4A] hover:bg-[#E8B04B]' : 'bg-[#2D2D2D] text-white hover:bg-[#C9A96E]'
+              }`}
+            >
+              See more matching sets <span aria-hidden>&rarr;</span>
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -105,7 +105,8 @@ export function collectionGroups(
     {key: 'type', label: 'Filter by Product Type', options: types.map(opt)},
     {key: 'collection', label: 'Filter by Collection', options: rest.map(opt)},
     {key: 'season', label: 'Filter by Season', options: seasons.map(opt)},
-    PRICE_GROUP,
+    // No price filter (Sydney, Nov 2026): prices depend on the quantity
+    // chosen, so a starting-price filter misleads.
   ];
 }
 
