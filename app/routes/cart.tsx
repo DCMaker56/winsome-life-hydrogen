@@ -1,3 +1,4 @@
+import {syncSetCodes} from '~/lib/matching-set-codes.server';
 import {useLoaderData, data, type HeadersFunction} from 'react-router';
 import type {Route} from './+types/cart';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
@@ -71,6 +72,12 @@ export async function action({request, context}: Route.ActionArgs) {
     }
     default:
       throw new Error(`${action} cart action is not defined`);
+  }
+
+  // Matching-set codes follow the cart's contents (and step aside for a
+  // customer's own code). Never blocks the cart change if it fails.
+  if (action !== CartForm.ACTIONS.BuyerIdentityUpdate && !action.startsWith('GiftCard')) {
+    result = await syncSetCodes(cart, context.storefront as never, result).catch(() => result);
   }
 
   const cartId = result?.cart?.id;

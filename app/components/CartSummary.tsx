@@ -3,6 +3,8 @@ import type {CartLayout} from '~/components/CartMain';
 import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
+import type {MatchingSetsIndex} from '~/lib/matching-sets';
+import {MAX_CART_CODES, matchedSetDesigns, setCodes} from '~/lib/matching-set-codes';
 
 type CartSummaryProps = {
   cart: OptimisticCart<CartApiQueryFragment | null>;
@@ -45,6 +47,7 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
       </p>
       <CartDiscounts
         discountCodes={cart?.discountCodes}
+        productHandles={(cart?.lines?.nodes ?? []).map((l) => l.merchandise.product.handle)}
         discountsHeadingId={discountsHeadingId}
         discountCodeInputId={discountCodeInputId}
       />
@@ -100,20 +103,49 @@ function CartCheckoutActions({checkoutUrl}: {checkoutUrl?: string}) {
 
 function CartDiscounts({
   discountCodes,
+  productHandles,
   discountsHeadingId,
   discountCodeInputId,
 }: {
   discountCodes?: CartApiQueryFragment['discountCodes'];
+  productHandles: string[];
   discountsHeadingId: string;
   discountCodeInputId: string;
 }) {
-  const codes: string[] =
-    discountCodes
-      ?.filter((discount) => discount.applicable)
-      ?.map(({code}) => code) || [];
+  // Matching-set codes are added and removed by the website (see
+  // ~/lib/matching-set-codes), so they show as a "Matching set" line, not as
+  // codes the customer typed.
+  const sets = useFetcher<{sets: MatchingSetsIndex}>({key: 'matching-sets'});
+  useEffect(() => {
+    if (!sets.data && sets.state === 'idle') sets.load('/api/matching-sets');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const index = sets.data?.sets ?? {};
+  const known = setCodes(index);
+  const applicable =
+    discountCodes?.filter((discount) => discount.applicable)?.map(({code}) => code) || [];
+  const setNames = applicable
+    .map((c) => known.get(c.toUpperCase()))
+    .filter((d): d is string => !!d);
+  const codes = applicable.filter((c) => !known.has(c.toUpperCase()));
+  // More matching sets than Shopify allows codes on one order.
+  const overLimit = !codes.length && matchedSetDesigns(index, productHandles).length > MAX_CART_CODES;
 
   return (
     <section aria-label="Discounts">
+      {setNames.length > 0 && (
+        <p className="mt-3 font-sans text-sm text-[#B5462F]">
+          <span className="font-medium">Matching set savings, 10% off:</span>{' '}
+          {setNames.join(', ')}
+        </p>
+      )}
+      {overLimit && (
+        <p role="alert" className="mt-2 p-2.5 border border-[#B23A3A]/40 bg-[#B23A3A]/5 rounded-sm font-sans text-[13px] text-[#B23A3A] leading-snug">
+          Only {MAX_CART_CODES} discount codes are allowed per order, so the matching set discount
+          covers {MAX_CART_CODES} of your sets. If you have more, please place a separate order for
+          the rest.
+        </p>
+      )}
       {/* Have existing discount, display it with a remove option */}
       <dl hidden={!codes.length}>
         <div>
