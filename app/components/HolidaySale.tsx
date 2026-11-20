@@ -42,7 +42,7 @@ export function HolidaySaleBar() {
     >
       <span className="font-semibold text-[#F3D9A4]">Holiday Sale:</span> {HOLIDAY_SALE.percent}% off Holiday
       Cards
-      <span className="hidden sm:inline"> &amp; Christmas favorites · applied at checkout</span>
+      <span className="hidden sm:inline"> · applied at checkout</span>
       <span className="mx-1.5 opacity-60" aria-hidden>·</span>
       Ends in <ShortCountdown />
       <span className="hidden md:inline">

@@ -352,6 +352,7 @@ export function FilteredProductGrid({
   cards,
   hideEnd = false,
   discountPercent,
+  saleTag,
   hidePrices = false,
   labels,
   productQuery = '',
@@ -365,6 +366,8 @@ export function FilteredProductGrid({
   hideEnd?: boolean;
   /** Partner pages: show the regular price crossed out next to the discounted one. */
   discountPercent?: number | null;
+  /** Ribbon on each product photo, e.g. "20% off" (Holiday Sale). */
+  saleTag?: string;
   /** Partner pages' "customer view": no prices at all. */
   hidePrices?: boolean;
 }) {
@@ -393,7 +396,12 @@ export function FilteredProductGrid({
               prefetch="intent"
               className="group block bg-white overflow-hidden"
             >
-              <div className="aspect-[4/5] overflow-hidden bg-[#FAF8F5]">
+              <div className="relative aspect-[4/5] overflow-hidden bg-[#FAF8F5]">
+                {saleTag && (
+                  <span className="absolute top-2.5 left-2.5 z-10 bg-[#7A1F1F] text-white font-sans font-semibold text-[10px] sm:text-[11px] tracking-[0.12em] uppercase px-2 py-1 shadow-sm">
+                    {saleTag}
+                  </span>
+                )}
                 {p.image ? (
                   <img
                     src={p.image}

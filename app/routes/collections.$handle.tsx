@@ -4,7 +4,7 @@
  * Hero image + scrollable product sampler on top, full filterable grid below.
  */
 import {HolidaySaleBadge} from '~/components/HolidaySale';
-import {HOLIDAY_SALE} from '~/lib/holiday-sale';
+import {HOLIDAY_SALE, holidaySaleActive} from '~/lib/holiday-sale';
 import {useLoaderData, useSearchParams, Link} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import {Analytics} from '@shopify/hydrogen';
@@ -79,7 +79,11 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   // a "Jump to" row (Sydney, Nov 2026).
   if (!sections && !PRODUCT_TYPE_COLLECTIONS.includes(handle)) {
     const byType = groupIntoSections(rest.cards, collectionsById, {
-      order: PRODUCT_TYPE_COLLECTIONS,
+      // Christmas / Holiday page: holiday cards first (Sydney, Nov 2026).
+      order:
+        handle === 'christmas-holiday'
+          ? ['holiday-photo-cards', ...PRODUCT_TYPE_COLLECTIONS.filter((h) => h !== 'holiday-photo-cards')]
+          : PRODUCT_TYPE_COLLECTIONS,
       moreTitle: 'More Designs',
     });
     if (byType.length >= 2) sections = byType;
@@ -98,6 +102,11 @@ export default function CollectionRoute() {
     !sections && typeFacet && typeFacet.options.length >= 2 ? typeFacet.options : null;
   const anyTypeSelected = !!typeChoices?.some((o) => o.selected);
   const allCount = total;
+  // Holiday Sale pages: every card shows the sale price and a "20% off" tag.
+  const onSale = holidaySaleActive() && HOLIDAY_SALE.collections.includes(collection.handle);
+  const sale = onSale
+    ? {discountPercent: HOLIDAY_SALE.percent, saleTag: `${HOLIDAY_SALE.percent}% off`}
+    : {};
   const typeHref = (h: string | null) => {
     const next = new URLSearchParams(params);
     if (h) next.set('type', h);
@@ -169,7 +178,7 @@ export default function CollectionRoute() {
         {sections ? (
           <>
             <SectionJumpNav sections={sections} />
-            <SectionList sections={sections} />
+            <SectionList sections={sections} {...sale} />
           </>
         ) : typeChoices ? (
           <>
@@ -207,10 +216,10 @@ export default function CollectionRoute() {
                 )}
               </ul>
             </nav>
-            <FilteredProductGrid cards={cards} />
+            <FilteredProductGrid cards={cards} {...sale} />
           </>
         ) : (
-          <FilteredProductGrid cards={cards} />
+          <FilteredProductGrid cards={cards} {...sale} />
         )}
       </section>
 

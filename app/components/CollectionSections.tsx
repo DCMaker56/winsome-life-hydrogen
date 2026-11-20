@@ -32,7 +32,18 @@ export function SectionJumpNav({sections}: {sections: Section[]}) {
 }
 
 /** One level of headings (product-type pages). */
-export function SectionList({sections, idPrefix = 'sec'}: {sections: Section[]; idPrefix?: string}) {
+export function SectionList({
+  sections,
+  idPrefix = 'sec',
+  discountPercent,
+  saleTag,
+}: {
+  sections: Section[];
+  idPrefix?: string;
+  /** Holiday Sale pages: sale price and a tag on every card. */
+  discountPercent?: number | null;
+  saleTag?: string;
+}) {
   return (
     <div className="space-y-14">
       {sections.map((s) => (
@@ -51,7 +62,7 @@ export function SectionList({sections, idPrefix = 'sec'}: {sections: Section[]; 
             </h2>
             <span className="font-sans text-xs text-[#2D2D2D]/45">{s.cards.length}</span>
           </div>
-          <FilteredProductGrid cards={s.cards} hideEnd />
+          <FilteredProductGrid cards={s.cards} hideEnd discountPercent={discountPercent} saleTag={saleTag} />
         </section>
       ))}
     </div>
