@@ -35,14 +35,14 @@ export function SectionJumpNav({sections}: {sections: Section[]}) {
 export function SectionList({
   sections,
   idPrefix = 'sec',
-  discountPercent,
-  saleTag,
+  saleIds,
+  salePercent,
 }: {
   sections: Section[];
   idPrefix?: string;
-  /** Holiday Sale pages: sale price and a tag on every card. */
-  discountPercent?: number | null;
-  saleTag?: string;
+  /** Holiday Sale: cards on sale get a tag and the sale price. */
+  saleIds?: string[];
+  salePercent?: number;
 }) {
   return (
     <div className="space-y-14">
@@ -62,7 +62,7 @@ export function SectionList({
             </h2>
             <span className="font-sans text-xs text-[#2D2D2D]/45">{s.cards.length}</span>
           </div>
-          <FilteredProductGrid cards={s.cards} hideEnd discountPercent={discountPercent} saleTag={saleTag} />
+          <FilteredProductGrid cards={s.cards} hideEnd saleIds={saleIds} salePercent={salePercent} />
         </section>
       ))}
     </div>

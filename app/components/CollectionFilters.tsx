@@ -352,7 +352,8 @@ export function FilteredProductGrid({
   cards,
   hideEnd = false,
   discountPercent,
-  saleTag,
+  saleIds,
+  salePercent,
   hidePrices = false,
   labels,
   productQuery = '',
@@ -366,8 +367,9 @@ export function FilteredProductGrid({
   hideEnd?: boolean;
   /** Partner pages: show the regular price crossed out next to the discounted one. */
   discountPercent?: number | null;
-  /** Ribbon on each product photo, e.g. "20% off" (Holiday Sale). */
-  saleTag?: string;
+  /** Holiday Sale: ids of cards on sale (tag on the photo + sale price). */
+  saleIds?: string[];
+  salePercent?: number;
   /** Partner pages' "customer view": no prices at all. */
   hidePrices?: boolean;
 }) {
@@ -397,9 +399,9 @@ export function FilteredProductGrid({
               className="group block bg-white overflow-hidden"
             >
               <div className="relative aspect-[4/5] overflow-hidden bg-[#FAF8F5]">
-                {saleTag && (
+                {salePercent && saleIds?.includes(p.id) && (
                   <span className="absolute top-2.5 left-2.5 z-10 bg-[#7A1F1F] text-white font-sans font-semibold text-[10px] sm:text-[11px] tracking-[0.12em] uppercase px-2 py-1 shadow-sm">
-                    {saleTag}
+                    {salePercent}% off
                   </span>
                 )}
                 {p.image ? (
@@ -426,15 +428,15 @@ export function FilteredProductGrid({
                 <h3 className="font-serif font-medium text-[15px] sm:text-base text-[#2D2D2D] leading-tight mb-1 group-hover:text-[#C9A96E] transition-colors line-clamp-2 min-h-[2.6rem]">
                   {p.title}
                 </h3>
-                {hidePrices ? null : discountPercent ? (
+                {hidePrices ? null : (discountPercent ?? (salePercent && saleIds?.includes(p.id) ? salePercent : 0)) ? (
                   <p className="font-sans text-sm sm:text-[15px] flex flex-wrap items-baseline gap-x-2">
                     <span className="text-[#2D2D2D]/50">
                       From <s>${p.price.toFixed(2)}</s>
                     </span>
                     <span className="font-semibold text-[#2D2D2D]">
-                      ${(p.price * (1 - discountPercent / 100)).toFixed(2)}
+                      ${(p.price * (1 - (discountPercent ?? salePercent ?? 0) / 100)).toFixed(2)}
                     </span>
-                    <span className="text-xs font-medium text-[#B5462F]">{discountPercent}% off</span>
+                    <span className="text-xs font-medium text-[#B5462F]">{discountPercent ?? salePercent}% off</span>
                   </p>
                 ) : (
                   <p className="font-sans text-sm text-[#2D2D2D]/65">From ${p.price.toFixed(2)}</p>

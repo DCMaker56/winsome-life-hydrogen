@@ -41,7 +41,7 @@ export function HolidaySaleBar() {
       className="block font-sans bg-[#7A1F1F] text-white text-center py-2 px-3 text-[13px] sm:text-sm tracking-wide hover:bg-[#661919] transition-colors"
     >
       <span className="font-semibold text-[#F3D9A4]">Holiday Sale:</span> {HOLIDAY_SALE.percent}% off Holiday
-      Cards
+      Cards &amp; all Christmas
       <span className="hidden sm:inline"> · applied at checkout</span>
       <span className="mx-1.5 opacity-60" aria-hidden>·</span>
       Ends in <ShortCountdown />
@@ -81,11 +81,11 @@ export function HolidaySaleBanner() {
           >
             {HOLIDAY_SALE.percent}% off
           </span>{' '}
-          Holiday Cards
+          Holiday Cards &amp; all Christmas
         </h2>
         <p className="mt-6 font-sans font-light text-base md:text-[17px] text-white/85 max-w-xl mx-auto leading-relaxed">
-          Send your family photo card in time for Christmas. Plus 20% off Christmas gift tags, place
-          cards and coasters. Taken off automatically at checkout, no code needed.
+          Send your family photo card in time for Christmas, and save on Christmas gift tags, place
+          cards, coasters and more. Taken off automatically at checkout, no code needed.
         </p>
         <div className="mt-8 flex justify-center gap-3 md:gap-4" role="timer" aria-label="Time left in the Holiday Sale">
           {boxes.map(([n, label]) => (
@@ -133,7 +133,7 @@ export function HolidaySaleHeroTag({className = ''}: {className?: string}) {
       to={HOLIDAY_SALE.href}
       className={`wl-sale inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 px-3.5 py-2 bg-[#7A1F1F] ring-1 ring-[#F3D9A4]/80 text-white font-sans text-[12px] md:text-[14px] tracking-wide shadow-md hover:bg-[#661919] transition-colors ${className}`}
     >
-      <span className="font-semibold uppercase tracking-[0.12em]">{HOLIDAY_SALE.percent}% off Holiday Cards</span>
+      <span className="font-semibold uppercase tracking-[0.12em]">{HOLIDAY_SALE.percent}% off Holiday Cards &amp; Christmas</span>
       <span className="opacity-90">· ends in <ShortCountdown /></span>
     </Link>
   );

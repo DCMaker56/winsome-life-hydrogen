@@ -88,11 +88,20 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     });
     if (byType.length >= 2) sections = byType;
   }
-  return {collection, ...rest, sections};
+  // Holiday Sale: which products on this page are discounted (in a sale
+  // collection), for a "20% off" tag and sale price on their cards.
+  const saleIds = holidaySaleActive()
+    ? rest.cards
+        .filter((c) =>
+          (collectionsById[c.id] ?? []).some((col) => HOLIDAY_SALE.collections.includes(col.handle)),
+        )
+        .map((c) => c.id)
+    : [];
+  return {collection, ...rest, sections, saleIds};
 }
 
 export default function CollectionRoute() {
-  const {collection, cards, facets, sort, q, sections, total} =
+  const {collection, cards, facets, sort, q, sections, total, saleIds} =
     useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   // Product-type choices with counts (from the Product Type filter), shown
@@ -102,11 +111,8 @@ export default function CollectionRoute() {
     !sections && typeFacet && typeFacet.options.length >= 2 ? typeFacet.options : null;
   const anyTypeSelected = !!typeChoices?.some((o) => o.selected);
   const allCount = total;
-  // Holiday Sale pages: every card shows the sale price and a "20% off" tag.
-  const onSale = holidaySaleActive() && HOLIDAY_SALE.collections.includes(collection.handle);
-  const sale = onSale
-    ? {discountPercent: HOLIDAY_SALE.percent, saleTag: `${HOLIDAY_SALE.percent}% off`}
-    : {};
+  // Holiday Sale: discounted products get a "20% off" tag and sale price.
+  const sale = saleIds.length ? {saleIds, salePercent: HOLIDAY_SALE.percent} : {};
   const typeHref = (h: string | null) => {
     const next = new URLSearchParams(params);
     if (h) next.set('type', h);

@@ -41,7 +41,8 @@ export default function TwoUpFeature() {
       image: holidayTable,
       contain: false,
       cta: "Shop the Table",
-      saleTag: undefined as string | undefined,
+      // Not every Holiday Table piece is on sale (everyday wine tags, mahjong…).
+      saleTag: sale ? `Christmas pieces ${HOLIDAY_SALE.percent}% off` : undefined,
       fade: "3,62,37",
     },
   ];
