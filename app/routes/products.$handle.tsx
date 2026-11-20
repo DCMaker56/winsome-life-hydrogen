@@ -257,7 +257,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // The Winsome Life's (see ~/components/PartnerShell).
     // Holiday Sale badge on the product page (~/lib/holiday-sale).
     onHolidaySale: (product.saleCollections?.nodes ?? []).some(
-      (c: {handle: string}) => c.handle === HOLIDAY_SALE.collection,
+      (c: {handle: string}) => HOLIDAY_SALE.collections.includes(c.handle),
     ),
     whiteLabelPartner: whiteLabelPartnerFor(
       new URL(request.url).searchParams.get('via'),

@@ -146,7 +146,7 @@ export default function CollectionRoute() {
           <p className="font-sans text-sm text-[#2D2D2D]/45">
             {count} {count === 1 ? 'piece' : 'pieces'}
           </p>
-          {collection.handle === HOLIDAY_SALE.collection && (
+          {HOLIDAY_SALE.collections.includes(collection.handle) && (
             <HolidaySaleBadge className="w-full sm:w-auto sm:ml-auto" />
           )}
           {collection.description && (

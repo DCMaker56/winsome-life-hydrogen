@@ -1,6 +1,8 @@
 /*
- * Holiday Sale (Sydney, Nov 2026): 20% off the Christmas / Holiday
- * collection, Nov 20 – Nov 30, 2026. The discount itself is Shopify's
+ * Holiday Sale (Sydney, Nov 2026): 20% off holiday cards (Holiday Photo
+ * Cards) and the Christmas / Holiday collection, Nov 20 – Nov 30, 2026.
+ * The promotion leads with holiday cards (Sydney: "sell more holiday
+ * cards"). The discount itself is Shopify's
  * automatic discount "Holiday 2026: 20% off"; this file only drives the
  * site's promotion (announcement bar + countdown, home banner, product
  * badge, collection banner). Everything hides itself after `endsAt`.
@@ -8,8 +10,10 @@
  */
 export const HOLIDAY_SALE = {
   percent: 20,
-  collection: 'christmas-holiday',
-  href: '/collections/christmas-holiday',
+  /** Collections the Shopify discount covers (badges show on these). */
+  collections: ['holiday-photo-cards', 'christmas-holiday'],
+  /** Where the sale buttons go: the holiday cards. */
+  href: '/collections/holiday-photo-cards',
   /** Nov 30, 11:59 pm Eastern — when the Shopify discount ends. */
   endsAt: '2026-12-01T04:59:00Z',
   startsAt: '2026-11-20T00:00:00Z',

@@ -76,7 +76,6 @@ const SLIDES: Slide[] = [
     desktopPosition: "70% center",
     subline: "Gather, give thanks, and make it personal.",
     cta: {label: "Shop Thanksgiving / Fall", href: "/collections/fall-autumn"},
-    sale: true,
     side: "left",
   },
   {
