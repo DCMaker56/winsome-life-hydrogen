@@ -122,3 +122,18 @@ export function HolidaySaleBadge({price, className = ''}: {price?: number; class
     </p>
   );
 }
+
+/** Tag on the holiday hero slides: "Holiday Sale · 20% off · ends in …". */
+export function HolidaySaleHeroTag({className = ''}: {className?: string}) {
+  const t = useTimeLeft();
+  if (!t.active) return null;
+  return (
+    <Link
+      to={HOLIDAY_SALE.href}
+      className={`wl-sale inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 px-3.5 py-2 bg-[#7A1F1F] ring-1 ring-[#F3D9A4]/80 text-white font-sans text-[12px] md:text-[14px] tracking-wide shadow-md hover:bg-[#661919] transition-colors ${className}`}
+    >
+      <span className="font-semibold uppercase tracking-[0.12em]">Holiday Sale · {HOLIDAY_SALE.percent}% off</span>
+      <span className="opacity-90">· ends in <ShortCountdown /></span>
+    </Link>
+  );
+}

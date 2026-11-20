@@ -6,6 +6,7 @@
  * The tagline animates in word-by-word; the honeybee rests beside "You."
  * (its flight animation is off for now). All motion respects reduced-motion.
  */
+import {HolidaySaleHeroTag} from '~/components/HolidaySale';
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { HoneyBee } from "./HoneyBee";
@@ -45,6 +46,8 @@ type Slide = {
   cta?: {label: string; href: string};
   /** Short seasonal line above the button. */
   subline?: string;
+  /** Show the Holiday Sale tag (~/lib/holiday-sale) while the sale runs. */
+  sale?: boolean;
 };
 const SLIDES: Slide[] = [
   {
@@ -58,6 +61,7 @@ const SLIDES: Slide[] = [
     desktopPosition: "70% center",
     subline: "Make the season beautifully personal.",
     cta: {label: "Shop Christmas / Holiday", href: "/collections/christmas-holiday"},
+    sale: true,
     side: "left",
   },
   {
@@ -72,6 +76,7 @@ const SLIDES: Slide[] = [
     desktopPosition: "70% center",
     subline: "Gather, give thanks, and make it personal.",
     cta: {label: "Shop Thanksgiving / Fall", href: "/collections/fall-autumn"},
+    sale: true,
     side: "left",
   },
   {
@@ -214,6 +219,11 @@ export default function HeroSection() {
                 {slide.subline}
               </p>
             )}
+            {slide.sale && (
+              <div className="mt-4 md:mt-5">
+                <HolidaySaleHeroTag />
+              </div>
+            )}
             {slide.cta && (
               <Link
                 key={slide.cta.href}
@@ -261,6 +271,7 @@ const HERO_CSS = `
   .wl-light .wl-cta, .wl-light .wl-cta * { color: #2D2D2D !important; }
 }
 .wl-light-phone, .wl-light-phone *:not(.wl-cta):not(.wl-cta *) { color: #fff !important; }
+.wl-sale, .wl-sale * { color: #fff !important; }
 .wl-light-phone .wl-cta, .wl-light-phone .wl-cta * { color: #2D2D2D !important; }
 @keyframes wl-kenburns { 0% { transform: scale(1.05); } 100% { transform: scale(1.12); } }
 .wl-kenburns { animation: wl-kenburns 20s ease-in-out infinite alternate; will-change: transform; }
