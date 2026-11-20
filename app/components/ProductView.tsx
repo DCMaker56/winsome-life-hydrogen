@@ -3,6 +3,7 @@
  * product route so the Complete-the-Set quick-add sheet can reuse the exact
  * same options, personalization, approval and Add to Cart logic).
  */
+import {HolidaySaleBadge} from '~/components/HolidaySale';
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ChevronDown, ChevronLeft, ChevronRight} from 'lucide-react';
 import {Link, useLoaderData, useRouteLoaderData} from 'react-router';
@@ -923,6 +924,9 @@ export function ProductView({
                 </span>
               ) : null}
             </p>
+            {(data as {onHolidaySale?: boolean}).onHolidaySale && (
+              <HolidaySaleBadge price={unitPrice} className="mb-2" />
+            )}
             <p className="font-sans font-light text-xs text-[#2D2D2D]/50 mb-6 flex items-center gap-1.5">
               <span className="text-[#C9A96E]">✦</span>
               Made to order in {5 + extraDays}–{7 + extraDays} business days · Free shipping over $75

@@ -9,6 +9,7 @@
  * Once `.env` has PUBLIC_STOREFRONT_API_TOKEN + PUBLIC_STORE_DOMAIN, this
  * automatically reads from your real catalog.
  */
+import {HolidaySaleBanner} from '~/components/HolidaySale';
 import type {Route} from './+types/_index';
 import {useLoaderData} from 'react-router';
 import {
@@ -184,6 +185,8 @@ export default function HomePage() {
             bar → Shop by Product Type → Dogs & Cats → Notes Worth Saluting
             (through Veterans Day), then Complete the Set. */}
         <HeroSection />
+        {/* Holiday Sale banner + countdown; hides itself after Nov 30. */}
+        <HolidaySaleBanner />
         <Marquee />
         <TwoUpFeature />
         <SocialProof />

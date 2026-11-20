@@ -9,6 +9,8 @@
  * Search icon triggers a command-palette style search overlay.
  * Wishlist heart with badge count (localStorage-backed).
  */
+import {HolidaySaleBar} from '~/components/HolidaySale';
+import {holidaySaleActive} from '~/lib/holiday-sale';
 import { useState, useEffect, useRef, Suspense } from "react";
 import { isPartnerCollection } from "~/lib/partners";
 import { Link, useLocation, Await } from "react-router";
@@ -376,10 +378,15 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Announcement Bar */}
-      <div className="font-sans bg-[#2D2D2D] text-white text-center py-2 text-sm tracking-wide">
-        Free shipping on orders over <span className="text-[#C9A96E] font-semibold">$75</span>
-      </div>
+      {/* Announcement Bar: the Holiday Sale countdown while it runs
+          (~/lib/holiday-sale), otherwise free shipping. */}
+      {holidaySaleActive() ? (
+        <HolidaySaleBar />
+      ) : (
+        <div className="font-sans bg-[#2D2D2D] text-white text-center py-2 text-sm tracking-wide">
+          Free shipping on orders over <span className="text-[#C9A96E] font-semibold">$75</span>
+        </div>
+      )}
 
       {/* Main Nav */}
       <header

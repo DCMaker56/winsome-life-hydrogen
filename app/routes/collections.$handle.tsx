@@ -3,6 +3,8 @@
  *
  * Hero image + scrollable product sampler on top, full filterable grid below.
  */
+import {HolidaySaleBadge} from '~/components/HolidaySale';
+import {HOLIDAY_SALE} from '~/lib/holiday-sale';
 import {useLoaderData, useSearchParams, Link} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import {Analytics} from '@shopify/hydrogen';
@@ -144,6 +146,9 @@ export default function CollectionRoute() {
           <p className="font-sans text-sm text-[#2D2D2D]/45">
             {count} {count === 1 ? 'piece' : 'pieces'}
           </p>
+          {collection.handle === HOLIDAY_SALE.collection && (
+            <HolidaySaleBadge className="w-full sm:w-auto sm:ml-auto" />
+          )}
           {collection.description && (
             <p className="font-sans font-light text-sm text-[#2D2D2D]/60 leading-relaxed w-full max-w-2xl mt-1">
               {collection.description}

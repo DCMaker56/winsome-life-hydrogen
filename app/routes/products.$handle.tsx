@@ -10,6 +10,7 @@
  * serialized into Shopify cart line item properties so they survive into
  * checkout + the order detail.
  */
+import {HOLIDAY_SALE} from '~/lib/holiday-sale';
 import {useLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {getSelectedProductOptions} from '@shopify/hydrogen';
@@ -254,6 +255,10 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   return {
     // Opened from a white-label partner's page: their slim header instead of
     // The Winsome Life's (see ~/components/PartnerShell).
+    // Holiday Sale badge on the product page (~/lib/holiday-sale).
+    onHolidaySale: (product.saleCollections?.nodes ?? []).some(
+      (c: {handle: string}) => c.handle === HOLIDAY_SALE.collection,
+    ),
     whiteLabelPartner: whiteLabelPartnerFor(
       new URL(request.url).searchParams.get('via'),
       new URL(request.url).searchParams.get('shop') === '1',
@@ -417,6 +422,7 @@ const PRODUCT_QUERY = `#graphql
         ...ProductVariant
       }
       seo { description title }
+      saleCollections: collections(first: 60) { nodes { handle } }
       collections(first: 1) {
         nodes {
           title
