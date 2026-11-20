@@ -5,7 +5,8 @@
  */
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {ChevronDown, ChevronLeft, ChevronRight} from 'lucide-react';
-import {Link, useLoaderData} from 'react-router';
+import {Link, useLoaderData, useRouteLoaderData} from 'react-router';
+import type {RootLoader} from '~/root';
 import type {loader} from '~/routes/products.$handle';
 import {
   Analytics,
@@ -170,6 +171,9 @@ export function ProductView({
   const hideInkBase =
     hidden.includes('Text Color') || hidden.includes('Ink Color') || textOff;
   const [selectedImage, setSelectedImage] = useState(0);
+  // Shop Pay "buy now" (non-personalized products): this store's domain
+  // (was the template's demo store, mock.shop, until Nov 2026).
+  const storeDomain = useRouteLoaderData<RootLoader>('root')?.publicStoreDomain;
   // Add to Cart stays clickable; a click with required info missing shows
   // what's still needed instead of adding to the cart.
   const [triedAddToCart, setTriedAddToCart] = useState(false);
@@ -1381,12 +1385,12 @@ export function ProductView({
             {/* Express checkout skips cart line attributes, which would strip
                 the personalization from a final-sale order — only offer it on
                 non-personalized products. */}
-            {variantId && !personalizable && (
+            {variantId && !personalizable && storeDomain && (
               <div className="mt-3 flex justify-center">
                 <ShopPayButton
                   width="100%"
                   variantIdsAndQuantities={[{id: variantId, quantity: 1}]}
-                  storeDomain={'mock.shop'}
+                  storeDomain={storeDomain}
                 />
               </div>
             )}
