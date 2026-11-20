@@ -12,14 +12,20 @@ import { Link } from "react-router";
 import { ResponsiveImg } from "~/components/ResponsiveImg";
 import holidayCardShop from "~/assets/home/holiday-card-shop.webp";
 import holidayTable from "~/assets/home/holiday-table.webp";
+import { HOLIDAY_SALE, holidaySaleActive } from "~/lib/holiday-sale";
 
 export default function TwoUpFeature() {
+  // Holiday Sale note on the Holiday Card Shop tile (hides after Nov 30).
+  const sale = holidaySaleActive();
   const tiles = [
     {
       // Holiday cards are the big-ticket item for the season (Sydney, Nov
       // 2026). Sydney's green tartan photo card artwork (1600x1200).
       title: "Holiday Card Shop",
-      subtitle: "Personalized Christmas photo cards",
+      subtitle: sale
+        ? `Personalized Christmas photo cards, now ${HOLIDAY_SALE.percent}% off`
+        : "Personalized Christmas photo cards",
+      saleTag: sale ? `${HOLIDAY_SALE.percent}% off · Ends Nov 30` : undefined,
       href: "/collections/holiday-photo-cards",
       image: holidayCardShop,
       contain: false,
@@ -35,6 +41,7 @@ export default function TwoUpFeature() {
       image: holidayTable,
       contain: false,
       cta: "Shop the Table",
+      saleTag: undefined as string | undefined,
       fade: "3,62,37",
     },
   ];
@@ -57,6 +64,11 @@ export default function TwoUpFeature() {
                   tile.contain ? "object-contain p-6" : "object-cover"
                 } transition-transform duration-700 group-hover:scale-[1.04]`}
               />
+              {tile.saleTag && (
+                <span className="absolute top-4 left-4 z-10 bg-[#7A1F1F] ring-1 ring-[#F3D9A4]/80 text-white font-sans font-semibold text-[11px] lg:text-[12px] tracking-[0.15em] uppercase px-3 py-1.5 shadow-md">
+                  {tile.saleTag}
+                </span>
+              )}
               <span
                 className="absolute inset-0"
                 style={{
