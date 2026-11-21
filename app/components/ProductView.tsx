@@ -266,12 +266,17 @@ export function ProductView({
   const variantId = selectedVariant?.id;
   // Envelope liners are priced per card by order size; the liner question's
   // note shows the price for the cards picked ("$1.15 per card for 20 cards").
-  const cardsInOrder =
-    parseInt(
-      Object.entries(selOptions).find(([name]) => /quantity|number of cards/i.test(name))?.[1] ??
-        '',
-      10,
-    ) * quantity;
+  // Cards in one set: the "Quantity" choice, or for a fixed set with no
+  // quantity choice, the "Set of 10" / "Pack of 10" in the product title.
+  const quantityChoice = parseInt(
+    Object.entries(selOptions).find(([name]) => /quantity|number of cards/i.test(name))?.[1] ??
+      '',
+    10,
+  );
+  const cardsPerSet = Number.isNaN(quantityChoice)
+    ? parseInt(product.title.match(/\b(?:set|pack) of (\d+)\b/i)?.[1] ?? '', 10)
+    : quantityChoice;
+  const cardsInOrder = cardsPerSet * quantity;
   const linerPriceNow = linerTierFor(envelopeLiner, cardsInOrder)?.price;
   const linerHelp =
     linerPriceNow && cardsInOrder > 0
@@ -610,11 +615,6 @@ export function ProductView({
     (f) =>
       /envelope liner/i.test(f.label) &&
       /^(yes|add)\b/i.test(personalization.fields[f.key] ?? ''),
-  );
-  const cardsPerSet = parseInt(
-    Object.entries(selOptions).find(([name]) => /quantity|number of cards/i.test(name))?.[1] ??
-      '',
-    10,
   );
   const linerCount =
     envelopeLiner && wantsLiners && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
