@@ -23,6 +23,8 @@ import {
   ENVELOPE_LINER_TIERS_PRODUCT_HANDLE,
   EURO_FLAP_PRODUCT_HANDLE,
   CARDSTOCK_UPGRADE_PRODUCT_HANDLE,
+  EURO_FLAP_A2_PRODUCT_HANDLE,
+  CARDSTOCK_UPGRADE_A2_PRODUCT_HANDLE,
   RECIPIENT_ADDRESSING_PRODUCT_HANDLE,
 } from '~/lib/addons';
 import {stampUploadedFiles} from '~/lib/uploads.server';
@@ -77,7 +79,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const {storefront} = context;
   // Background: put order numbers on files customers uploaded (see uploads.server).
   context.waitUntil?.(stampUploadedFiles(context.env));
-  const [{product}, proofData, photoFeeData, extraFeeData, extraPhotoFeeData, linerData, euroFlapData, cardstockData, addressingData] =
+  const [{product}, proofData, photoFeeData, extraFeeData, extraPhotoFeeData, linerData, euroFlapData, cardstockData, addressingData, euroFlapA2Data, cardstockA2Data] =
     await Promise.all([
     storefront.query(PRODUCT_QUERY, {
       variables: {handle, selectedOptions: getSelectedProductOptions(request)},
@@ -114,6 +116,13 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // And printing recipient addresses on the envelopes, charged per address.
     storefront
       .query(PROOF_PRODUCT_QUERY, {variables: {handle: RECIPIENT_ADDRESSING_PRODUCT_HANDLE}})
+      .catch(() => null),
+    // The A2 (smaller notecard) prices of Euro flap envelopes and thick cardstock.
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: EURO_FLAP_A2_PRODUCT_HANDLE}})
+      .catch(() => null),
+    storefront
+      .query(PROOF_PRODUCT_QUERY, {variables: {handle: CARDSTOCK_UPGRADE_A2_PRODUCT_HANDLE}})
       .catch(() => null),
   ]);
   if (!product?.id) throw new Response(null, {status: 404});
@@ -169,6 +178,14 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   const cardstockUpgrade = cardstockVariant?.availableForSale
     ? {variantId: cardstockVariant.id, price: Number(cardstockVariant.price.amount)}
     : null;
+  const firstAvailable = (
+    data: {product?: {variants?: {nodes?: Array<{id: string; availableForSale: boolean; price: {amount: string}}>}} | null} | null,
+  ) => {
+    const v = data?.product?.variants?.nodes?.[0];
+    return v?.availableForSale ? {variantId: v.id, price: Number(v.price.amount)} : null;
+  };
+  const euroFlapA2 = firstAvailable(euroFlapA2Data);
+  const cardstockUpgradeA2 = firstAvailable(cardstockA2Data);
   const addressingVariant = addressingData?.product?.variants?.nodes?.[0];
   const recipientAddressing = addressingVariant?.availableForSale
     ? {variantId: addressingVariant.id, price: Number(addressingVariant.price.amount)}
@@ -276,6 +293,8 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     envelopeLiner,
     euroFlap,
     cardstockUpgrade,
+    euroFlapA2,
+    cardstockUpgradeA2,
     recipientAddressing,
     extraQuestions,
     hidden,

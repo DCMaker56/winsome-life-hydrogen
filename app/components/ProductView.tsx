@@ -104,6 +104,8 @@ export function ProductView({
     envelopeLiner,
     euroFlap,
     cardstockUpgrade,
+    euroFlapA2,
+    cardstockUpgradeA2,
     recipientAddressing,
     extraQuestions,
     hidden,
@@ -279,6 +281,28 @@ export function ProductView({
     linerHelp && /envelope liner/i.test(f.label)
       ? {...f, helpText: [linerHelp, f.helpText].filter(Boolean).join(' ')}
       : f;
+  // Notecards come in A2 and A7: the smaller A2 cards have their own, lower
+  // prices for Euro flap envelopes and thick cardstock.
+  const isA2 = Object.values(selOptions).some((v) => /\bA2\b/i.test(v));
+  const flapAddon = (isA2 && euroFlapA2) || euroFlap;
+  const cardstockAddon = (isA2 && cardstockUpgradeA2) || cardstockUpgrade;
+  // An upgrade whose answers don't name a price ("Euro Flap Envelopes")
+  // shows the price for the chosen card size in its note instead.
+  const upgradePriceNote = (f: PersonalizationField) => {
+    if (f.group !== 'upgrades' || (f.options ?? []).some((o) => o.includes('$'))) return '';
+    if (/flap/i.test(f.label) && flapAddon)
+      return `+$${flapAddon.price.toFixed(2)} per envelope.`;
+    if (/card\s?stock/i.test(f.label) && cardstockAddon)
+      return `+$${cardstockAddon.price.toFixed(2)} per card.`;
+    return '';
+  };
+  const withUpgradePrice = (f: PersonalizationField): PersonalizationField => {
+    const note = upgradePriceNote(f);
+    return note ? {...f, helpText: [note, f.helpText].filter(Boolean).join(' ')} : f;
+  };
+  const upgradePriceKey = `${flapAddon?.price ?? ''}/${cardstockAddon?.price ?? ''}`;
+  // Thick cardstock and liners need at least 10 cards (Sydney).
+  const belowUpgradeMinimum = cardsInOrder > 0 && cardsInOrder < 10;
   // Picking a choice with its own photo (e.g. a Teacher Notepad design)
   // brings that photo up in the gallery; the page still opens on photo 1.
   const variantImage = selectedVariant?.image?.url;
@@ -419,7 +443,17 @@ export function ProductView({
           // A follow-up of a follow-up (e.g. the photo uploads after "Back
           // Photos: Upload now", itself shown for "Back of Card: Add photos")
           // hides whenever its lead question is hidden.
-          ...productQuestions.map(withLinerPrice).filter(function shown(
+          ...productQuestions
+            .filter(
+              (f) =>
+                !(
+                  belowUpgradeMinimum &&
+                  f.group === 'upgrades' &&
+                  /card\s?stock|envelope liner/i.test(f.label)
+                ),
+            )
+            .map((f) => withUpgradePrice(withLinerPrice(f)))
+            .filter(function shown(
             f: PersonalizationField,
             _i?: number,
             _all?: unknown,
@@ -463,6 +497,8 @@ export function ProductView({
       personalization.fields,
       selOptions,
       linerHelp,
+      belowUpgradeMinimum,
+      upgradePriceKey,
     ],
   );
 
@@ -589,7 +625,7 @@ export function ProductView({
     (f) => /flap/i.test(f.label) && /^euro\b/i.test(personalization.fields[f.key] ?? ''),
   );
   const euroFlapCount =
-    euroFlap && wantsEuroFlap && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
+    flapAddon && wantsEuroFlap && cardsPerSet > 0 ? cardsPerSet * quantity : 0;
   // Cardstock upgrade: a cardstock question answered "240 lb…" or "Double…"
   // adds the upgrade once per card (130 lb is the included paper).
   const wantsCardstockUpgrade = shownFields.some(
@@ -598,7 +634,7 @@ export function ProductView({
       /^(240|double)\b/i.test(personalization.fields[f.key] ?? ''),
   );
   const cardstockCount =
-    cardstockUpgrade && wantsCardstockUpgrade && cardsPerSet > 0
+    cardstockAddon && wantsCardstockUpgrade && cardsPerSet > 0
       ? cardsPerSet * quantity
       : 0;
   // Recipient addressing: "Recipient Addresses: Yes" charges per address, as
@@ -647,11 +683,11 @@ export function ProductView({
           },
         ]
       : []),
-    ...(euroFlap && euroFlapCount
-      ? [{...euroFlap, quantity: euroFlapCount, label: 'Euro flap envelopes'}]
+    ...(flapAddon && euroFlapCount
+      ? [{...flapAddon, quantity: euroFlapCount, label: 'Euro flap envelopes'}]
       : []),
-    ...(cardstockUpgrade && cardstockCount
-      ? [{...cardstockUpgrade, quantity: cardstockCount, label: 'double thick cardstock'}]
+    ...(cardstockAddon && cardstockCount
+      ? [{...cardstockAddon, quantity: cardstockCount, label: 'double thick cardstock'}]
       : []),
     ...(photoFee && photoCount
       ? [{...photoFee, quantity: photoCount, label: 'custom photo'}]
