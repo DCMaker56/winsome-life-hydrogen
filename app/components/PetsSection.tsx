@@ -136,12 +136,13 @@ export default function PetsSection({products}: {products: PetProduct[]}) {
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                       />
                     )}
-                    <span className="absolute top-4 left-4 bg-white text-[#A8322D] shadow-sm font-sans font-medium text-[10px] tracking-[0.22em] uppercase pl-1.5 pr-3 py-1 inline-flex items-center gap-1">
-                      <ResponsiveImg src={bow} sizes="40px" alt="" width={660} height={566} className="w-[24px] h-auto" />
-                      Holiday
-                    </span>
                   </div>
                   <div className="px-5 py-5 text-center">
+                    {/* Under the photo so it never covers the artwork (Sydney). */}
+                    <span className="mb-2 text-[#A8322D] font-sans font-medium text-[10px] tracking-[0.22em] uppercase inline-flex items-center gap-1">
+                      <ResponsiveImg src={bow} sizes="40px" alt="" width={660} height={566} className="w-[22px] h-auto" />
+                      Holiday
+                    </span>
                     <p className="font-serif text-[1.2rem] text-[#2D2D2D] leading-snug group-hover:text-[#A8322D] transition-colors">
                       {name(p)}
                     </p>

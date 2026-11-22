@@ -59,7 +59,9 @@ export default function TwoUpFeature() {
               {/* Photo (with the words over it on computers). On phones the
                   words sit in a panel under the photo so they're easy to read
                   (Sydney, Nov 2026). */}
-              <span className="relative block overflow-hidden aspect-[4/3] bg-[#FAF8F5]">
+              {/* Phones: the artwork sits a little lower (Sydney); the green
+                  behind it matches the artwork's own background. */}
+              <span className="relative block overflow-hidden aspect-[4/3] bg-[#087849] md:bg-[#FAF8F5]">
               <ResponsiveImg
                 src={tile.image}
                 sizes="(min-width: 1280px) 620px, (min-width: 768px) 50vw, 100vw"
@@ -67,10 +69,10 @@ export default function TwoUpFeature() {
                 loading="lazy"
                 className={`absolute inset-0 w-full h-full ${
                   tile.contain ? "object-contain p-6" : "object-cover"
-                } transition-transform duration-700 group-hover:scale-[1.04]`}
+                } translate-y-[9%] md:translate-y-0 transition-transform duration-700 group-hover:scale-[1.04]`}
               />
               {tile.saleTag && (
-                <span className="absolute top-4 left-4 z-10 bg-[#7A1F1F] ring-1 ring-[#F3D9A4]/80 text-white font-sans font-semibold text-[11px] lg:text-[12px] tracking-[0.15em] uppercase px-3 py-1.5 shadow-md">
+                <span className="hidden md:inline-block absolute top-4 left-4 z-10 bg-[#7A1F1F] ring-1 ring-[#F3D9A4]/80 text-white font-sans font-semibold text-[11px] lg:text-[12px] tracking-[0.15em] uppercase px-3 py-1.5 shadow-md">
                   {tile.saleTag}
                 </span>
               )}
@@ -96,6 +98,11 @@ export default function TwoUpFeature() {
               </span>
               {/* Phones: words under the photo, on the deep green. */}
               <span className="md:hidden block px-5 py-5 text-center" style={{background: `rgb(${tile.fade})`}}>
+                {tile.saleTag && (
+                  <span className="inline-block mb-3 bg-[#7A1F1F] ring-1 ring-[#F3D9A4]/80 text-white font-sans font-semibold text-[11px] tracking-[0.15em] uppercase px-3 py-1.5">
+                    {tile.saleTag}
+                  </span>
+                )}
                 <span className="block font-serif font-medium text-2xl text-white leading-tight">
                   {tile.title}
                 </span>
