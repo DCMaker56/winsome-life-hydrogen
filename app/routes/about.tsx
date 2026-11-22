@@ -182,7 +182,7 @@ function WinsomeDefinition() {
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 The word <em>winsome</em> captures the essence of our brand:
                 charming, joyful, and quietly uplifting. It reflects the spirit
-                of our stationery and the kind of life we hope to inspire, one
+                of our stationery and the kind of life we hope to inspire&mdash;one
                 filled with grace, warmth, and meaningful connection.
               </p>
               {/* A dictionary entry, set apart so it reads as a definition
