@@ -381,22 +381,20 @@ function ArtistSection() {
             </h2>
             <div className="space-y-5 mt-6">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                For over five decades, Darlene has worked across watercolor,
-                pencil, clay and paint, bringing flora, fauna and seaside scenes
-                to life with striking realism.
+                For more than five decades, Darlene has captured the beauty of
+                the natural world across a wide range of mediums, from
+                watercolor and pencil to clay and paint.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                She painted the very first artwork The Winsome Life printed,
-                and much of our collection today is her original work, painted
-                especially for us.
+                Her work has earned numerous commissions, accolades and
+                recognition in the press, yet she approaches her craft with the
+                same quiet humility that has defined her career.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                Darlene&rsquo;s artistry has shaped The Winsome Life from the very
-                beginning. The patience, skill and care in every brushstroke set
-                the standard for everything we make, and we are endlessly
-                grateful to have her extraordinary talent at the heart of our
-                story.
-              </p>
+                We are honored to name Darlene Redfoot the official Artist in
+                Residence at The Winsome Life. Many of her watercolors, from
+                florals to seaside scenes to nature studies, appear throughout
+                our collection.
             </div>
             <Link
               to="/collections/darlene-redfoot-originals"
