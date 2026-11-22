@@ -269,9 +269,9 @@ function HoneybeeStory() {
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
                 Bees are always communicating, and their honey never spoils. A
-                handwritten note is much the same: a small act of connection
-                that lasts. That is the spirit we bring to every piece&mdash;
-                thoughtful, enduring, and sweet with intention.
+                handwritten note is much the same: a small act of intention
+                that endures. That is the spirit we bring to every
+                piece&mdash;thoughtful, lasting, and made with care.
               </p>
               <div className="pt-4">
                 <blockquote className="border-l-2 border-[#C9A96E] pl-5">
@@ -395,6 +395,7 @@ function ArtistSection() {
                 Residence at The Winsome Life. Many of her watercolors, from
                 florals to seaside scenes to nature studies, appear throughout
                 our collection.
+              </p>
             </div>
             <Link
               to="/collections/darlene-redfoot-originals"
