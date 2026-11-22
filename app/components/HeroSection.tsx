@@ -218,8 +218,10 @@ export default function HeroSection() {
                 {slide.subline}
               </p>
             )}
+            {/* Computers only: on phones it crowded the photo, and the red
+                sale bar already sits right above the hero. */}
             {slide.sale && (
-              <div className="mt-4 md:mt-5">
+              <div className="hidden md:block mt-5">
                 <HolidaySaleHeroTag />
               </div>
             )}

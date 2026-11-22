@@ -54,8 +54,12 @@ export default function TwoUpFeature() {
             <Link
               key={tile.title}
               to={tile.href}
-              className="group relative block overflow-hidden aspect-[4/3] bg-[#FAF8F5] focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
+              className="group block focus-visible:outline-2 focus-visible:outline-[#C9A96E] focus-visible:outline-offset-2"
             >
+              {/* Photo (with the words over it on computers). On phones the
+                  words sit in a panel under the photo so they're easy to read
+                  (Sydney, Nov 2026). */}
+              <span className="relative block overflow-hidden aspect-[4/3] bg-[#FAF8F5]">
               <ResponsiveImg
                 src={tile.image}
                 sizes="(min-width: 1280px) 620px, (min-width: 768px) 50vw, 100vw"
@@ -71,14 +75,14 @@ export default function TwoUpFeature() {
                 </span>
               )}
               <span
-                className="absolute inset-0"
+                className="absolute inset-0 hidden md:block"
                 style={{
                   background:
                     `linear-gradient(to top, rgba(${tile.fade},0.6) 0%, rgba(${tile.fade},0.15) 45%, rgba(${tile.fade},0) 72%)`,
                 }}
                 aria-hidden
               />
-              <span className="absolute inset-x-0 bottom-0 p-6 lg:p-8 text-center">
+              <span className="absolute inset-x-0 bottom-0 p-6 lg:p-8 text-center hidden md:block">
                 <span className="block font-serif font-medium text-2xl lg:text-3xl text-white leading-tight">
                   {tile.title}
                 </span>
@@ -86,6 +90,19 @@ export default function TwoUpFeature() {
                   {tile.subtitle}
                 </span>
                 <span className="font-sans font-medium inline-block mt-4 px-7 py-2.5 bg-white text-[#2D2D2D] text-[11px] tracking-[0.18em] uppercase group-hover:bg-[#C9A96E] group-hover:text-white transition-colors">
+                  {tile.cta}
+                </span>
+              </span>
+              </span>
+              {/* Phones: words under the photo, on the deep green. */}
+              <span className="md:hidden block px-5 py-5 text-center" style={{background: `rgb(${tile.fade})`}}>
+                <span className="block font-serif font-medium text-2xl text-white leading-tight">
+                  {tile.title}
+                </span>
+                <span className="block font-sans font-light text-[13px] text-white/85 mt-1">
+                  {tile.subtitle}
+                </span>
+                <span className="font-sans font-medium inline-block mt-4 px-7 py-2.5 bg-white text-[#2D2D2D] text-[11px] tracking-[0.18em] uppercase">
                   {tile.cta}
                 </span>
               </span>
