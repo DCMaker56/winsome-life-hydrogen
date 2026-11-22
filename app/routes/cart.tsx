@@ -1,4 +1,5 @@
 import {syncSetCodes} from '~/lib/matching-set-codes.server';
+import {syncGiftCharges} from '~/lib/gift-options.server';
 import {useLoaderData, data, type HeadersFunction} from 'react-router';
 import type {Route} from './+types/cart';
 import type {CartQueryDataReturn} from '@shopify/hydrogen';
@@ -64,6 +65,20 @@ export async function action({request, context}: Route.ActionArgs) {
       result = await cart.removeGiftCardCodes(appliedGiftCardIds);
       break;
     }
+    case CartForm.ACTIONS.AttributesUpdateInput: {
+      // Gift options (~/lib/gift-options): merge with the cart's other
+      // attributes (e.g. "Partner referral") rather than replace them.
+      const current = await cart.get();
+      const incoming = (inputs.attributes ?? []) as {key: string; value: string}[];
+      const keys = new Set(incoming.map((a) => a.key));
+      const kept = (current?.attributes ?? [])
+        .filter((a) => !keys.has(a.key))
+        .map((a) => ({key: a.key, value: a.value ?? ''}));
+      result = await cart.updateAttributes(
+        [...kept, ...incoming.filter((a) => a.value !== '')],
+      );
+      break;
+    }
     case CartForm.ACTIONS.BuyerIdentityUpdate: {
       result = await cart.updateBuyerIdentity({
         ...inputs.buyerIdentity,
@@ -78,6 +93,7 @@ export async function action({request, context}: Route.ActionArgs) {
   // customer's own code). Never blocks the cart change if it fails.
   if (action !== CartForm.ACTIONS.BuyerIdentityUpdate && !action.startsWith('GiftCard')) {
     result = await syncSetCodes(cart, context.storefront as never, result).catch(() => result);
+    result = await syncGiftCharges(cart, context.storefront as never, result).catch(() => result);
   }
 
   const cartId = result?.cart?.id;

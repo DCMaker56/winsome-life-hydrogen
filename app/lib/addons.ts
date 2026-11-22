@@ -24,6 +24,10 @@ export const EURO_FLAP_A2_PRODUCT_HANDLE = 'euro-flap-envelopes-a2';
 export const CARDSTOCK_UPGRADE_A2_PRODUCT_HANDLE = 'double-thick-cardstock-a2';
 /** Charged per address when we print recipient addresses on envelopes ($0.60 each). */
 export const RECIPIENT_ADDRESSING_PRODUCT_HANDLE = 'recipient-addressing';
+/** Gift options in the cart (Sydney, Nov 2026; see ~/lib/gift-options). */
+export const GIFT_MESSAGE_PRODUCT_HANDLE = 'gift-message';
+export const GIFT_WRAP_PRODUCT_HANDLE = 'gift-wrap';
+export const GIFT_WRAP_EXTRA_PRODUCT_HANDLE = 'gift-wrap-additional-item';
 // Listing queries filter them with `query: "tag_not:add-on"` (written inline
 // so GraphQL codegen can read the queries).
 
@@ -38,4 +42,7 @@ export const isAddOnHandle = (handle?: string | null) =>
   handle === CARDSTOCK_UPGRADE_PRODUCT_HANDLE ||
   handle === EURO_FLAP_A2_PRODUCT_HANDLE ||
   handle === CARDSTOCK_UPGRADE_A2_PRODUCT_HANDLE ||
-  handle === RECIPIENT_ADDRESSING_PRODUCT_HANDLE;
+  handle === RECIPIENT_ADDRESSING_PRODUCT_HANDLE ||
+  handle === GIFT_MESSAGE_PRODUCT_HANDLE ||
+  handle === GIFT_WRAP_PRODUCT_HANDLE ||
+  handle === GIFT_WRAP_EXTRA_PRODUCT_HANDLE;

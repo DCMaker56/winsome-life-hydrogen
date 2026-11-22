@@ -3,6 +3,7 @@ import type {CartLayout} from '~/components/CartMain';
 import {CartForm, Money, type OptimisticCart} from '@shopify/hydrogen';
 import {useEffect, useId, useRef, useState} from 'react';
 import {useFetcher} from 'react-router';
+import {GiftOptions} from '~/components/GiftOptions';
 import type {MatchingSetsIndex} from '~/lib/matching-sets';
 import {MAX_CART_CODES, matchedSetDesigns, setCodes} from '~/lib/matching-set-codes';
 
@@ -22,6 +23,7 @@ export function CartSummary({cart, layout}: CartSummaryProps) {
 
   return (
     <div aria-labelledby={summaryId} className={`${className} px-4 pb-4`}>
+      <GiftOptions cart={cart} />
       <h4
         id={summaryId}
         className="font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-[#2D2D2D]/50 mb-1"
