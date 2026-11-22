@@ -136,9 +136,8 @@ function BrandMission() {
                 of grace, connection and intention.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                Inspired by the honeybee, a symbol of community, sweetness and
-                purpose, we craft luxury stationery that is beautifully made and
-                deeply personal.
+                We craft luxury stationery that is beautifully made and deeply
+                personal.
               </p>
               <p className={`${storyText} font-normal italic text-[#2D2D2D]`}>
                 Thoughtful, timeless, and sweet with purpose.
@@ -181,24 +180,43 @@ function WinsomeDefinition() {
             </h2>
             <div className="space-y-5">
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                We chose the word <em>winsome</em> because it captures the
-                essence of our brand: charming, joyful, and quietly uplifting. It
-                reflects the spirit of our stationery, our symbol the honeybee,
-                and the kind of life we hope to inspire, one filled with grace,
-                warmth, and meaningful connection.
+                The word <em>winsome</em> captures the essence of our brand:
+                charming, joyful, and quietly uplifting. It reflects the spirit
+                of our stationery and the kind of life we hope to inspire, one
+                filled with grace, warmth, and meaningful connection.
               </p>
-              <div className="border-l-2 border-[#C9A96E] pl-5 text-left mx-auto max-w-md lg:mx-0">
-                <p className={`${storyText} text-[#2D2D2D]`}>
-                  <span className="font-serif italic text-2xl">winsome</span>{' '}
-                  <span className="font-sans text-xs tracking-[0.2em] uppercase">adjective</span>
+              {/* A dictionary entry, set apart so it reads as a definition
+                  followed by synonyms (Sydney, Nov 2026). */}
+              <div className="text-left mx-auto max-w-md lg:mx-0 bg-[#FAF8F5] border border-[#C9A96E]/40 border-l-4 border-l-[#C9A96E] px-6 py-6 shadow-[0_10px_28px_-18px_rgba(45,45,45,0.35)]">
+                <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="font-serif font-semibold text-[2rem] leading-none text-[#1B294E]">
+                    win&middot;some
+                  </span>
+                  <span className="font-sans text-sm text-[#2D2D2D]/60">/&#712;win-s&#601;m/</span>
+                  <span className="font-sans font-medium text-[10px] tracking-[0.2em] uppercase text-[#8a6a3a] bg-[#C9A96E]/15 px-2 py-0.5">
+                    adjective
+                  </span>
                 </p>
-                <p className={`${storyText} font-light text-[#2D2D2D] mt-1`}>
-                  Attractive or appealing in appearance or character. Generally
+                <p className="mt-4 font-serif text-[1.2rem] leading-snug text-[#2D2D2D]">
+                  <span className="font-sans font-semibold text-sm text-[#C9A96E] mr-1.5">1.</span>
+                  Attractive or appealing in appearance or character; generally
                   pleasing and engaging.
                 </p>
-                <p className={`${storyText} font-light italic text-[#2D2D2D] mt-1`}>
-                  Cheerful, lighthearted, bright, sunny, upbeat.
-                </p>
+                <div className="mt-5 pt-4 border-t border-[#C9A96E]/30">
+                  <p className="font-sans font-semibold text-[10px] tracking-[0.22em] uppercase text-[#2D2D2D]/55 mb-2">
+                    Synonyms
+                  </p>
+                  <ul className="flex flex-wrap gap-2">
+                    {['cheerful', 'lighthearted', 'bright', 'sunny', 'upbeat'].map((w) => (
+                      <li
+                        key={w}
+                        className="font-serif italic text-[1.05rem] text-[#1B294E] bg-white ring-1 ring-[#C9A96E]/40 px-3 py-0.5 rounded-full"
+                      >
+                        {w}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -319,11 +337,10 @@ function FounderSection() {
                 <em className="font-normal">winsome</em>&mdash;change of course.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                Today, Sydney personally oversees every collection and the
-                customer experience behind it, ensuring timeless design,
-                impeccable quality, and exceptional service. Her hope is simple:
-                that every piece brings a little more beauty and joy to
-                someone&rsquo;s day.
+                Today, Sydney personally oversees every collection, ensuring
+                timeless design, impeccable quality, and exceptional service.
+                Her goal is simple: thoughtfully made pieces that bring
+                connection, beauty, and joy wherever they land.
               </p>
             </div>
           </div>
