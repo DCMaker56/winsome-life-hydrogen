@@ -337,9 +337,8 @@ function FounderSection() {
                 <em className="font-normal">winsome</em>&mdash;change of course.
               </p>
               <p className={`${storyText} font-light text-[#2D2D2D]`}>
-                Today, Sydney personally oversees every collection, ensuring
-                timeless design, impeccable quality, and exceptional service.
-                Her goal is simple: thoughtfully made pieces that bring
+                Today, Sydney personally oversees every collection. Her goal
+                is simple: thoughtfully made pieces that bring
                 connection, beauty, and joy wherever they land.
               </p>
             </div>
