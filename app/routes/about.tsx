@@ -413,7 +413,7 @@ function ArtistSection() {
 const PROMISES = [
   {
     icon: PenLine,
-    color: '#1B294E',
+    color: '#3A5A8C',
     title: 'Easy personalization',
     text: 'Your name, font and colors in a few simple steps.',
   },
@@ -452,55 +452,68 @@ const PROMISES = [
 
 function PromisesSection() {
   const {ref, inView} = useInView({threshold: 0.15});
+  // Split layout on navy (Sydney, Nov 2026): painting + heading on the left,
+  // the six promises as compact white cards on the right.
   return (
-    <section className="py-16 lg:py-24 bg-[#F3ECDD]" ref={ref}>
+    <section className="py-16 lg:py-24 bg-[#1B294E]" ref={ref}>
       <div className="container max-w-6xl">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="w-44 sm:w-52 mx-auto mb-8">
-            <CircleArt
-              src={hydrangea}
-              paper="#D3CAB2"
-              alt="Sydney's original watercolor painting of a blue hydrangea"
-            />
-          </div>
-          <p className={sectionEyebrow}>Our Promises</p>
-          <h2 className={sectionTitle}>
-            What you can{' '}
-            <span className="inline-block text-[1.3em] leading-none relative top-[0.32em] ml-[0.1em]" style={scriptFont}>
-              count on
-            </span>
-          </h2>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {PROMISES.map((p, i) => (
-            <motion.div
-              key={p.title}
-              initial={{opacity: 0, y: 20}}
-              animate={inView ? {opacity: 1, y: 0} : {}}
-              transition={{duration: 0.5, ease: 'easeOut', delay: 0.1 + i * 0.08}}
-              className="bg-white px-6 pt-7 pb-6 text-center shadow-[0_12px_30px_-20px_rgba(45,45,45,0.35)] border-t-4"
-              style={{borderTopColor: p.color}}
-            >
+        <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-10 lg:gap-14 items-center">
+          <div className="text-center lg:text-left">
+            <div className="w-40 sm:w-48 lg:w-56 mx-auto lg:mx-0 mb-7">
+              <CircleArt
+                src={hydrangea}
+                paper="#D3CAB2"
+                alt="Sydney's original watercolor painting of a blue hydrangea"
+              />
+            </div>
+            <p className={`${sectionEyebrow} !text-[#E8C98E]`}>Our Promises</p>
+            <h2 className="font-serif font-medium text-3xl md:text-[2.4rem] text-white leading-tight lg:whitespace-nowrap">
+              What you can{' '}
               <span
-                className="inline-flex items-center justify-center w-14 h-14 rounded-full shadow-sm"
-                style={{background: p.color}}
+                className="inline-block text-[1.3em] leading-none relative top-[0.32em] ml-[0.1em] text-[#E8C98E]"
+                style={scriptFont}
               >
-                <p.icon size={24} className="text-white" strokeWidth={1.75} />
+                count on
               </span>
-              <h3 className="font-serif font-semibold text-[1.4rem] leading-tight mt-4 mb-1.5" style={{color: p.color}}>
-                {p.title}
-              </h3>
-              <p className="font-sans text-[15px] leading-snug text-[#2D2D2D]/80">{p.text}</p>
-              {p.link && (
-                <Link
-                  to={p.link.to}
-                  className="mt-3 inline-block font-sans font-medium text-[11px] tracking-[0.18em] uppercase text-[#2D2D2D] border-b border-[#2D2D2D]/40 hover:border-[#2D2D2D]"
+            </h2>
+            <p className="mt-7 font-sans font-light text-base md:text-[17px] text-white/80 leading-relaxed max-w-md mx-auto lg:mx-0">
+              Six promises behind every order, from your first click to the
+              moment it arrives.
+            </p>
+          </div>
+          <ul className="grid sm:grid-cols-2 gap-4">
+            {PROMISES.map((p, i) => (
+              <motion.li
+                key={p.title}
+                initial={{opacity: 0, y: 16}}
+                animate={inView ? {opacity: 1, y: 0} : {}}
+                transition={{duration: 0.45, ease: 'easeOut', delay: 0.08 + i * 0.07}}
+                className="bg-white p-5 flex gap-4 items-start border-l-4 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.5)]"
+                style={{borderLeftColor: p.color}}
+              >
+                <span
+                  className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full"
+                  style={{background: p.color}}
                 >
-                  {p.link.label}
-                </Link>
-              )}
-            </motion.div>
-          ))}
+                  <p.icon size={20} className="text-white" strokeWidth={1.75} />
+                </span>
+                <span className="min-w-0">
+                  <h3 className="font-serif font-semibold text-[1.2rem] leading-tight" style={{color: p.color}}>
+                    {p.title}
+                  </h3>
+                  <p className="font-sans text-[14px] leading-snug text-[#2D2D2D]/80 mt-1">{p.text}</p>
+                  {p.link && (
+                    <Link
+                      to={p.link.to}
+                      className="mt-2 inline-block font-sans font-medium text-[11px] tracking-[0.16em] uppercase text-[#2D2D2D] border-b border-[#2D2D2D]/40 hover:border-[#2D2D2D]"
+                    >
+                      {p.link.label}
+                    </Link>
+                  )}
+                </span>
+              </motion.li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>
