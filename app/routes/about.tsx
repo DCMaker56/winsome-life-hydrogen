@@ -409,37 +409,44 @@ function ArtistSection() {
   );
 }
 
+// Short and colorful so it's easy to take in at a glance (Sydney, Nov 2026).
 const PROMISES = [
   {
     icon: PenLine,
-    title: 'Personalization made easy',
-    text: 'Choose your name, font and colors in a few simple steps, and get it exactly the way you want it.',
+    color: '#1B294E',
+    title: 'Easy personalization',
+    text: 'Your name, font and colors in a few simple steps.',
   },
   {
     icon: Check,
-    title: 'You approve before we print',
-    text: 'Every personalized order is approved by you, or you can ask for a proof first.',
+    color: '#6B8F71',
+    title: 'You approve first',
+    text: 'Nothing prints until you say yes, or ask for a proof.',
   },
   {
     icon: Heart,
-    title: 'If we make a mistake, we make it right',
-    text: 'Your order should be exactly what you approved. If we get something wrong, we will fix it.',
+    color: '#B5636B',
+    title: 'We make it right',
+    text: 'If we ever get something wrong, we fix it.',
   },
   {
     icon: MessageCircle,
-    title: 'Real people, here to help',
-    text: 'Questions about a design or an order? Our small team answers personally.',
+    color: '#4F7CA8',
+    title: 'Real people',
+    text: 'Our small team answers every message personally.',
     link: {to: '/contact', label: 'Contact us'},
   },
   {
     icon: Truck,
-    title: 'Made for you, quickly',
-    text: 'Every order is made to order in 5\u20137 business days, then on its way. Free U.S. shipping on orders of $75 or more.',
+    color: '#B08A4E',
+    title: 'Made in 5\u20137 days',
+    text: 'Made to order, then on its way. Free shipping over $75.',
   },
   {
     icon: Gift,
+    color: '#123D2E',
     title: 'Sets that save',
-    text: 'Buy two or more pieces of a matching set and save 10%, automatically at checkout.',
+    text: 'Two pieces of a matching set? Save 10%, automatically.',
   },
 ];
 
@@ -471,13 +478,19 @@ function PromisesSection() {
               initial={{opacity: 0, y: 20}}
               animate={inView ? {opacity: 1, y: 0} : {}}
               transition={{duration: 0.5, ease: 'easeOut', delay: 0.1 + i * 0.08}}
-              className="bg-white p-6 text-center shadow-sm"
+              className="bg-white px-6 pt-7 pb-6 text-center shadow-[0_12px_30px_-20px_rgba(45,45,45,0.35)] border-t-4"
+              style={{borderTopColor: p.color}}
             >
-              <span className="inline-flex items-center justify-center w-12 h-12 rounded-full ring-1 ring-[#C9A96E]">
-                <p.icon size={20} className="text-[#2D2D2D]" strokeWidth={1.5} />
+              <span
+                className="inline-flex items-center justify-center w-14 h-14 rounded-full shadow-sm"
+                style={{background: p.color}}
+              >
+                <p.icon size={24} className="text-white" strokeWidth={1.75} />
               </span>
-              <h3 className="font-serif font-medium text-xl text-[#2D2D2D] mt-4 mb-2">{p.title}</h3>
-              <p className="font-sans font-light text-[15px] leading-relaxed text-[#2D2D2D]">{p.text}</p>
+              <h3 className="font-serif font-semibold text-[1.4rem] leading-tight mt-4 mb-1.5" style={{color: p.color}}>
+                {p.title}
+              </h3>
+              <p className="font-sans text-[15px] leading-snug text-[#2D2D2D]/80">{p.text}</p>
               {p.link && (
                 <Link
                   to={p.link.to}
