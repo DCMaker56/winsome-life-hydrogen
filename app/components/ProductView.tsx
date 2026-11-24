@@ -264,6 +264,22 @@ export function ProductView({
       v.selectedOptions.every((o) => selOptions[o.name] === o.value),
     ) ?? firstVariant;
   const variantId = selectedVariant?.id;
+  // Picking a choice that only exists with other choices (e.g. "30 Letter
+  // Size Sheets" only comes in "Letter Size") switches those to match,
+  // so the page never lands on a combination that isn't for sale.
+  const chooseOption = (name: string, value: string) =>
+    setSelOptions((s) => {
+      const next = {...s, [name]: value};
+      const fits = (v: (typeof variants)[number]) =>
+        v.selectedOptions.every((o) => next[o.name] === o.value);
+      if (variants.some(fits)) return next;
+      const has = (v: (typeof variants)[number]) =>
+        v.selectedOptions.some((o) => o.name === name && o.value === value);
+      const alt = variants.find((v) => has(v) && v.availableForSale) ?? variants.find(has);
+      return alt
+        ? {...next, ...Object.fromEntries(alt.selectedOptions.map((o) => [o.name, o.value]))}
+        : next;
+    });
   // Envelope liners are priced per card by order size; the liner question's
   // note shows the price for the cards picked ("$1.15 per card for 20 cards").
   // Cards in one set: the "Quantity" choice, or for a fixed set with no
@@ -273,9 +289,16 @@ export function ProductView({
       '',
     10,
   );
-  const cardsPerSet = Number.isNaN(quantityChoice)
-    ? parseInt(product.title.match(/\b(?:set|pack) of (\d+)\b/i)?.[1] ?? '', 10)
-    : quantityChoice;
+  // Writing-paper sheets ("30 Letter Size Sheets") sold alongside notecards
+  // aren't cards: no per-card upgrades apply to them.
+  const sheetsChosen = Object.values(selOptions).some((v) =>
+    /letter size sheets?\b/i.test(v),
+  );
+  const cardsPerSet = sheetsChosen
+    ? NaN
+    : Number.isNaN(quantityChoice)
+      ? parseInt(product.title.match(/\b(?:set|pack) of (\d+)\b/i)?.[1] ?? '', 10)
+      : quantityChoice;
   const cardsInOrder = cardsPerSet * quantity;
   const linerPriceNow = linerTierFor(envelopeLiner, cardsInOrder)?.price;
   const linerHelp =
@@ -452,9 +475,9 @@ export function ProductView({
             .filter(
               (f) =>
                 !(
-                  belowUpgradeMinimum &&
                   f.group === 'upgrades' &&
-                  /card\s?stock|envelope liner/i.test(f.label)
+                  (sheetsChosen ||
+                    (belowUpgradeMinimum && /card\s?stock|envelope liner/i.test(f.label)))
                 ),
             )
             .map((f) => withUpgradePrice(withLinerPrice(f)))
@@ -503,6 +526,7 @@ export function ProductView({
       selOptions,
       linerHelp,
       belowUpgradeMinimum,
+      sheetsChosen,
       upgradePriceKey,
     ],
   );
@@ -992,7 +1016,12 @@ export function ProductView({
                       key={opt.name}
                       parts={setEnvelopeParts(opt.optionValues)!}
                       value={selOptions[opt.name] ?? ''}
-                      onChange={(v) => setSelOptions((s) => ({...s, [opt.name]: v}))}
+                      extras={opt.optionValues
+                        .map((ov) => ov.name)
+                        .filter(
+                          (n) => !setEnvelopeParts(opt.optionValues)!.some((p) => p.value === n),
+                        )}
+                      onChange={(v) => chooseOption(opt.name, v)}
                     />
                   ) : // Long lists read better as a dropdown; short ones
                   // stay as buttons.
@@ -1008,9 +1037,7 @@ export function ProductView({
                             <button
                               key={ov.name}
                               type="button"
-                              onClick={() =>
-                                setSelOptions((s) => ({...s, [opt.name]: ov.name}))
-                              }
+                              onClick={() => chooseOption(opt.name, ov.name)}
                               aria-pressed={active}
                               className={`flex flex-col items-center gap-1.5 p-1.5 bg-white border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
                                 active
@@ -1044,9 +1071,7 @@ export function ProductView({
                         <select
                           id={`option-${opt.name}`}
                           value={selOptions[opt.name] ?? ''}
-                          onChange={(e) =>
-                            setSelOptions((s) => ({...s, [opt.name]: e.target.value}))
-                          }
+                          onChange={(e) => chooseOption(opt.name, e.target.value)}
                           className="w-full appearance-none bg-white border border-[#C9A96E]/40 px-4 py-3 pr-10 text-sm font-sans text-[#2D2D2D] hover:border-[#2D2D2D] focus-visible:outline-2 focus-visible:outline-[#C9A96E]"
                         >
                           {opt.optionValues.map((ov) => (
@@ -1073,9 +1098,7 @@ export function ProductView({
                             <button
                               key={ov.name}
                               type="button"
-                              onClick={() =>
-                                setSelOptions((s) => ({...s, [opt.name]: ov.name}))
-                              }
+                              onClick={() => chooseOption(opt.name, ov.name)}
                               aria-pressed={active}
                               className={`px-4 py-2 text-sm font-sans border transition-colors focus-visible:outline-2 focus-visible:outline-[#C9A96E] ${
                                 active
@@ -1585,13 +1608,17 @@ function setEnvelopeParts(values: {name: string}[]): SetEnvelopePart[] | null {
  *  the combined "10 + Return Address" list was confusing). */
 function SetEnvelopePicker({
   parts,
+  extras = [],
   value,
   onChange,
 }: {
   parts: SetEnvelopePart[];
+  /** Other choices in the same Shopify option, e.g. "30 Letter Size Sheets". */
+  extras?: string[];
   value: string;
   onChange: (value: string) => void;
 }) {
+  const extraChosen = extras.includes(value);
   const current = parts.find((p) => p.value === value) ?? parts[0];
   const counts = [...new Set(parts.map((p) => p.count))].sort((a, b) => a - b);
   const pick = (count: number, returnAddress: boolean) => {
@@ -1620,14 +1647,26 @@ function SetEnvelopePicker({
               key={c}
               type="button"
               onClick={() => pick(c, current.returnAddress)}
-              aria-pressed={current.count === c}
-              className={button(current.count === c)}
+              aria-pressed={!extraChosen && current.count === c}
+              className={button(!extraChosen && current.count === c)}
             >
               {c}
             </button>
           ))}
+          {extras.map((x) => (
+            <button
+              key={x}
+              type="button"
+              onClick={() => onChange(x)}
+              aria-pressed={value === x}
+              className={button(value === x)}
+            >
+              {x}
+            </button>
+          ))}
         </div>
       </div>
+      {!extraChosen && (
       <div>
         <div className={label}>Envelopes</div>
         <div className="flex flex-wrap gap-2">
@@ -1653,6 +1692,7 @@ function SetEnvelopePicker({
           })}
         </div>
       </div>
+      )}
     </>
   );
 }
