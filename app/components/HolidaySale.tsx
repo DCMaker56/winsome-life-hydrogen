@@ -5,6 +5,8 @@
  */
 import {useEffect, useState} from 'react';
 import {Link} from 'react-router';
+import {ResponsiveImg} from '~/components/ResponsiveImg';
+import tartanBow from '~/assets/home/tartan-bow.webp';
 import {BLACK_FRIDAY, blackFridayActive, HOLIDAY_SALE, holidaySaleActive, timeLeft} from '~/lib/holiday-sale';
 
 /** Ticks once a second on the client; the server renders the same numbers
@@ -171,11 +173,20 @@ export function BlackFridayHero({fill = false}: {fill?: boolean} = {}) {
     >
       <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#E8C98E]/70 to-transparent" />
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#E8C98E]/70 to-transparent" />
-      <div className={`container max-w-4xl mx-auto px-5 ${fill ? "pt-6 pb-14 md:py-10" : "py-16"} text-center`}>
+      <div className={`container max-w-4xl mx-auto px-5 ${fill ? "pt-6 pb-14 md:pt-4 md:pb-16" : "py-16"} text-center`}>
+        {/* Red tartan bow to make it festive (Sydney, Nov 2026). */}
+        <ResponsiveImg
+          src={tartanBow}
+          sizes="110px"
+          alt=""
+          width={431}
+          height={440}
+          className="mx-auto mb-3 w-[54px] md:w-[76px] h-auto"
+        />
         <p className="font-sans font-medium text-xs md:text-sm tracking-[0.4em] uppercase text-[#E8C98E]">
           Black Friday &middot; Cyber Monday
         </p>
-        <h2 id="black-friday-title" className={`${fill ? "mt-4 text-[2.6rem]" : "mt-6 text-5xl"} md:mt-6 font-serif font-medium leading-[1.05] md:text-7xl`}>
+        <h2 id="black-friday-title" className={`${fill ? "mt-4 text-[2.6rem] md:mt-4" : "mt-6 text-5xl md:mt-6"} font-serif font-medium leading-[1.05] md:text-7xl`}>
           {BLACK_FRIDAY.percent}% off{' '}
           <span
             className="block md:inline-block text-[1.15em] leading-none mt-2 md:mt-0 md:relative md:top-[0.12em] text-[#E8C98E]"
@@ -193,7 +204,7 @@ export function BlackFridayHero({fill = false}: {fill?: boolean} = {}) {
             No code needed &middot; Ends Monday at midnight
           </p>
         )}
-        <div className={`${fill ? "mt-6" : "mt-9"} md:mt-9 flex justify-center gap-2.5 md:gap-4`} role="timer" aria-label="Time left in the Black Friday sale">
+        <div className={`${fill ? "mt-6 md:mt-7" : "mt-9 md:mt-9"} flex justify-center gap-2.5 md:gap-4`} role="timer" aria-label="Time left in the Black Friday sale">
           {boxes.map(([n, label]) => (
             <div key={label} className="w-[64px] md:w-[92px] py-2.5 md:py-3 ring-1 ring-[#E8C98E]/50 bg-white/[0.04]">
               <p suppressHydrationWarning className="font-serif text-3xl md:text-[2.6rem] tabular-nums leading-none">
@@ -205,7 +216,7 @@ export function BlackFridayHero({fill = false}: {fill?: boolean} = {}) {
             </div>
           ))}
         </div>
-        <div className={`${fill ? "mt-7" : "mt-10"} md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3`}>
+        <div className={`${fill ? "mt-7 md:mt-8" : "mt-10 md:mt-10"} flex flex-col sm:flex-row items-center justify-center gap-3`}>
           <Link
             to={BLACK_FRIDAY.href}
             className="inline-flex items-center gap-2 px-10 py-4 bg-[#E8C98E] text-[#111111] font-sans font-semibold text-[12px] tracking-[0.2em] uppercase hover:bg-white transition-colors"
