@@ -488,17 +488,15 @@ function PromisesSection() {
                 initial={{opacity: 0, y: 16}}
                 animate={inView ? {opacity: 1, y: 0} : {}}
                 transition={{duration: 0.45, ease: 'easeOut', delay: 0.08 + i * 0.07}}
-                className="bg-white p-5 flex gap-4 items-start border-l-4 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.5)]"
-                style={{borderLeftColor: p.color}}
+                className="bg-[#FAF8F5] p-5 flex gap-4 items-start border-l-4 border-l-[#C9A96E] shadow-[0_14px_30px_-18px_rgba(0,0,0,0.5)]"
               >
-                <span
-                  className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full"
-                  style={{background: p.color}}
-                >
-                  <p.icon size={20} className="text-white" strokeWidth={1.75} />
+                {/* One accent for every card: brand gold and navy (Sydney:
+                    six colors felt off brand). */}
+                <span className="shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white ring-1 ring-[#C9A96E]">
+                  <p.icon size={20} className="text-[#1B294E]" strokeWidth={1.6} />
                 </span>
                 <span className="min-w-0">
-                  <h3 className="font-serif font-semibold text-[1.2rem] leading-tight" style={{color: p.color}}>
+                  <h3 className="font-serif font-semibold text-[1.2rem] leading-tight text-[#1B294E]">
                     {p.title}
                   </h3>
                   <p className="font-sans text-[14px] leading-snug text-[#2D2D2D]/80 mt-1">{p.text}</p>
