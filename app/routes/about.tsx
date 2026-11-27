@@ -18,7 +18,8 @@ import beeWatercolor from '~/assets/about/bee-watercolor.jpg';
 import founderPhoto from '~/assets/home/founder-sydney.jpg';
 import SocialProof from '~/components/SocialProof';
 import scallopShell from '~/assets/about/scallop-shell-watercolor.jpg';
-import hydrangea from '~/assets/about/hydrangea-watercolor.jpg';
+const SAND_DOLLAR =
+  'https://cdn.shopify.com/s/files/1/0938/6203/5753/files/download.jpg?v=1795793209&width=840';
 
 export const meta: Route.MetaFunction = () => [
   {title: 'Our Story | The Winsome Life'},
@@ -460,10 +461,11 @@ function PromisesSection() {
         <div className="grid lg:grid-cols-[0.95fr_1.05fr] gap-10 lg:gap-14 items-center">
           <div className="text-center lg:text-left">
             <div className="w-40 sm:w-48 lg:w-56 mx-auto lg:mx-0 mb-7">
+              {/* Sydney's gold sand dollar (Nov 2026), from Shopify Files. */}
               <CircleArt
-                src={hydrangea}
-                paper="#D3CAB2"
-                alt="Sydney's original watercolor painting of a blue hydrangea"
+                src={SAND_DOLLAR}
+                paper="#E4E3DE"
+                alt="Original watercolor painting of a gold sand dollar"
               />
             </div>
             <p className={`${sectionEyebrow} !text-[#E8C98E]`}>Our Promises</p>
