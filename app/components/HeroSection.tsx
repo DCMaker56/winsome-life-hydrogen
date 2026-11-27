@@ -7,13 +7,11 @@
  * (its flight animation is off for now). All motion respects reduced-motion.
  */
 import {HolidaySaleHeroTag} from '~/components/HolidaySale';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router";
 import { HoneyBee } from "./HoneyBee";
 import christmasDesktop from "~/assets/hero/christmas-plaid-desktop.webp";
-import fallDesktop from "~/assets/hero/fall-plaid-desktop.webp";
 import christmasPhone from "~/assets/hero/christmas-plaid-phone.webp";
-import fallPhone from "~/assets/hero/fall-plaid-phone.webp";
 
 const CDN = "https://caatee-kr.myshopify.com/cdn/shop/files";
 
@@ -65,20 +63,6 @@ const SLIDES: Slide[] = [
     side: "left",
   },
   {
-    // Fall plaid on tan (Sydney, Nov 2026); products on the right, tagline on
-    // the left (phones: products below, tagline on top).
-    image: fallPhone,
-    alt: "Personalized fall plaid Thanksgiving photo card, pumpkin notepad, gift tags, place card and notecards on a tan background",
-    desktopImage: fallDesktop,
-    phoneDesigned: true,
-    desktopNoHaze: true,
-    // Keep the products (right side) when narrower screens trim the image.
-    desktopPosition: "70% center",
-    subline: "Gather, give thanks, and make it personal.",
-    cta: {label: "Shop Thanksgiving / Fall", href: "/collections/fall-autumn"},
-    side: "left",
-  },
-  {
     image: `${CDN}/03.png?v=1758893929&width=2400`,
     alt: "Personalized floral notecards arranged on an elegant writing desk",
     side: "left",
@@ -91,8 +75,10 @@ const SLIDES: Slide[] = [
   },
 ];
 
-export default function HeroSection() {
+export default function HeroSection({promo}: {promo?: React.ReactNode} = {}) {
   const [active, setActive] = useState(0);
+  // A promotion slide (e.g. Black Friday) rotates in first, then the photos.
+  const [onPromo, setOnPromo] = useState(!!promo);
   const [isDesktop, setIsDesktop] = useState(true);
 
   // Computers vs phones: phones skip desktop-only slides.
@@ -122,9 +108,22 @@ export default function HeroSection() {
   useEffect(() => {
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     if (reduce) return;
-    const t = setInterval(() => setActive((a) => next(a)), 6500);
+    const t = setInterval(() => {
+      if (promo && onPromoRef.current) {
+        setOnPromo(false);
+        return;
+      }
+      setActive((a) => {
+        const n = next(a);
+        // After the last photo, back to the promotion.
+        if (promo && n <= a) setOnPromo(true);
+        return n;
+      });
+    }, 6500);
     return () => clearInterval(t);
-  }, [isDesktop]);
+  }, [isDesktop, promo]);
+  const onPromoRef = useRef(onPromo);
+  onPromoRef.current = onPromo;
 
   const slide = SLIDES[active];
   const side = isDesktop ? (slide.desktopSide ?? slide.side) : slide.side;
@@ -240,18 +239,46 @@ export default function HeroSection() {
           </div>
         </div>
 
+        {/* Promotion slide, over the photos while it's showing. */}
+        {promo && (
+          <div
+            className={`absolute inset-0 z-20 transition-opacity duration-[1200ms] ${onPromo ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+            aria-hidden={!onPromo}
+          >
+            {promo}
+          </div>
+        )}
+
         {/* Slide dots */}
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex gap-2.5">
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 flex gap-2.5">
+          {promo && (
+            <button
+              type="button"
+              onClick={() => setOnPromo(true)}
+              aria-label="Show the sale"
+              aria-current={onPromo}
+              className={`h-2 rounded-full transition-all ${
+                onPromo ? "w-6 bg-[#E8C98E]" : "w-2 bg-[#2D2D2D]/25 hover:bg-[#2D2D2D]/45"
+              }`}
+            />
+          )}
           {SLIDES.map((s, i) => (
             <button
               key={i}
               hidden={!shows(i)}
               type="button"
-              onClick={() => setActive(i)}
+              onClick={() => {
+                setOnPromo(false);
+                setActive(i);
+              }}
               aria-label={`Show slide ${i + 1}`}
-              aria-current={i === active}
+              aria-current={!onPromo && i === active}
               className={`h-2 rounded-full transition-all ${
-                i === active ? "w-6 bg-[#2D2D2D]/70" : "w-2 bg-[#2D2D2D]/25 hover:bg-[#2D2D2D]/45"
+                !onPromo && i === active
+                  ? "w-6 bg-[#2D2D2D]/70"
+                  : onPromo
+                    ? "w-2 bg-white/40 hover:bg-white/70"
+                    : "w-2 bg-[#2D2D2D]/25 hover:bg-[#2D2D2D]/45"
               }`}
             />
           ))}

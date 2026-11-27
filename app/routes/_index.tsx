@@ -182,9 +182,9 @@ export default function HomePage() {
             Table → reviews → Holiday Gift Guide → Founder's Welcome → value
             bar → Shop by Product Type → Dogs & Cats → Notes Worth Saluting
             (through Veterans Day), then Complete the Set. */}
-        {/* Black Friday (through Mon Nov 30): its own hero in place of the
-            slideshow; the usual hero comes back on its own afterwards. */}
-        {blackFridayActive() ? <BlackFridayHero /> : <HeroSection />}
+        {/* Black Friday (through Mon Nov 30): the first slide of the
+            rotating hero; it drops out on its own afterwards. */}
+        <HeroSection promo={blackFridayActive() ? <BlackFridayHero fill /> : undefined} />
         {/* Holiday Sale banner + countdown; hides itself after Nov 30. */}
         <HolidaySaleBanner />
         <Marquee />

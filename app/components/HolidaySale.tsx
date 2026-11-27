@@ -155,7 +155,7 @@ export function HolidaySaleHeroTag({className = ''}: {className?: string}) {
 }
 
 /** Black Friday home hero: solid black with gold type and a big countdown. */
-export function BlackFridayHero() {
+export function BlackFridayHero({fill = false}: {fill?: boolean} = {}) {
   const t = useTimeLeft();
   if (!t.blackFriday) return null;
   const boxes = [
@@ -166,16 +166,16 @@ export function BlackFridayHero() {
   ] as const;
   return (
     <section
-      className="relative bg-[#111111] text-white overflow-hidden min-h-[560px] md:min-h-[640px] flex items-center"
+      className={`relative bg-[#111111] text-white overflow-hidden flex items-center ${fill ? 'h-full' : 'min-h-[560px] md:min-h-[640px]'}`}
       aria-labelledby="black-friday-title"
     >
       <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#E8C98E]/70 to-transparent" />
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#E8C98E]/70 to-transparent" />
-      <div className="container max-w-4xl mx-auto px-5 py-16 text-center">
+      <div className={`container max-w-4xl mx-auto px-5 ${fill ? "pt-6 pb-14 md:py-10" : "py-16"} text-center`}>
         <p className="font-sans font-medium text-xs md:text-sm tracking-[0.4em] uppercase text-[#E8C98E]">
           Black Friday &middot; Cyber Monday
         </p>
-        <h1 id="black-friday-title" className="mt-6 font-serif font-medium leading-[1.05] text-5xl md:text-7xl">
+        <h2 id="black-friday-title" className={`${fill ? "mt-4 text-[2.6rem]" : "mt-6 text-5xl"} md:mt-6 font-serif font-medium leading-[1.05] md:text-7xl`}>
           {BLACK_FRIDAY.percent}% off{' '}
           <span
             className="block md:inline-block text-[1.15em] leading-none mt-2 md:mt-0 md:relative md:top-[0.12em] text-[#E8C98E]"
@@ -183,14 +183,19 @@ export function BlackFridayHero() {
           >
             everything
           </span>
-        </h1>
-        <p className="mt-7 font-sans font-light text-base md:text-lg text-white/80 max-w-xl mx-auto leading-relaxed">
+        </h2>
+        <p className={`mt-7 font-sans font-light text-base md:text-lg text-white/80 max-w-xl mx-auto leading-relaxed ${fill ? "hidden md:block" : ""}`}>
           Personalized stationery, holiday cards and gifts. Taken off automatically at checkout,
           no code needed. Ends Monday at midnight.
         </p>
-        <div className="mt-9 flex justify-center gap-3 md:gap-4" role="timer" aria-label="Time left in the Black Friday sale">
+        {fill && (
+          <p className="md:hidden mt-4 font-sans font-light text-[15px] text-white/80">
+            No code needed &middot; Ends Monday at midnight
+          </p>
+        )}
+        <div className={`${fill ? "mt-6" : "mt-9"} md:mt-9 flex justify-center gap-2.5 md:gap-4`} role="timer" aria-label="Time left in the Black Friday sale">
           {boxes.map(([n, label]) => (
-            <div key={label} className="w-[70px] md:w-[92px] py-3 ring-1 ring-[#E8C98E]/50 bg-white/[0.04]">
+            <div key={label} className="w-[64px] md:w-[92px] py-2.5 md:py-3 ring-1 ring-[#E8C98E]/50 bg-white/[0.04]">
               <p suppressHydrationWarning className="font-serif text-3xl md:text-[2.6rem] tabular-nums leading-none">
                 {pad(n)}
               </p>
@@ -200,7 +205,7 @@ export function BlackFridayHero() {
             </div>
           ))}
         </div>
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <div className={`${fill ? "mt-7" : "mt-10"} md:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3`}>
           <Link
             to={BLACK_FRIDAY.href}
             className="inline-flex items-center gap-2 px-10 py-4 bg-[#E8C98E] text-[#111111] font-sans font-semibold text-[12px] tracking-[0.2em] uppercase hover:bg-white transition-colors"
@@ -209,7 +214,7 @@ export function BlackFridayHero() {
           </Link>
           <Link
             to="/collections/holiday-photo-cards"
-            className="inline-flex items-center gap-2 px-8 py-4 ring-1 ring-white/50 text-white font-sans font-medium text-[12px] tracking-[0.2em] uppercase hover:ring-white transition-colors"
+            className={`${fill ? "hidden sm:inline-flex" : "inline-flex"} items-center gap-2 px-8 py-4 ring-1 ring-white/50 text-white font-sans font-medium text-[12px] tracking-[0.2em] uppercase hover:ring-white transition-colors`}
           >
             Shop Holiday Cards
           </Link>
