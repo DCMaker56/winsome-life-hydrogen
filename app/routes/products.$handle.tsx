@@ -10,7 +10,7 @@
  * serialized into Shopify cart line item properties so they survive into
  * checkout + the order detail.
  */
-import {HOLIDAY_SALE} from '~/lib/holiday-sale';
+import {blackFridayActive, HOLIDAY_SALE} from '~/lib/holiday-sale';
 import {useLoaderData} from 'react-router';
 import type {Route} from './+types/products.$handle';
 import {getSelectedProductOptions} from '@shopify/hydrogen';
@@ -273,7 +273,7 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
     // Opened from a white-label partner's page: their slim header instead of
     // The Winsome Life's (see ~/components/PartnerShell).
     // Holiday Sale badge on the product page (~/lib/holiday-sale).
-    onHolidaySale: (product.saleCollections?.nodes ?? []).some(
+    onHolidaySale: blackFridayActive() || (product.saleCollections?.nodes ?? []).some(
       (c: {handle: string}) => HOLIDAY_SALE.collections.includes(c.handle),
     ),
     whiteLabelPartner: whiteLabelPartnerFor(

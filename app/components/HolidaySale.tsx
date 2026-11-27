@@ -5,7 +5,7 @@
  */
 import {useEffect, useState} from 'react';
 import {Link} from 'react-router';
-import {HOLIDAY_SALE, holidaySaleActive, timeLeft} from '~/lib/holiday-sale';
+import {BLACK_FRIDAY, blackFridayActive, HOLIDAY_SALE, holidaySaleActive, timeLeft} from '~/lib/holiday-sale';
 
 /** Ticks once a second on the client; the server renders the same numbers
  * at request time, so only the seconds can differ on load. */
@@ -15,7 +15,7 @@ function useTimeLeft() {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  return {active: holidaySaleActive(now), ...timeLeft(now)};
+  return {active: holidaySaleActive(now), blackFriday: blackFridayActive(now), ...timeLeft(now)};
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -35,6 +35,19 @@ function ShortCountdown() {
 export function HolidaySaleBar() {
   const t = useTimeLeft();
   if (!t.active) return null;
+  if (t.blackFriday)
+    return (
+      <Link
+        to={BLACK_FRIDAY.href}
+        className="block font-sans bg-[#111111] text-white text-center py-2 px-3 text-[13px] sm:text-sm tracking-wide hover:bg-black transition-colors"
+      >
+        <span className="font-semibold text-[#E8C98E]">Black Friday:</span> {BLACK_FRIDAY.percent}% off everything
+        <span className="hidden sm:inline"> · no code needed</span>
+        <span className="mx-1.5 opacity-60" aria-hidden>·</span>
+        Ends in <ShortCountdown />
+        <span className="ml-2 underline underline-offset-2 decoration-[#E8C98E]/70">Shop now</span>
+      </Link>
+    );
   return (
     <Link
       to={HOLIDAY_SALE.href}
@@ -57,7 +70,7 @@ export function HolidaySaleBar() {
 /** Home page banner with a big countdown. */
 export function HolidaySaleBanner() {
   const t = useTimeLeft();
-  if (!t.active) return null;
+  if (!t.active || t.blackFriday) return null;
   const boxes = [
     [t.days, 'Days'],
     [t.hours, 'Hours'],
@@ -117,7 +130,9 @@ export function HolidaySaleBadge({price, className = ''}: {price?: number; class
   const sale = price ? price * (1 - HOLIDAY_SALE.percent / 100) : null;
   return (
     <p className={`inline-flex flex-wrap items-center gap-x-2 gap-y-1 px-3 py-1.5 bg-[#7A1F1F] text-white font-sans text-[13px] ${className}`}>
-      <span className="font-semibold tracking-wide">Holiday Sale: {HOLIDAY_SALE.percent}% off</span>
+      <span className="font-semibold tracking-wide">
+        {t.blackFriday ? 'Black Friday' : 'Holiday Sale'}: {HOLIDAY_SALE.percent}% off
+      </span>
       {sale ? <span>· ${sale.toFixed(2)} at checkout</span> : <span>· applied at checkout</span>}
       <span className="text-[#F3D9A4]">· ends in <ShortCountdown /></span>
     </p>
@@ -136,5 +151,70 @@ export function HolidaySaleHeroTag({className = ''}: {className?: string}) {
       <span className="font-semibold uppercase tracking-[0.12em]">{HOLIDAY_SALE.percent}% off Holiday Cards &amp; Christmas</span>
       <span className="opacity-90">· ends in <ShortCountdown /></span>
     </Link>
+  );
+}
+
+/** Black Friday home hero: solid black with gold type and a big countdown. */
+export function BlackFridayHero() {
+  const t = useTimeLeft();
+  if (!t.blackFriday) return null;
+  const boxes = [
+    [t.days, 'Days'],
+    [t.hours, 'Hours'],
+    [t.minutes, 'Minutes'],
+    [t.seconds, 'Seconds'],
+  ] as const;
+  return (
+    <section
+      className="relative bg-[#111111] text-white overflow-hidden min-h-[560px] md:min-h-[640px] flex items-center"
+      aria-labelledby="black-friday-title"
+    >
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#E8C98E]/70 to-transparent" />
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#E8C98E]/70 to-transparent" />
+      <div className="container max-w-4xl mx-auto px-5 py-16 text-center">
+        <p className="font-sans font-medium text-xs md:text-sm tracking-[0.4em] uppercase text-[#E8C98E]">
+          Black Friday &middot; Cyber Monday
+        </p>
+        <h1 id="black-friday-title" className="mt-6 font-serif font-medium leading-[1.05] text-5xl md:text-7xl">
+          {BLACK_FRIDAY.percent}% off{' '}
+          <span
+            className="block md:inline-block text-[1.15em] leading-none mt-2 md:mt-0 md:relative md:top-[0.12em] text-[#E8C98E]"
+            style={{fontFamily: "'Parisian Script', 'Great Vibes', cursive"}}
+          >
+            everything
+          </span>
+        </h1>
+        <p className="mt-7 font-sans font-light text-base md:text-lg text-white/80 max-w-xl mx-auto leading-relaxed">
+          Personalized stationery, holiday cards and gifts. Taken off automatically at checkout,
+          no code needed. Ends Monday at midnight.
+        </p>
+        <div className="mt-9 flex justify-center gap-3 md:gap-4" role="timer" aria-label="Time left in the Black Friday sale">
+          {boxes.map(([n, label]) => (
+            <div key={label} className="w-[70px] md:w-[92px] py-3 ring-1 ring-[#E8C98E]/50 bg-white/[0.04]">
+              <p suppressHydrationWarning className="font-serif text-3xl md:text-[2.6rem] tabular-nums leading-none">
+                {pad(n)}
+              </p>
+              <p className="mt-1.5 font-sans text-[10px] md:text-[11px] tracking-[0.2em] uppercase text-white/60">
+                {label}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link
+            to={BLACK_FRIDAY.href}
+            className="inline-flex items-center gap-2 px-10 py-4 bg-[#E8C98E] text-[#111111] font-sans font-semibold text-[12px] tracking-[0.2em] uppercase hover:bg-white transition-colors"
+          >
+            Shop Everything <span aria-hidden>&rarr;</span>
+          </Link>
+          <Link
+            to="/collections/holiday-photo-cards"
+            className="inline-flex items-center gap-2 px-8 py-4 ring-1 ring-white/50 text-white font-sans font-medium text-[12px] tracking-[0.2em] uppercase hover:ring-white transition-colors"
+          >
+            Shop Holiday Cards
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }

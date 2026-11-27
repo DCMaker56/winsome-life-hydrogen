@@ -12,7 +12,7 @@ import { Link } from "react-router";
 import { ResponsiveImg } from "~/components/ResponsiveImg";
 import holidayCardShop from "~/assets/home/holiday-card-shop.webp";
 import holidayTable from "~/assets/home/holiday-table.webp";
-import { HOLIDAY_SALE, holidaySaleActive } from "~/lib/holiday-sale";
+import { blackFridayActive, HOLIDAY_SALE, holidaySaleActive } from "~/lib/holiday-sale";
 
 export default function TwoUpFeature() {
   // Holiday Sale note on the Holiday Card Shop tile (hides after Nov 30).
@@ -42,7 +42,9 @@ export default function TwoUpFeature() {
       contain: false,
       cta: "Shop the Table",
       // Not every Holiday Table piece is on sale (everyday wine tags, mahjong…).
-      saleTag: sale ? `Christmas pieces ${HOLIDAY_SALE.percent}% off` : undefined,
+      saleTag: blackFridayActive()
+        ? `${HOLIDAY_SALE.percent}% off · Black Friday`
+        : sale ? `Christmas pieces ${HOLIDAY_SALE.percent}% off` : undefined,
       fade: "3,62,37",
     },
   ];

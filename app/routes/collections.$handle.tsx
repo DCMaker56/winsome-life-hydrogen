@@ -4,7 +4,7 @@
  * Hero image + scrollable product sampler on top, full filterable grid below.
  */
 import {HolidaySaleBadge} from '~/components/HolidaySale';
-import {HOLIDAY_SALE, holidaySaleActive} from '~/lib/holiday-sale';
+import {blackFridayActive, HOLIDAY_SALE, holidaySaleActive} from '~/lib/holiday-sale';
 import {useLoaderData, useSearchParams, Link} from 'react-router';
 import type {Route} from './+types/collections.$handle';
 import {Analytics} from '@shopify/hydrogen';
@@ -90,7 +90,9 @@ export async function loader({context, params, request}: Route.LoaderArgs) {
   }
   // Holiday Sale: which products on this page are discounted (in a sale
   // collection), for a "20% off" tag and sale price on their cards.
-  const saleIds = holidaySaleActive()
+  const saleIds = blackFridayActive()
+    ? rest.cards.map((c) => c.id)
+    : holidaySaleActive()
     ? rest.cards
         .filter((c) =>
           (collectionsById[c.id] ?? []).some((col) => HOLIDAY_SALE.collections.includes(col.handle)),

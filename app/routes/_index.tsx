@@ -9,7 +9,8 @@
  * Once `.env` has PUBLIC_STOREFRONT_API_TOKEN + PUBLIC_STORE_DOMAIN, this
  * automatically reads from your real catalog.
  */
-import {HolidaySaleBanner} from '~/components/HolidaySale';
+import {BlackFridayHero, HolidaySaleBanner} from '~/components/HolidaySale';
+import {blackFridayActive} from '~/lib/holiday-sale';
 import type {Route} from './+types/_index';
 import {useLoaderData} from 'react-router';
 import {
@@ -181,7 +182,9 @@ export default function HomePage() {
             Table → reviews → Holiday Gift Guide → Founder's Welcome → value
             bar → Shop by Product Type → Dogs & Cats → Notes Worth Saluting
             (through Veterans Day), then Complete the Set. */}
-        <HeroSection />
+        {/* Black Friday (through Mon Nov 30): its own hero in place of the
+            slideshow; the usual hero comes back on its own afterwards. */}
+        {blackFridayActive() ? <BlackFridayHero /> : <HeroSection />}
         {/* Holiday Sale banner + countdown; hides itself after Nov 30. */}
         <HolidaySaleBanner />
         <Marquee />

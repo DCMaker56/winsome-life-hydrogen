@@ -35,3 +35,21 @@ export function timeLeft(now = Date.now()) {
     done: ms === 0,
   };
 }
+
+/*
+ * Black Friday (Sydney, Nov 2026): 20% off everything, Fri Nov 27 through
+ * Mon Nov 30 (Shopify automatic discount "Black Friday: 20% off everything"
+ * on the "Black Friday - All Products" collection, which leaves out
+ * add-on fees). Ends with the Holiday Sale, so one countdown serves both.
+ * While it runs, the site's sale messages switch to Black Friday.
+ */
+export const BLACK_FRIDAY = {
+  percent: 20,
+  startsAt: '2026-11-27T13:30:00Z',
+  endsAt: HOLIDAY_SALE.endsAt,
+  href: '/collections/all',
+};
+
+export function blackFridayActive(now = Date.now()) {
+  return now >= Date.parse(BLACK_FRIDAY.startsAt) && now < Date.parse(BLACK_FRIDAY.endsAt);
+}
